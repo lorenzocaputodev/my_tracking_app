@@ -59,8 +59,8 @@ Se vuoi compilare il progetto localmente:
 
 ### 1. Clona la repository
 ```bash
-git clone https://github.com/lorenzocaputodev/my-tracking-app.git
-cd my-tracking-app
+    git clone https://github.com/lorenzocaputodev/my_tracking_app.git
+    cd my_tracking_app
 ```
 
 ### 2. Installa le dipendenze
