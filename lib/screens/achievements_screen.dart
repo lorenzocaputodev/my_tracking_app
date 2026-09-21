@@ -415,7 +415,7 @@ class _BadgeGrid extends StatelessWidget {
         crossAxisCount: 3,
         mainAxisSpacing: 10,
         crossAxisSpacing: 10,
-        childAspectRatio: 0.82,
+        childAspectRatio: 0.72,
       ),
       itemCount: achievements.length,
       itemBuilder: (context, index) => _BadgeCard(

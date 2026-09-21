@@ -27,8 +27,13 @@ void main() {
       final c = AppColors.light;
       expect(c.scaffold, const Color(0xFFF3F7F7));
       expect(c.surface, Colors.white);
-      expect(c.cardBorder, Colors.black.withValues(alpha: 0.05));
+      expect(c.cardBorder, Colors.black.withValues(alpha: 0.10));
       expect(c.subtleBorder, Colors.black.withValues(alpha: 0.06));
+      expect(
+        c.subtleBorder.a,
+        lessThan(c.cardBorder.a),
+        reason: 'il bordo sottile deve essere piu leggero di quello normale',
+      );
       expect(c.textPrimary, const Color(0xFF132222));
       expect(c.textMuted, const Color(0xFF556B6D));
       expect(c.textFaint, const Color(0xFF607274));

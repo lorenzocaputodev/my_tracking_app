@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../theme/app_fonts.dart';
+import '../theme/theme_context.dart';
 
 class ActionButton extends StatefulWidget {
   final double size;
@@ -68,12 +69,11 @@ class _ActionButtonState extends State<ActionButton>
 
   @override
   Widget build(BuildContext context) {
-    final turquoise = Theme.of(context).colorScheme.primary;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final textColor = isDark ? Colors.black87 : Colors.white;
-    final labelColor = isDark
-        ? textColor.withValues(alpha: 0.74)
-        : textColor.withValues(alpha: 0.94);
+    final colors = context.colors;
+    final turquoise = colors.action;
+    final isDark = context.isDark;
+    final textColor = colors.onAction;
+    final labelColor = textColor.withValues(alpha: 0.78);
     final sub = widget.productName?.trim();
     final showProduct = sub != null && sub.isNotEmpty;
     final iconFrac = showProduct ? 0.28 : 0.32;

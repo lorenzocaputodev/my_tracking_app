@@ -69,9 +69,11 @@ Future<void> _pumpScene(
   required MyTrackingProvider provider,
   required Widget screen,
   required Brightness brightness,
+  Size physicalSize = const Size(1080, 2400),
+  double devicePixelRatio = 2.75,
 }) async {
-  tester.view.physicalSize = const Size(1080, 2400);
-  tester.view.devicePixelRatio = 2.75;
+  tester.view.physicalSize = physicalSize;
+  tester.view.devicePixelRatio = devicePixelRatio;
   addTearDown(tester.view.reset);
 
   await tester.pumpWidget(
@@ -134,6 +136,28 @@ void main() {
         brightness: brightness,
       );
       await _shoot(tester, 'achievements_$suffix');
+
+      await tester.pumpWidget(const SizedBox.shrink());
+      provider.dispose();
+    });
+
+    testWidgets('golden achievements stretto $suffix', (tester) async {
+      final provider = await _seed(tester, <String, Object>{
+        'tracked_products_v1': _products(),
+        'active_product_id': _productId,
+        'smoke_entries': _entriesToday(3),
+        'achievements_v2': _achievements(),
+      });
+
+      await _pumpScene(
+        tester,
+        provider: provider,
+        screen: const AchievementsScreen(),
+        brightness: brightness,
+        physicalSize: const Size(1080, 2400),
+        devicePixelRatio: 3.0,
+      );
+      await _shoot(tester, 'achievements_stretto_$suffix');
 
       await tester.pumpWidget(const SizedBox.shrink());
       provider.dispose();
