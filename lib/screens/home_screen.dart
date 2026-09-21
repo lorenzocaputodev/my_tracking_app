@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../providers/my_tracking_provider.dart';
 import '../utils/app_formatters.dart';
@@ -8,6 +7,7 @@ import '../widgets/stats_card.dart';
 import 'settings_screen.dart';
 import 'history_screen.dart';
 import 'achievements_screen.dart';
+import '../theme/app_fonts.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -46,7 +46,7 @@ class HomeScreen extends StatelessWidget {
       ),
       title: Text(
         'My Tracking App',
-        style: GoogleFonts.dmSans(
+        style: TextStyle(fontFamily: AppFonts.sans,
           fontWeight: FontWeight.w800,
           fontSize: 22,
           letterSpacing: -0.5,
@@ -119,7 +119,7 @@ class HomeScreen extends StatelessWidget {
                         const SizedBox(height: 8),
                         Text(
                           'ULTIMA: ${provider.timeSinceLastEntry.toUpperCase()}',
-                          style: GoogleFonts.dmSans(
+                          style: TextStyle(fontFamily: AppFonts.sans,
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
                             color: turquoise.withValues(alpha: 0.8),
@@ -250,7 +250,7 @@ class HomeScreen extends StatelessWidget {
                     Text(
                       'Applicazione creata da Lorenzo Caputo, with love <3',
                       textAlign: TextAlign.center,
-                      style: GoogleFonts.dmSans(
+                      style: TextStyle(fontFamily: AppFonts.sans,
                         fontSize: 17,
                         fontWeight: FontWeight.w700,
                         height: 1.35,
@@ -272,9 +272,9 @@ class HomeScreen extends StatelessWidget {
                             ),
                           ),
                         ),
-                        child: Text(
+                        child: const Text(
                           'Bye Bye',
-                          style: GoogleFonts.dmSans(
+                          style: TextStyle(fontFamily: AppFonts.sans,
                             fontWeight: FontWeight.w800,
                             letterSpacing: 1.2,
                           ),
@@ -351,7 +351,7 @@ class _ProductPickerBar extends StatelessWidget {
                     value: p.id,
                     child: Text(
                       p.name,
-                      style: GoogleFonts.dmSans(
+                      style: const TextStyle(fontFamily: AppFonts.sans,
                         fontWeight: FontWeight.w700,
                         fontSize: 14,
                       ),
@@ -402,7 +402,7 @@ class _DailyLimitBanner extends StatelessWidget {
           Flexible(
             child: Text(
               message,
-              style: GoogleFonts.dmSans(
+              style: TextStyle(fontFamily: AppFonts.sans,
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
                 color: color,
@@ -442,19 +442,19 @@ class _OpenPackButton extends StatelessWidget {
             ),
           ],
         ),
-        child: Column(
+        child: const Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
+            Icon(
               Icons.add_box_rounded,
               size: 44,
               color: Colors.orangeAccent,
             ),
-            const SizedBox(height: 10),
+            SizedBox(height: 10),
             Text(
               'NUOVA\nSCORTA',
               textAlign: TextAlign.center,
-              style: GoogleFonts.dmSans(
+              style: TextStyle(fontFamily: AppFonts.sans,
                 fontWeight: FontWeight.w900,
                 color: Colors.orangeAccent,
                 fontSize: 14,
@@ -502,7 +502,7 @@ class _PackStatusChip extends StatelessWidget {
         children: [
           Text(
             name.toUpperCase(),
-            style: GoogleFonts.dmSans(
+            style: TextStyle(fontFamily: AppFonts.sans,
               fontSize: 10,
               fontWeight: FontWeight.w800,
               color:
@@ -526,7 +526,7 @@ class _PackStatusChip extends StatelessWidget {
           const SizedBox(width: 6),
           Text(
             '$remaining / $total',
-            style: GoogleFonts.dmSans(
+            style: TextStyle(fontFamily: AppFonts.sans,
               fontSize: 11,
               fontWeight: FontWeight.w900,
               color: isZero
@@ -558,7 +558,7 @@ class _DailyCounter extends StatelessWidget {
           child: Text(
             '$count',
             key: ValueKey(count),
-            style: GoogleFonts.dmSans(
+            style: TextStyle(fontFamily: AppFonts.sans,
               fontSize: 92,
               fontWeight: FontWeight.w900,
               color: isDark ? Colors.white : Colors.black,
@@ -567,9 +567,9 @@ class _DailyCounter extends StatelessWidget {
             ),
           ),
         ),
-        Text(
+        const Text(
           'OGGI',
-          style: GoogleFonts.dmSans(
+          style: TextStyle(fontFamily: AppFonts.sans,
             fontSize: 12,
             color: Colors.grey,
             fontWeight: FontWeight.bold,
@@ -592,7 +592,7 @@ class _SubLabel extends StatelessWidget {
         : 'Costo per utilizzo';
     return Text(
       '$label: ${formatEuro(provider.config.unitCost)}',
-      style: GoogleFonts.dmSans(
+      style: TextStyle(fontFamily: AppFonts.sans,
         fontSize: 12,
         color: Colors.grey.withValues(alpha: 0.6),
       ),
@@ -642,7 +642,7 @@ class _HomeInsightBadge extends StatelessWidget {
           const SizedBox(width: 8),
           Text(
             insight.message,
-            style: GoogleFonts.dmSans(
+            style: TextStyle(fontFamily: AppFonts.sans,
               fontSize: 12,
               fontWeight: FontWeight.w700,
               color: color,

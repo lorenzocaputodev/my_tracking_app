@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../models/achievement.dart';
 import '../providers/my_tracking_provider.dart';
+import '../theme/app_fonts.dart';
 
 class AchievementsScreen extends StatelessWidget {
   const AchievementsScreen({super.key});
@@ -93,7 +93,7 @@ class _ProgressBanner extends StatelessWidget {
             children: [
               Text(
                 '$unlocked / $total badge',
-                style: GoogleFonts.dmSans(
+                style: TextStyle(fontFamily: AppFonts.sans,
                   fontSize: 17,
                   fontWeight: FontWeight.w800,
                   color: color,
@@ -101,7 +101,7 @@ class _ProgressBanner extends StatelessWidget {
               ),
               Text(
                 '${(pct * 100).round()}%',
-                style: GoogleFonts.dmSans(
+                style: const TextStyle(fontFamily: AppFonts.sans,
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
                   color: Colors.grey,
@@ -147,7 +147,7 @@ class _ReductionCard extends StatelessWidget {
         icon: Icon(Icons.trending_down_rounded, color: color),
         label: Text(
           'Imposta piano di riduzione',
-          style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, color: color),
+          style: TextStyle(fontFamily: AppFonts.sans, fontWeight: FontWeight.w700, color: color),
         ),
         style: OutlinedButton.styleFrom(
           side: BorderSide(color: color.withValues(alpha: 0.4)),
@@ -187,7 +187,7 @@ class _ReductionCard extends StatelessWidget {
             children: [
               Text(
                 'PIANO DI RIDUZIONE',
-                style: GoogleFonts.dmSans(
+                style: TextStyle(fontFamily: AppFonts.sans,
                   fontSize: 11,
                   fontWeight: FontWeight.w800,
                   color: color,
@@ -200,7 +200,7 @@ class _ReductionCard extends StatelessWidget {
           const SizedBox(height: 10),
           Text(
             'Prodotto: $productName',
-            style: GoogleFonts.dmSans(
+            style: const TextStyle(fontFamily: AppFonts.sans,
               fontSize: 13,
               fontWeight: FontWeight.w700,
             ),
@@ -253,13 +253,13 @@ class _ReductionCard extends StatelessWidget {
             children: [
               Text(
                 'Settimana ${plan.currentWeekNumber} / ${plan.totalWeeks}',
-                style: GoogleFonts.dmSans(fontSize: 12, color: Colors.grey),
+                style: const TextStyle(fontFamily: AppFonts.sans, fontSize: 12, color: Colors.grey),
               ),
               Text(
                 plan.isCompleted
                     ? 'Completato!'
                     : '${plan.daysRemaining} giorni rimanenti',
-                style: GoogleFonts.dmSans(
+                style: TextStyle(fontFamily: AppFonts.sans,
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   color: plan.isCompleted ? Colors.greenAccent.shade700 : color,
@@ -299,7 +299,7 @@ class _ReductionCard extends StatelessWidget {
                         'Sei sopra il target settimanale previsto.',
                       null => 'Piano attivo su questo prodotto.',
                     },
-                    style: GoogleFonts.dmSans(
+                    style: TextStyle(fontFamily: AppFonts.sans,
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
                       color: statusColor,
@@ -321,9 +321,9 @@ class _ReductionCard extends StatelessWidget {
                     productId: plan.productId,
                   ),
                   style: _outlinedButtonStyle(color),
-                  child: Text(
+                  child: const Text(
                     'Modifica',
-                    style: GoogleFonts.dmSans(
+                    style: TextStyle(fontFamily: AppFonts.sans,
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
                     ),
@@ -335,9 +335,9 @@ class _ReductionCard extends StatelessWidget {
                 onPressed: () =>
                     _confirmDeletePlan(context, provider, plan.productId),
                 style: _outlinedButtonStyle(Colors.redAccent),
-                child: Text(
+                child: const Text(
                   'Elimina',
-                  style: GoogleFonts.dmSans(
+                  style: TextStyle(fontFamily: AppFonts.sans,
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
                     color: Colors.redAccent,
@@ -366,13 +366,13 @@ class _ReductionCard extends StatelessWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(
+        title: const Text(
           'Elimina piano',
-          style: GoogleFonts.dmSans(fontWeight: FontWeight.w800),
+          style: TextStyle(fontFamily: AppFonts.sans, fontWeight: FontWeight.w800),
         ),
-        content: Text(
+        content: const Text(
           'Vuoi eliminare il piano di riduzione?',
-          style: GoogleFonts.dmSans(),
+          style: TextStyle(fontFamily: AppFonts.sans, ),
         ),
         actions: [
           TextButton(
@@ -496,7 +496,7 @@ class _BadgeCard extends StatelessWidget {
               textAlign: TextAlign.center,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: GoogleFonts.dmSans(
+              style: TextStyle(fontFamily: AppFonts.sans,
                 fontSize: 11,
                 fontWeight: FontWeight.w800,
                 color: locked
@@ -508,7 +508,7 @@ class _BadgeCard extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 DateFormat('d MMM', 'it').format(achievement.unlockedAt!),
-                style: GoogleFonts.dmSans(
+                style: TextStyle(fontFamily: AppFonts.sans,
                   fontSize: 9,
                   fontWeight: FontWeight.w600,
                   color: color,
@@ -543,7 +543,7 @@ class _BadgeCard extends StatelessWidget {
               Text(
                 achievement.title,
                 textAlign: TextAlign.center,
-                style: GoogleFonts.dmSans(
+                style: const TextStyle(fontFamily: AppFonts.sans,
                   fontSize: 19,
                   fontWeight: FontWeight.w800,
                   height: 1.1,
@@ -553,7 +553,7 @@ class _BadgeCard extends StatelessWidget {
               Text(
                 achievement.description,
                 textAlign: TextAlign.center,
-                style: GoogleFonts.dmSans(
+                style: const TextStyle(fontFamily: AppFonts.sans,
                   fontSize: 13,
                   color: Colors.grey,
                   height: 1.35,
@@ -565,7 +565,7 @@ class _BadgeCard extends StatelessWidget {
                     ? 'Sbloccato il ${DateFormat('d MMMM yyyy', 'it').format(achievement.unlockedAt!)}'
                     : 'Non ancora sbloccato',
                 textAlign: TextAlign.center,
-                style: GoogleFonts.dmSans(
+                style: TextStyle(fontFamily: AppFonts.sans,
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
                   color: !locked && achievement.unlockedAt != null
@@ -580,7 +580,7 @@ class _BadgeCard extends StatelessWidget {
                   onPressed: () => Navigator.pop(ctx),
                   child: Text(
                     'Chiudi',
-                    style: GoogleFonts.dmSans(
+                    style: TextStyle(fontFamily: AppFonts.sans,
                       fontWeight: FontWeight.w700,
                       color: color,
                     ),
@@ -644,9 +644,9 @@ void _showPlanSheet(
                 ),
               ),
               const SizedBox(height: 22),
-              Text(
+              const Text(
                 'Piano di riduzione',
-                style: GoogleFonts.dmSans(
+                style: TextStyle(fontFamily: AppFonts.sans,
                   fontSize: 20,
                   fontWeight: FontWeight.w800,
                 ),
@@ -654,19 +654,19 @@ void _showPlanSheet(
               const SizedBox(height: 6),
               Text(
                 'Prodotto: $productName',
-                style: GoogleFonts.dmSans(
+                style: const TextStyle(fontFamily: AppFonts.sans,
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
                 ),
               ),
               Text(
                 'Media attuale: ${currentAverage.toStringAsFixed(1)} unit\u00E0/giorno',
-                style: GoogleFonts.dmSans(fontSize: 13, color: Colors.grey),
+                style: const TextStyle(fontFamily: AppFonts.sans, fontSize: 13, color: Colors.grey),
               ),
               const SizedBox(height: 24),
               Text(
                 'Obiettivo finale: ${target.toStringAsFixed(1)} unit\u00E0/giorno',
-                style: GoogleFonts.dmSans(
+                style: const TextStyle(fontFamily: AppFonts.sans,
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
                 ),
@@ -684,7 +684,7 @@ void _showPlanSheet(
               const SizedBox(height: 12),
               Text(
                 'Durata: $weeks settimane',
-                style: GoogleFonts.dmSans(
+                style: const TextStyle(fontFamily: AppFonts.sans,
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
                 ),
@@ -713,7 +713,7 @@ void _showPlanSheet(
                     Expanded(
                       child: Text(
                         'Riduzione di ${(currentAverage - target).toStringAsFixed(1)} unit\u00E0/g in $weeks settimane.',
-                        style: GoogleFonts.dmSans(fontSize: 12, color: color),
+                        style: TextStyle(fontFamily: AppFonts.sans, fontSize: 12, color: color),
                       ),
                     ),
                   ],
@@ -740,7 +740,7 @@ void _showPlanSheet(
                   ),
                   child: Text(
                     existingPlan != null ? 'Aggiorna piano' : 'Imposta piano',
-                    style: GoogleFonts.dmSans(
+                    style: const TextStyle(fontFamily: AppFonts.sans,
                       fontSize: 15,
                       fontWeight: FontWeight.w800,
                       color: Colors.white,
@@ -773,7 +773,7 @@ class _SectionTitle extends StatelessWidget {
       children: [
         Text(
           label,
-          style: GoogleFonts.dmSans(
+          style: TextStyle(fontFamily: AppFonts.sans,
             fontSize: 11,
             fontWeight: FontWeight.w800,
             color: color,
@@ -789,7 +789,7 @@ class _SectionTitle extends StatelessWidget {
           ),
           child: Text(
             '$count',
-            style: GoogleFonts.dmSans(
+            style: TextStyle(fontFamily: AppFonts.sans,
               fontSize: 10,
               fontWeight: FontWeight.w800,
               color: color,
@@ -817,7 +817,7 @@ class _StatusChip extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: GoogleFonts.dmSans(
+        style: TextStyle(fontFamily: AppFonts.sans,
           fontSize: 10,
           fontWeight: FontWeight.w800,
           color: color,
@@ -856,7 +856,7 @@ class _PlanStat extends StatelessWidget {
         children: [
           Text(
             label,
-            style: GoogleFonts.dmSans(
+            style: const TextStyle(fontFamily: AppFonts.sans,
               fontSize: 10,
               fontWeight: FontWeight.w600,
               color: Colors.grey,
@@ -865,7 +865,7 @@ class _PlanStat extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             value,
-            style: GoogleFonts.dmSans(
+            style: TextStyle(fontFamily: AppFonts.sans,
               fontSize: 22,
               fontWeight: FontWeight.w800,
               color: accent,
@@ -873,7 +873,7 @@ class _PlanStat extends StatelessWidget {
           ),
           Text(
             unit,
-            style: GoogleFonts.dmSans(
+            style: const TextStyle(fontFamily: AppFonts.sans,
               fontSize: 10,
               fontWeight: FontWeight.w600,
               color: Colors.grey,
@@ -900,7 +900,7 @@ class _EmptyHint extends StatelessWidget {
       child: Text(
         text,
         textAlign: TextAlign.center,
-        style: GoogleFonts.dmSans(
+        style: const TextStyle(fontFamily: AppFonts.sans,
           fontSize: 13,
           fontWeight: FontWeight.w600,
           color: Colors.grey,

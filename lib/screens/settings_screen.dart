@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import '../models/app_reminder_settings.dart';
@@ -12,6 +11,7 @@ import '../utils/backup_file_service.dart';
 import '../utils/minutes_presets.dart';
 import '../widgets/product_configuration_form.dart';
 import 'add_product_screen.dart';
+import '../theme/app_fonts.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -291,7 +291,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Widget _label(String text) => Text(
         text,
-        style: GoogleFonts.dmSans(
+        style: const TextStyle(fontFamily: AppFonts.sans,
           fontSize: 11,
           fontWeight: FontWeight.w800,
           color: Colors.grey,
@@ -398,9 +398,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Icons.delete_sweep_rounded,
                 color: Colors.redAccent,
               ),
-              label: Text(
+              label: const Text(
                 'Reset totale cronologia',
-                style: GoogleFonts.dmSans(color: Colors.redAccent),
+                style: TextStyle(fontFamily: AppFonts.sans, color: Colors.redAccent),
               ),
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(color: Colors.redAccent, width: 1),
@@ -439,7 +439,7 @@ class _ThemeSelector extends StatelessWidget {
             children: [
               Text(
                 'Tema',
-                style: GoogleFonts.dmSans(
+                style: TextStyle(fontFamily: AppFonts.sans,
                   fontSize: 14,
                   fontWeight: FontWeight.w800,
                   color: isDark ? Colors.white : Colors.black87,
@@ -456,7 +456,7 @@ class _ThemeSelector extends StatelessWidget {
                       horizontal: 14,
                       vertical: 14,
                     ),
-                    textStyle: GoogleFonts.dmSans(
+                    textStyle: const TextStyle(fontFamily: AppFonts.sans,
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
                     ),
@@ -633,16 +633,16 @@ class _PackCard extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      const Text(
                         'Residuo in scorta',
-                        style: GoogleFonts.dmSans(
+                        style: TextStyle(fontFamily: AppFonts.sans,
                           fontSize: 13,
                           color: Colors.grey,
                         ),
                       ),
                       Text(
                         '${provider.packRemaining} / ${provider.config.pieces}',
-                        style: GoogleFonts.dmSans(
+                        style: TextStyle(fontFamily: AppFonts.sans,
                           fontSize: 22,
                           fontWeight: FontWeight.w900,
                           color: turquoise,
@@ -775,7 +775,7 @@ class _ProductListCard extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 10),
       child: Text(
         label,
-        style: GoogleFonts.dmSans(
+        style: TextStyle(fontFamily: AppFonts.sans,
           fontSize: 11,
           fontWeight: FontWeight.w800,
           color: turquoise,
@@ -839,7 +839,7 @@ class _ProductListCard extends StatelessWidget {
                           children: [
                             Text(
                               product.name,
-                              style: GoogleFonts.dmSans(
+                              style: const TextStyle(fontFamily: AppFonts.sans,
                                 fontSize: 17,
                                 fontWeight: FontWeight.w800,
                               ),
@@ -847,7 +847,7 @@ class _ProductListCard extends StatelessWidget {
                             const SizedBox(height: 6),
                             Text(
                               _productStatusLabel(product, active),
-                              style: GoogleFonts.dmSans(
+                              style: const TextStyle(fontFamily: AppFonts.sans,
                                 fontSize: 12,
                                 color: Colors.grey,
                                 fontWeight: FontWeight.w500,
@@ -917,9 +917,9 @@ class _ProductListCard extends StatelessWidget {
                                       borderRadius: BorderRadius.circular(14),
                                     ),
                                   ),
-                                  child: Text(
+                                  child: const Text(
                                     'Attiva',
-                                    style: GoogleFonts.dmSans(
+                                    style: TextStyle(fontFamily: AppFonts.sans,
                                       fontWeight: FontWeight.w800,
                                     ),
                                   ),
@@ -975,15 +975,15 @@ class _ProductListCard extends StatelessWidget {
                             children: [
                               Text(
                                 product.name,
-                                style: GoogleFonts.dmSans(
+                                style: const TextStyle(fontFamily: AppFonts.sans,
                                   fontSize: 17,
                                   fontWeight: FontWeight.w800,
                                 ),
                               ),
                               const SizedBox(height: 6),
-                              Text(
+                              const Text(
                                 'Prodotto archiviato \u2022 storico conservato',
-                                style: GoogleFonts.dmSans(
+                                style: TextStyle(fontFamily: AppFonts.sans,
                                   fontSize: 12,
                                   color: Colors.grey,
                                   fontWeight: FontWeight.w500,
@@ -1012,9 +1012,9 @@ class _ProductListCard extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(14),
                                 ),
                               ),
-                              child: Text(
+                              child: const Text(
                                 'Ripristina',
-                                style: GoogleFonts.dmSans(
+                                style: TextStyle(fontFamily: AppFonts.sans,
                                   fontWeight: FontWeight.w800,
                                 ),
                               ),
@@ -1067,7 +1067,7 @@ class _ProductListCard extends StatelessWidget {
                 icon: Icon(Icons.add_rounded, color: turquoise, size: 20),
                 label: Text(
                   'Aggiungi prodotto tracciato',
-                  style: GoogleFonts.dmSans(
+                  style: TextStyle(fontFamily: AppFonts.sans,
                     fontWeight: FontWeight.w700,
                     color: turquoise,
                   ),
@@ -1115,7 +1115,7 @@ class _BackupCard extends StatelessWidget {
             icon: Icon(Icons.table_chart_outlined, size: 18, color: turquoise),
             label: Text(
               'Esporta file CSV',
-              style: GoogleFonts.dmSans(
+              style: TextStyle(fontFamily: AppFonts.sans,
                 fontWeight: FontWeight.w600,
                 color: turquoise,
               ),
@@ -1137,9 +1137,9 @@ class _BackupCard extends StatelessWidget {
               size: 18,
               color: Colors.deepOrangeAccent,
             ),
-            label: Text(
+            label: const Text(
               'Importa file CSV',
-              style: GoogleFonts.dmSans(
+              style: TextStyle(fontFamily: AppFonts.sans,
                 fontWeight: FontWeight.w600,
                 color: Colors.deepOrangeAccent,
               ),

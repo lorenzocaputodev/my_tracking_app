@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../theme/app_fonts.dart';
 
 class ActionButton extends StatefulWidget {
   final double size;
@@ -142,7 +142,7 @@ class _ActionButtonState extends State<ActionButton>
                 SizedBox(height: showProduct ? 2 : 6),
                 Text(
                   widget.actionLabel.toUpperCase(),
-                  style: GoogleFonts.nunito(
+                  style: TextStyle(fontFamily: AppFonts.display,
                     fontSize: widget.size * (showProduct ? 0.075 : 0.09),
                     fontWeight: FontWeight.w700,
                     color: labelColor,
@@ -158,7 +158,7 @@ class _ActionButtonState extends State<ActionButton>
                       child: Text(
                         sub.toUpperCase(),
                         textAlign: TextAlign.center,
-                        style: GoogleFonts.nunito(
+                        style: TextStyle(fontFamily: AppFonts.display,
                           fontSize: widget.size * 0.16,
                           fontWeight: FontWeight.w900,
                           color: textColor,

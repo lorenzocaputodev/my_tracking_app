@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../models/app_reminder_settings.dart';
 import '../widgets/minutes_lost_selector.dart';
 import '../widgets/tracking_input_decoration.dart';
+import '../theme/app_fonts.dart';
 
 enum FormSubmitPlacement { afterNotifications, bottom }
 
@@ -86,7 +86,7 @@ class ProductConfigurationForm extends StatelessWidget {
       children: [
         Text(
           title,
-          style: GoogleFonts.dmSans(
+          style: TextStyle(fontFamily: AppFonts.sans,
             fontSize: 22,
             fontWeight: FontWeight.w900,
             color: isDark ? Colors.white : const Color(0xFF1A1A1A),
@@ -96,14 +96,14 @@ class ProductConfigurationForm extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           subtitle,
-          style: GoogleFonts.dmSans(fontSize: 13, color: Colors.grey),
+          style: const TextStyle(fontFamily: AppFonts.sans, fontSize: 13, color: Colors.grey),
         ),
         const SizedBox(height: 28),
         _sectionLabel('NOME PRODOTTO', accentColor),
         const SizedBox(height: 10),
         TextFormField(
           controller: nameController,
-          style: GoogleFonts.dmSans(fontWeight: FontWeight.w500),
+          style: const TextStyle(fontFamily: AppFonts.sans, fontWeight: FontWeight.w500),
           decoration: _inputDecoration(
             hint: 'Cosa vuoi tracciare?',
             icon: Icons.label_outline_rounded,
@@ -133,7 +133,7 @@ class ProductConfigurationForm extends StatelessWidget {
           const SizedBox(height: 10),
           TextFormField(
             controller: packCostController,
-            style: GoogleFonts.dmSans(fontWeight: FontWeight.w500),
+            style: const TextStyle(fontFamily: AppFonts.sans, fontWeight: FontWeight.w500),
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             inputFormatters: [
               FilteringTextInputFormatter.allow(RegExp(r'[0-9,\.]')),
@@ -164,7 +164,7 @@ class ProductConfigurationForm extends StatelessWidget {
           const SizedBox(height: 10),
           TextFormField(
             controller: piecesController,
-            style: GoogleFonts.dmSans(fontWeight: FontWeight.w500),
+            style: const TextStyle(fontFamily: AppFonts.sans, fontWeight: FontWeight.w500),
             keyboardType: TextInputType.number,
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             decoration: _inputDecoration(
@@ -183,16 +183,16 @@ class ProductConfigurationForm extends StatelessWidget {
             onChanged: (_) => onChanged(),
           ),
           const SizedBox(height: 8),
-          Text(
+          const Text(
             'Puoi inserire anche il numero medio di usi ottenibili da una confezione.',
-            style: GoogleFonts.dmSans(fontSize: 11, color: Colors.grey),
+            style: TextStyle(fontFamily: AppFonts.sans, fontSize: 11, color: Colors.grey),
           ),
         ] else ...[
           _sectionLabel('COSTO PER UTILIZZO', accentColor),
           const SizedBox(height: 10),
           TextFormField(
             controller: directCostController,
-            style: GoogleFonts.dmSans(fontWeight: FontWeight.w500),
+            style: const TextStyle(fontFamily: AppFonts.sans, fontWeight: FontWeight.w500),
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             inputFormatters: [
               FilteringTextInputFormatter.allow(RegExp(r'[0-9,\.]')),
@@ -214,9 +214,9 @@ class ProductConfigurationForm extends StatelessWidget {
             onChanged: (_) => onChanged(),
           ),
           const SizedBox(height: 8),
-          Text(
+          const Text(
             'Lascia vuoto se vuoi registrare solo gli utilizzi, senza calcolare costi.',
-            style: GoogleFonts.dmSans(fontSize: 11, color: Colors.grey),
+            style: TextStyle(fontFamily: AppFonts.sans, fontSize: 11, color: Colors.grey),
           ),
         ],
         const SizedBox(height: 28),
@@ -249,7 +249,7 @@ class ProductConfigurationForm extends StatelessWidget {
             Expanded(
               child: Text(
                 'Voglio stare sotto ${dailyGoal == 0 ? 'nessun limite' : '$dailyGoal al giorno'}',
-                style: GoogleFonts.dmSans(
+                style: const TextStyle(fontFamily: AppFonts.sans,
                   fontWeight: FontWeight.w700,
                   fontSize: 15,
                 ),
@@ -257,7 +257,7 @@ class ProductConfigurationForm extends StatelessWidget {
             ),
             Text(
               '$dailyGoal',
-              style: GoogleFonts.dmSans(
+              style: TextStyle(fontFamily: AppFonts.sans,
                 fontSize: 22,
                 fontWeight: FontWeight.w900,
                 color: accentColor,
@@ -275,9 +275,9 @@ class ProductConfigurationForm extends StatelessWidget {
           label: dailyGoal == 0 ? 'Nessun limite' : '$dailyGoal',
           onChanged: (value) => onDailyGoalChanged(value.round()),
         ),
-        Text(
+        const Text(
           '0 = nessun limite impostato',
-          style: GoogleFonts.dmSans(fontSize: 11, color: Colors.grey),
+          style: TextStyle(fontFamily: AppFonts.sans, fontSize: 11, color: Colors.grey),
         ),
         if (showNotificationsSection) ...[
           const SizedBox(height: 28),
@@ -349,7 +349,7 @@ class ProductConfigurationForm extends StatelessWidget {
                       value: option.minutes,
                       child: Text(
                         option.label,
-                        style: GoogleFonts.dmSans(fontWeight: FontWeight.w700),
+                        style: const TextStyle(fontFamily: AppFonts.sans, fontWeight: FontWeight.w700),
                       ),
                     ),
                   )
@@ -390,7 +390,7 @@ class ProductConfigurationForm extends StatelessWidget {
               )
             : Text(
                 submitLabel,
-                style: GoogleFonts.dmSans(
+                style: const TextStyle(fontFamily: AppFonts.sans,
                   fontWeight: FontWeight.w800,
                   fontSize: 16,
                   letterSpacing: 0.3,
@@ -461,7 +461,7 @@ class _TrackingModeSection extends StatelessWidget {
               selected: <bool>{tracksInventory},
               showSelectedIcon: false,
               style: SegmentedButton.styleFrom(
-                textStyle: GoogleFonts.dmSans(
+                textStyle: const TextStyle(fontFamily: AppFonts.sans,
                   fontSize: 14,
                   fontWeight: FontWeight.w800,
                 ),
@@ -479,7 +479,7 @@ class _TrackingModeSection extends StatelessWidget {
             tracksInventory
                 ? 'Il prodotto usa una scorta residua e pu\u00F2 essere reintegrato quando termina.'
                 : 'Il prodotto registra solo gli utilizzi, senza gestire confezioni o residuo.',
-            style: GoogleFonts.dmSans(
+            style: TextStyle(fontFamily: AppFonts.sans,
               fontSize: 12,
               height: 1.5,
               color: isDark ? Colors.grey[400] : Colors.grey[700],
@@ -528,7 +528,7 @@ class _NotificationToggleTile extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: GoogleFonts.dmSans(
+                  style: TextStyle(fontFamily: AppFonts.sans,
                     fontSize: 15,
                     fontWeight: FontWeight.w800,
                     color: isDark ? Colors.white : const Color(0xFF1A1A1A),
@@ -537,7 +537,7 @@ class _NotificationToggleTile extends StatelessWidget {
                 const SizedBox(height: 6),
                 Text(
                   subtitle,
-                  style: GoogleFonts.dmSans(
+                  style: TextStyle(fontFamily: AppFonts.sans,
                     fontSize: 12,
                     height: 1.45,
                     color: isDark ? Colors.grey[400] : Colors.grey[700],
@@ -584,7 +584,7 @@ class _NotificationsUnavailableCard extends StatelessWidget {
           Expanded(
             child: Text(
               'Disponibile su Android. Le notifiche possono essere configurate e usate solo sui dispositivi Android.',
-              style: GoogleFonts.dmSans(
+              style: TextStyle(fontFamily: AppFonts.sans,
                 fontSize: 13,
                 height: 1.5,
                 color: isDark ? Colors.grey[400] : Colors.grey[700],
@@ -624,7 +624,7 @@ class _WidgetHomeSection extends StatelessWidget {
         children: [
           Text(
             'Widget Home Android',
-            style: GoogleFonts.dmSans(
+            style: TextStyle(fontFamily: AppFonts.sans,
               fontSize: 17,
               fontWeight: FontWeight.w800,
               color: isDark ? Colors.white : const Color(0xFF1A1A1A),
@@ -633,7 +633,7 @@ class _WidgetHomeSection extends StatelessWidget {
           const SizedBox(height: 10),
           Text(
             message,
-            style: GoogleFonts.dmSans(
+            style: TextStyle(fontFamily: AppFonts.sans,
               fontSize: 13,
               height: 1.55,
               color: isDark ? Colors.grey[400] : Colors.grey[700],
@@ -707,7 +707,7 @@ class _WidgetFeatureBox extends StatelessWidget {
           const SizedBox(height: 14),
           Text(
             title,
-            style: GoogleFonts.dmSans(
+            style: TextStyle(fontFamily: AppFonts.sans,
               fontSize: 14,
               fontWeight: FontWeight.w800,
               color: isDark ? Colors.white : const Color(0xFF1A1A1A),
@@ -716,7 +716,7 @@ class _WidgetFeatureBox extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             subtitle,
-            style: GoogleFonts.dmSans(
+            style: TextStyle(fontFamily: AppFonts.sans,
               fontSize: 12,
               height: 1.45,
               color: isDark ? Colors.grey[400] : Colors.grey[700],
@@ -740,7 +740,7 @@ class _NotificationIntervalOption {
 
 Widget _sectionLabel(String text, Color accentColor) => Text(
       text,
-      style: GoogleFonts.dmSans(
+      style: TextStyle(fontFamily: AppFonts.sans,
         fontSize: 11,
         fontWeight: FontWeight.w800,
         color: accentColor,

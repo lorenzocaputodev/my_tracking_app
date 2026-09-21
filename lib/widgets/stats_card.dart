@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../theme/app_fonts.dart';
 
 class StatsCard extends StatelessWidget {
   final IconData icon;
@@ -48,7 +48,7 @@ class StatsCard extends StatelessWidget {
           const SizedBox(height: 12),
           Text(
             value,
-            style: GoogleFonts.dmSans(
+            style: TextStyle(fontFamily: AppFonts.sans,
               fontSize: 14,
               fontWeight: FontWeight.w800,
               color: valueColor,
@@ -60,7 +60,7 @@ class StatsCard extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             label.toUpperCase(),
-            style: GoogleFonts.dmSans(
+            style: TextStyle(fontFamily: AppFonts.sans,
               fontSize: 9,
               color: labelColor,
               fontWeight: FontWeight.w700,
