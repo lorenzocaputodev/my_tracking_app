@@ -69,3 +69,6 @@ my_tracking_app_*.zip
 
 # Local release diagnostics
 release-build.*.log
+
+# Documentazione di lavoro locale
+/docs/
