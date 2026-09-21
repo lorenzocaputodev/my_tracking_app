@@ -685,7 +685,7 @@ class _StatsPanelState extends State<_StatsPanel> {
                       ? formatEuro(annualCostEstimate, decimals: 0)
                       : formatEuro(0, decimals: 0),
                   icon: Icons.savings_rounded,
-                  color: stats.time,
+                  color: stats.cost,
                   fullWidth: true,
                 ),
               ],
