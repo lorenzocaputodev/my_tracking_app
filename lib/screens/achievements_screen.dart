@@ -522,7 +522,6 @@ class _BadgeCard extends StatelessWidget {
   }
 
   void _showDetail(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     showDialog<void>(
       context: context,
       builder: (ctx) => Dialog(
@@ -531,7 +530,7 @@ class _BadgeCard extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.fromLTRB(24, 26, 24, 18),
           decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF1C1C1E) : Colors.white,
+            color: context.colors.surfaceElevated,
             borderRadius: BorderRadius.circular(24),
             border: Border.all(color: color.withValues(alpha: 0.14)),
           ),
@@ -615,7 +614,6 @@ void _showPlanSheet(
     backgroundColor: Colors.transparent,
     builder: (ctx) => StatefulBuilder(
       builder: (ctx, setState) {
-        final isDark = Theme.of(ctx).brightness == Brightness.dark;
         final maxSlider = (currentAverage * 1.1).clamp(1.0, 40.0);
 
         return Container(
@@ -626,7 +624,7 @@ void _showPlanSheet(
             MediaQuery.of(ctx).viewInsets.bottom + 32,
           ),
           decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF1C1C1E) : Colors.white,
+            color: context.colors.surfaceElevated,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           ),
           child: Column(

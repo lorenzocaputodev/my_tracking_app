@@ -12,6 +12,7 @@ import '../utils/minutes_presets.dart';
 import '../widgets/product_configuration_form.dart';
 import 'add_product_screen.dart';
 import '../theme/app_fonts.dart';
+import '../theme/theme_context.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -821,9 +822,7 @@ class _ProductListCard extends StatelessWidget {
                   margin: const EdgeInsets.only(bottom: 10),
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: isDark
-                        ? const Color(0xFF121717)
-                        : const Color(0xFFF9FCFC),
+                    color: context.colors.surfaceInset,
                     borderRadius: BorderRadius.circular(18),
                     border: Border.all(
                       color: active
@@ -959,9 +958,7 @@ class _ProductListCard extends StatelessWidget {
                     margin: const EdgeInsets.only(bottom: 10),
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: isDark
-                          ? const Color(0xFF121717)
-                          : const Color(0xFFF9FCFC),
+                      color: context.colors.surfaceInset,
                       borderRadius: BorderRadius.circular(18),
                       border: Border.all(
                         color: Colors.white.withValues(alpha: 0.08),

@@ -6,6 +6,7 @@ class AppColors extends ThemeExtension<AppColors> {
   final Color surface;
   final Color surfaceElevated;
   final Color surfaceSunken;
+  final Color surfaceInset;
   final Color cardBorder;
   final Color subtleBorder;
   final Color textPrimary;
@@ -20,6 +21,7 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.surface,
     required this.surfaceElevated,
     required this.surfaceSunken,
+    required this.surfaceInset,
     required this.cardBorder,
     required this.subtleBorder,
     required this.textPrimary,
@@ -35,6 +37,7 @@ class AppColors extends ThemeExtension<AppColors> {
     surface: const Color(0xFF161B1B),
     surfaceElevated: const Color(0xFF1C1C1E),
     surfaceSunken: const Color(0xFF1E2A2A),
+    surfaceInset: const Color(0xFF121717),
     cardBorder: Colors.white.withValues(alpha: 0.05),
     subtleBorder: Colors.white.withValues(alpha: 0.03),
     textPrimary: Colors.white,
@@ -50,6 +53,7 @@ class AppColors extends ThemeExtension<AppColors> {
     surface: Colors.white,
     surfaceElevated: Colors.white,
     surfaceSunken: Colors.white,
+    surfaceInset: const Color(0xFFF9FCFC),
     cardBorder: Colors.black.withValues(alpha: 0.05),
     subtleBorder: Colors.black.withValues(alpha: 0.06),
     textPrimary: const Color(0xFF132222),
@@ -66,6 +70,7 @@ class AppColors extends ThemeExtension<AppColors> {
     Color? surface,
     Color? surfaceElevated,
     Color? surfaceSunken,
+    Color? surfaceInset,
     Color? cardBorder,
     Color? subtleBorder,
     Color? textPrimary,
@@ -80,6 +85,7 @@ class AppColors extends ThemeExtension<AppColors> {
       surface: surface ?? this.surface,
       surfaceElevated: surfaceElevated ?? this.surfaceElevated,
       surfaceSunken: surfaceSunken ?? this.surfaceSunken,
+      surfaceInset: surfaceInset ?? this.surfaceInset,
       cardBorder: cardBorder ?? this.cardBorder,
       subtleBorder: subtleBorder ?? this.subtleBorder,
       textPrimary: textPrimary ?? this.textPrimary,
