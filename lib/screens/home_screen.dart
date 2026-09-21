@@ -188,7 +188,7 @@ class HomeScreen extends StatelessWidget {
                       icon: Icons.timer_rounded,
                       label: 'Vita persa oggi',
                       value: _formatMinutes(provider.dailyMinutesLost),
-                      accent: Colors.redAccent,
+                      accent: context.stats.time,
                     ),
                   ),
                 ],
@@ -300,7 +300,7 @@ class HomeScreen extends StatelessWidget {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('📦 ${provider.config.name} terminato!'),
-        backgroundColor: Colors.orangeAccent,
+        backgroundColor: context.stats.warning,
         duration: const Duration(seconds: 4),
         action: SnackBarAction(
           label: 'RICARICA',
@@ -378,7 +378,7 @@ class _DailyLimitBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final over = count > limit;
-    final color = over ? Colors.redAccent : Colors.orangeAccent;
+    final color = over ? context.stats.danger : context.stats.warning;
     final message = over
         ? 'Sopra il limite impostato ($count/$limit)'
         : 'Limite giornaliero raggiunto ($count/$limit)';
@@ -429,34 +429,34 @@ class _OpenPackButton extends StatelessWidget {
         height: size,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: Colors.orangeAccent.withValues(alpha: 0.1),
+          color: context.stats.warning.withValues(alpha: 0.1),
           border: Border.all(
-            color: Colors.orangeAccent.withValues(alpha: 0.5),
+            color: context.stats.warning.withValues(alpha: 0.5),
             width: 2,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.orangeAccent.withValues(alpha: 0.2),
+              color: context.stats.warning.withValues(alpha: 0.2),
               blurRadius: 20,
               spreadRadius: 2,
             ),
           ],
         ),
-        child: const Column(
+        child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               Icons.add_box_rounded,
               size: 44,
-              color: Colors.orangeAccent,
+              color: context.stats.warning,
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Text(
               'NUOVA\nSCORTA',
               textAlign: TextAlign.center,
               style: TextStyle(fontFamily: AppFonts.sans,
                 fontWeight: FontWeight.w900,
-                color: Colors.orangeAccent,
+                color: context.stats.warning,
                 fontSize: 14,
                 height: 1.1,
               ),
@@ -488,12 +488,12 @@ class _PackStatusChip extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
         color: isZero
-            ? Colors.redAccent.withValues(alpha: 0.1)
+            ? context.stats.danger.withValues(alpha: 0.1)
             : turquoise.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: isZero
-              ? Colors.redAccent.withValues(alpha: 0.3)
+              ? context.stats.danger.withValues(alpha: 0.3)
               : turquoise.withValues(alpha: 0.1),
         ),
       ),
@@ -506,7 +506,7 @@ class _PackStatusChip extends StatelessWidget {
               fontSize: 10,
               fontWeight: FontWeight.w800,
               color:
-                  isZero ? Colors.redAccent : turquoise.withValues(alpha: 0.6),
+                  isZero ? context.stats.danger : turquoise.withValues(alpha: 0.6),
               letterSpacing: 1.0,
             ),
           ),
@@ -520,8 +520,8 @@ class _PackStatusChip extends StatelessWidget {
             Icons.inventory_2_rounded,
             size: 14,
             color: isZero
-                ? Colors.redAccent
-                : (isLow ? Colors.orangeAccent : turquoise),
+                ? context.stats.danger
+                : (isLow ? context.stats.warning : turquoise),
           ),
           const SizedBox(width: 6),
           Text(
@@ -530,8 +530,8 @@ class _PackStatusChip extends StatelessWidget {
               fontSize: 11,
               fontWeight: FontWeight.w900,
               color: isZero
-                  ? Colors.redAccent
-                  : (isLow ? Colors.orangeAccent : turquoise),
+                  ? context.stats.danger
+                  : (isLow ? context.stats.warning : turquoise),
             ),
           ),
         ],
@@ -612,12 +612,12 @@ class _HomeInsightBadge extends StatelessWidget {
     final (icon, color) = switch (insight.type) {
       HomeInsightType.planAhead => (
           Icons.trending_down_rounded,
-          Colors.greenAccent.shade700,
+          context.stats.positive,
         ),
       HomeInsightType.planOnTrack => (Icons.track_changes_rounded, accent),
       HomeInsightType.planBehind => (
           Icons.trending_up_rounded,
-          Colors.orangeAccent,
+          context.stats.warning,
         ),
       HomeInsightType.limitRemaining => (Icons.flag_rounded, accent),
       HomeInsightType.comparedToYesterday => (

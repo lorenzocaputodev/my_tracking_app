@@ -757,7 +757,7 @@ class _StatsPanelState extends State<_StatsPanel> {
                       vertical: 10,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.greenAccent.shade700.withValues(
+                      color: context.stats.positive.withValues(
                         alpha: isDark ? 0.10 : 0.07,
                       ),
                       borderRadius: BorderRadius.circular(12),
@@ -767,7 +767,7 @@ class _StatsPanelState extends State<_StatsPanel> {
                         Icon(
                           Icons.local_fire_department_rounded,
                           size: 16,
-                          color: Colors.greenAccent.shade700,
+                          color: context.stats.positive,
                         ),
                         const SizedBox(width: 8),
                         Expanded(
@@ -778,7 +778,7 @@ class _StatsPanelState extends State<_StatsPanel> {
                             style: TextStyle(fontFamily: AppFonts.sans,
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
-                              color: Colors.greenAccent.shade700,
+                              color: context.stats.positive,
                             ),
                           ),
                         ),
@@ -798,7 +798,7 @@ class _StatsPanelState extends State<_StatsPanel> {
                             label: 'Giorno migliore',
                             date: bestDay.key,
                             count: bestDay.value,
-                            color: Colors.greenAccent.shade700,
+                            color: context.stats.positive,
                             isDark: isDark,
                           ),
                         ),
@@ -810,7 +810,7 @@ class _StatsPanelState extends State<_StatsPanel> {
                             label: 'Giorno peggiore',
                             date: worstDay.key,
                             count: worstDay.value,
-                            color: Colors.redAccent,
+                            color: context.stats.danger,
                             isDark: isDark,
                           ),
                         ),
@@ -1668,7 +1668,7 @@ class _EntryTile extends StatelessWidget {
         padding: const EdgeInsets.only(right: 20),
         margin: const EdgeInsets.only(bottom: 8),
         decoration: BoxDecoration(
-          color: Colors.redAccent.withValues(alpha: 0.8),
+          color: context.stats.danger.withValues(alpha: 0.8),
           borderRadius: BorderRadius.circular(16),
         ),
         child: const Icon(Icons.delete_outline_rounded, color: Colors.white),
@@ -1722,7 +1722,7 @@ class _EntryTile extends StatelessWidget {
                 style: TextStyle(fontFamily: AppFonts.sans,
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
-                  color: Colors.redAccent.withValues(alpha: 0.8),
+                  color: context.stats.danger.withValues(alpha: 0.8),
                 ),
               ),
           ],

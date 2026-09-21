@@ -170,9 +170,9 @@ class _ReductionCard extends StatelessWidget {
         );
     final status = progress?.status;
     final (statusLabel, statusColor) = switch (status) {
-      ReductionPlanStatus.ahead => ('AVANTI', Colors.greenAccent.shade700),
+      ReductionPlanStatus.ahead => ('AVANTI', context.stats.positive),
       ReductionPlanStatus.onTrack => ('IN LINEA', color),
-      ReductionPlanStatus.behind => ('IN RITARDO', Colors.orangeAccent),
+      ReductionPlanStatus.behind => ('IN RITARDO', context.stats.warning),
       null => ('ATTIVO', color),
     };
 
@@ -262,7 +262,7 @@ class _ReductionCard extends StatelessWidget {
                 style: TextStyle(fontFamily: AppFonts.sans,
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
-                  color: plan.isCompleted ? Colors.greenAccent.shade700 : color,
+                  color: plan.isCompleted ? context.stats.positive : color,
                 ),
               ),
             ],
@@ -334,13 +334,13 @@ class _ReductionCard extends StatelessWidget {
               OutlinedButton(
                 onPressed: () =>
                     _confirmDeletePlan(context, provider, plan.productId),
-                style: _outlinedButtonStyle(Colors.redAccent),
-                child: const Text(
+                style: _outlinedButtonStyle(context.stats.danger),
+                child: Text(
                   'Elimina',
                   style: TextStyle(fontFamily: AppFonts.sans,
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
-                    color: Colors.redAccent,
+                    color: context.stats.danger,
                   ),
                 ),
               ),
@@ -381,9 +381,9 @@ class _ReductionCard extends StatelessWidget {
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text(
+            child: Text(
               'Elimina',
-              style: TextStyle(color: Colors.redAccent),
+              style: TextStyle(color: context.stats.danger),
             ),
           ),
         ],
