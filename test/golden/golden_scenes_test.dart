@@ -6,7 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:my_tracking_app/main.dart';
+import 'package:my_tracking_app/theme/app_theme.dart';
 import 'package:my_tracking_app/providers/my_tracking_provider.dart';
 import 'package:my_tracking_app/screens/achievements_screen.dart';
 import 'package:my_tracking_app/screens/home_screen.dart';
@@ -79,7 +79,7 @@ Future<void> _pumpScene(
       value: provider,
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        theme: buildAppTheme(brightness),
+        theme: AppTheme.of(brightness),
         localizationsDelegates: GlobalMaterialLocalizations.delegates,
         supportedLocales: const [Locale('it'), Locale('en')],
         home: screen,
