@@ -14,7 +14,7 @@ import 'services/product_notification_service.dart';
 import 'screens/home_screen.dart';
 import 'screens/onboarding_screen.dart';
 import 'screens/product_setup_screen.dart';
-import 'theme/app_fonts.dart';
+import 'theme/app_theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -72,8 +72,8 @@ class _MyTrackingAppState extends State<MyTrackingApp>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _lightTheme = buildAppTheme(Brightness.light);
-    _darkTheme = buildAppTheme(Brightness.dark);
+    _lightTheme = AppTheme.of(Brightness.light);
+    _darkTheme = AppTheme.of(Brightness.dark);
   }
 
   @override
@@ -292,68 +292,4 @@ class _BootstrapErrorScreen extends StatelessWidget {
       ),
     );
   }
-}
-
-ThemeData buildAppTheme(Brightness brightness) {
-  final isDark = brightness == Brightness.dark;
-  const darkPrimary = Color(0xFF00CED1);
-  const lightPrimary = Color(0xFF00686B);
-  final primary = isDark ? darkPrimary : lightPrimary;
-  const lightScaffold = Color(0xFFF3F7F7);
-  const lightSurface = Colors.white;
-  const lightText = Color(0xFF132222);
-  const lightMuted = Color(0xFF556B6D);
-
-  final colorScheme = ColorScheme.fromSeed(
-    seedColor: primary,
-    brightness: brightness,
-    primary: primary,
-    surfaceTint: Colors.transparent,
-  );
-
-  return ThemeData(
-    useMaterial3: true,
-    colorScheme: colorScheme,
-    brightness: brightness,
-    textTheme: ThemeData(brightness: brightness)
-        .textTheme
-        .apply(fontFamily: AppFonts.sans),
-    scaffoldBackgroundColor: isDark ? const Color(0xFF0A0A0A) : lightScaffold,
-    cardTheme: CardThemeData(
-      elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-      color: isDark ? const Color(0xFF161B1B) : lightSurface,
-    ),
-    appBarTheme: AppBarTheme(
-      centerTitle: true,
-      elevation: 0,
-      backgroundColor: Colors.transparent,
-      titleTextStyle: TextStyle(fontFamily: AppFonts.sans,
-        fontSize: 20,
-        fontWeight: FontWeight.bold,
-        color: primary,
-      ),
-      iconTheme: IconThemeData(color: primary),
-    ),
-    progressIndicatorTheme: ProgressIndicatorThemeData(color: primary),
-    inputDecorationTheme: InputDecorationTheme(
-      filled: true,
-      fillColor: isDark
-          ? Colors.white.withValues(alpha: 0.06)
-          : const Color(0xFFE8F0F0),
-      hintStyle: TextStyle(fontFamily: AppFonts.sans, color: isDark ? Colors.grey : lightMuted),
-      labelStyle: TextStyle(fontFamily: AppFonts.sans,
-        color: isDark ? Colors.grey : lightMuted,
-      ),
-    ),
-    textSelectionTheme: TextSelectionThemeData(
-      cursorColor: primary,
-      selectionColor: primary.withValues(alpha: 0.22),
-      selectionHandleColor: primary,
-    ),
-    dividerColor: isDark
-        ? Colors.white.withValues(alpha: 0.06)
-        : Colors.black.withValues(alpha: 0.08),
-    iconTheme: IconThemeData(color: isDark ? Colors.white : lightText),
-  );
 }
