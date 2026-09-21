@@ -65,10 +65,15 @@ class MyTrackingApp extends StatefulWidget {
 
 class _MyTrackingAppState extends State<MyTrackingApp>
     with WidgetsBindingObserver {
+  late final ThemeData _lightTheme;
+  late final ThemeData _darkTheme;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _lightTheme = _buildTheme(Brightness.light);
+    _darkTheme = _buildTheme(Brightness.dark);
   }
 
   @override
@@ -79,26 +84,31 @@ class _MyTrackingAppState extends State<MyTrackingApp>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed && mounted) {
-      unawaited(context.read<MyTrackingProvider>().drainOnResume());
+    if (!mounted) return;
+    final provider = context.read<MyTrackingProvider>();
+    provider.setForeground(state == AppLifecycleState.resumed);
+    if (state == AppLifecycleState.resumed) {
+      unawaited(provider.drainOnResume());
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<MyTrackingProvider>(
-      builder: (context, provider, _) {
+    return Selector<MyTrackingProvider, AppThemePreference>(
+      selector: (_, provider) => provider.themePreference,
+      builder: (context, themePreference, child) {
         return MaterialApp(
           title: 'My Tracking App',
           debugShowCheckedModeBanner: false,
-          themeMode: MyTrackingApp._themeMode(provider.themePreference),
-          theme: _buildTheme(Brightness.light),
-          darkTheme: _buildTheme(Brightness.dark),
+          themeMode: MyTrackingApp._themeMode(themePreference),
+          theme: _lightTheme,
+          darkTheme: _darkTheme,
           localizationsDelegates: GlobalMaterialLocalizations.delegates,
           supportedLocales: const [Locale('it'), Locale('en')],
-          home: const _AppBootstrapScreen(),
+          home: child,
         );
       },
+      child: const _AppBootstrapScreen(),
     );
   }
 
