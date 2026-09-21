@@ -37,24 +37,47 @@ void main() {
   });
 
   group('tavolozza statistiche', () {
-    test('i ruoli condivisi coincidono fra i due temi', () {
-      expect(AppStatColors.dark.average, AppStatColors.light.average);
-      expect(AppStatColors.dark.volume, AppStatColors.light.volume);
-      expect(AppStatColors.dark.cost, AppStatColors.light.cost);
-      expect(AppStatColors.dark.projection, AppStatColors.light.projection);
-      expect(AppStatColors.dark.estimate, AppStatColors.light.estimate);
-      expect(AppStatColors.dark.positive, AppStatColors.light.positive);
-      expect(AppStatColors.dark.negative, AppStatColors.light.negative);
+    test('ogni ruolo ha una variante distinta per tema', () {
+      const d = AppStatColors.dark;
+      const l = AppStatColors.light;
+      final pairs = <String, List<Color>>{
+        'average': [d.average, l.average],
+        'volume': [d.volume, l.volume],
+        'cost': [d.cost, l.cost],
+        'projection': [d.projection, l.projection],
+        'estimate': [d.estimate, l.estimate],
+        'time': [d.time, l.time],
+        'streak': [d.streak, l.streak],
+      };
+      pairs.forEach((role, colors) {
+        expect(colors[0], isNot(colors[1]), reason: '$role non e differenziato');
+      });
+    });
+
+    test('le varianti scure sono piu chiare di quelle chiare', () {
+      const d = AppStatColors.dark;
+      const l = AppStatColors.light;
+      final pairs = <String, List<Color>>{
+        'cost': [d.cost, l.cost],
+        'projection': [d.projection, l.projection],
+        'estimate': [d.estimate, l.estimate],
+        'average': [d.average, l.average],
+        'volume': [d.volume, l.volume],
+        'time': [d.time, l.time],
+      };
+      pairs.forEach((role, colors) {
+        expect(
+          colors[0].computeLuminance(),
+          greaterThan(colors[1].computeLuminance()),
+          reason: '$role: la variante scura deve reggere su fondo scuro',
+        );
+      });
     });
 
     test('i valori attuali sono ancorati', () {
-      expect(AppStatColors.dark.average, const Color(0xFF00B8D4));
-      expect(AppStatColors.dark.volume, const Color(0xFF348B7B));
-      expect(AppStatColors.dark.cost, const Color(0xFFB64A63));
-      expect(AppStatColors.dark.projection, const Color(0xFFA56A13));
-      expect(AppStatColors.dark.estimate, const Color(0xFFB2842E));
-      expect(AppStatColors.dark.positive, const Color(0xFF19724F));
-      expect(AppStatColors.dark.negative, const Color(0xFFB06A0E));
+      expect(AppStatColors.dark.cost, const Color(0xFFE3A857));
+      expect(AppStatColors.light.cost, const Color(0xFF9A6B1E));
+      expect(AppStatColors.dark.time, const Color(0xFFE8836B));
       expect(AppStatColors.light.peak, const Color(0xFF2D6D72));
       expect(AppStatColors.dark.count, AppTheme.darkPrimary);
       expect(AppStatColors.light.count, AppTheme.lightPrimary);

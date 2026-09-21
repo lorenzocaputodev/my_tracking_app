@@ -154,11 +154,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _setGlobalReminderEnabled(bool value) async {
     if (value) {
+      final warningColor = context.stats.warning;
       final granted = await ProductNotificationService.ensurePermission();
       if (!granted) {
         _showFeedback(
           'Permesso notifiche non concesso.',
-          backgroundColor: Colors.orangeAccent,
+          backgroundColor: warningColor,
         );
         return;
       }
@@ -193,7 +194,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (!BackupFileService.isSupported) {
       _showFeedback(
         'Import/export file disponibile solo su Android e Windows.',
-        backgroundColor: Colors.redAccent,
+        backgroundColor: context.stats.danger,
       );
       return;
     }
@@ -209,7 +210,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       if (result.status == BackupFileSaveStatus.unsupported) {
         _showFeedback(
           'Salvataggio file non supportato su questa piattaforma.',
-          backgroundColor: Colors.redAccent,
+          backgroundColor: context.stats.danger,
         );
         return;
       }
@@ -217,7 +218,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     } catch (_) {
       _showFeedback(
         'Esportazione CSV non riuscita.',
-        backgroundColor: Colors.redAccent,
+        backgroundColor: context.stats.danger,
       );
     }
   }
@@ -226,7 +227,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (!BackupFileService.isSupported) {
       _showFeedback(
         'Import/export file disponibile solo su Android e Windows.',
-        backgroundColor: Colors.redAccent,
+        backgroundColor: context.stats.danger,
       );
       return;
     }
@@ -238,7 +239,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           file.content == null) {
         _showFeedback(
           'Importazione file non supportata su questa piattaforma.',
-          backgroundColor: Colors.redAccent,
+          backgroundColor: context.stats.danger,
         );
         return;
       }
@@ -251,12 +252,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
     } on FormatException catch (error) {
       _showFeedback(
         error.message.isEmpty ? 'Backup CSV non valido' : error.message,
-        backgroundColor: Colors.redAccent,
+        backgroundColor: context.stats.danger,
       );
     } catch (_) {
       _showFeedback(
         'Importazione CSV non riuscita.',
-        backgroundColor: Colors.redAccent,
+        backgroundColor: context.stats.danger,
       );
     }
   }
@@ -277,7 +278,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
             style: FilledButton.styleFrom(
-              backgroundColor: Colors.redAccent,
+              backgroundColor: context.stats.danger,
               foregroundColor: Colors.white,
             ),
             child: const Text('Elimina definitivamente'),
@@ -395,16 +396,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
             const SizedBox(height: 20),
             OutlinedButton.icon(
               onPressed: _confirmReset,
-              icon: const Icon(
+              icon: Icon(
                 Icons.delete_sweep_rounded,
-                color: Colors.redAccent,
+                color: context.stats.danger,
               ),
-              label: const Text(
+              label: Text(
                 'Reset totale cronologia',
-                style: TextStyle(fontFamily: AppFonts.sans, color: Colors.redAccent),
+                style: TextStyle(fontFamily: AppFonts.sans, color: context.stats.danger),
               ),
               style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: Colors.redAccent, width: 1),
+                side: BorderSide(color: context.stats.danger, width: 1),
                 minimumSize: const Size.fromHeight(48),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
@@ -607,9 +608,9 @@ class _PackCard extends StatelessWidget {
     } catch (_) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Correzione scorta non riuscita.'),
-          backgroundColor: Colors.redAccent,
+        SnackBar(
+          content: const Text('Correzione scorta non riuscita.'),
+          backgroundColor: context.stats.danger,
         ),
       );
     }
@@ -726,7 +727,7 @@ class _ProductListCard extends StatelessWidget {
     _showFeedback(
       context,
       'Devi mantenere almeno un prodotto attivo',
-      color: Colors.orangeAccent,
+      color: context.stats.warning,
     );
   }
 
@@ -760,7 +761,7 @@ class _ProductListCard extends StatelessWidget {
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
             style: FilledButton.styleFrom(
-              backgroundColor: Colors.redAccent,
+              backgroundColor: context.stats.danger,
               foregroundColor: Colors.white,
             ),
             child: const Text('Elimina'),
@@ -881,14 +882,14 @@ class _ProductListCard extends StatelessWidget {
                                     width: 44,
                                     height: 44,
                                     decoration: BoxDecoration(
-                                      color: Colors.orangeAccent.withValues(
+                                      color: context.stats.warning.withValues(
                                         alpha: 0.12,
                                       ),
                                       borderRadius: BorderRadius.circular(14),
                                     ),
-                                    child: const Icon(
+                                    child: Icon(
                                       Icons.archive_outlined,
-                                      color: Colors.orangeAccent,
+                                      color: context.stats.warning,
                                       size: 20,
                                     ),
                                   ),
@@ -932,14 +933,14 @@ class _ProductListCard extends StatelessWidget {
                                     width: 44,
                                     height: 44,
                                     decoration: BoxDecoration(
-                                      color: Colors.orangeAccent.withValues(
+                                      color: context.stats.warning.withValues(
                                         alpha: 0.12,
                                       ),
                                       borderRadius: BorderRadius.circular(14),
                                     ),
-                                    child: const Icon(
+                                    child: Icon(
                                       Icons.archive_outlined,
-                                      color: Colors.orangeAccent,
+                                      color: context.stats.warning,
                                       size: 20,
                                     ),
                                   ),
@@ -1031,7 +1032,7 @@ class _ProductListCard extends StatelessWidget {
                                 _showFeedback(
                                   context,
                                   '${product.name} eliminato definitivamente',
-                                  color: Colors.redAccent,
+                                  color: context.stats.danger,
                                 );
                               },
                               borderRadius: BorderRadius.circular(14),
@@ -1039,14 +1040,14 @@ class _ProductListCard extends StatelessWidget {
                                 width: 44,
                                 height: 44,
                                 decoration: BoxDecoration(
-                                  color: Colors.redAccent.withValues(
+                                  color: context.stats.danger.withValues(
                                     alpha: 0.10,
                                   ),
                                   borderRadius: BorderRadius.circular(14),
                                 ),
-                                child: const Icon(
+                                child: Icon(
                                   Icons.delete_outline_rounded,
-                                  color: Colors.redAccent,
+                                  color: context.stats.danger,
                                   size: 20,
                                 ),
                               ),
