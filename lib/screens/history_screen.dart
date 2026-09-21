@@ -1,12 +1,12 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../models/smoke_entry.dart';
 import '../providers/my_tracking_provider.dart';
 import '../utils/app_formatters.dart';
 import '../widgets/tracking_input_decoration.dart';
+import '../theme/app_fonts.dart';
 
 enum _HistoryProductFilter { all, specific }
 
@@ -274,7 +274,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                             Expanded(
                               child: Text(
                                 group.key.toUpperCase(),
-                                style: GoogleFonts.dmSans(
+                                style: TextStyle(fontFamily: AppFonts.sans,
                                   fontWeight: FontWeight.w800,
                                   fontSize: 11,
                                   letterSpacing: 0.8,
@@ -285,7 +285,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                             const SizedBox(width: 12),
                             Text(
                               '${dayEntries.length} unit\u00E0 \u2022 ${formatEuro(dayTotal)}$minutesPart',
-                              style: GoogleFonts.dmSans(
+                              style: const TextStyle(fontFamily: AppFonts.sans,
                                 fontSize: 11,
                                 color: Colors.grey,
                                 fontWeight: FontWeight.w600,
@@ -349,7 +349,7 @@ class _HistoryFiltersCard extends StatelessWidget {
         children: [
           Text(
             'FILTRI',
-            style: GoogleFonts.dmSans(
+            style: TextStyle(fontFamily: AppFonts.sans,
               fontSize: 11,
               fontWeight: FontWeight.w800,
               color: turquoise,
@@ -394,7 +394,7 @@ class _HistoryFiltersCard extends StatelessWidget {
               return ChoiceChip(
                 label: Text(_periodPresetLabel(preset)),
                 selected: selected,
-                labelStyle: GoogleFonts.dmSans(
+                labelStyle: TextStyle(fontFamily: AppFonts.sans,
                   fontWeight: FontWeight.w700,
                   color: selected
                       ? Colors.white
@@ -422,7 +422,7 @@ class _HistoryFiltersCard extends StatelessWidget {
                 customRange == null
                     ? 'Seleziona intervallo'
                     : '${DateFormat('d MMM', 'it').format(customRange!.start)} \u2192 ${DateFormat('d MMM', 'it').format(customRange!.end)}',
-                style: GoogleFonts.dmSans(
+                style: TextStyle(fontFamily: AppFonts.sans,
                   fontWeight: FontWeight.w700,
                   color: turquoise,
                 ),
@@ -561,7 +561,7 @@ class _StatsPanelState extends State<_StatsPanel> {
             children: [
               Text(
                 'STATISTICHE',
-                style: GoogleFonts.dmSans(
+                style: TextStyle(fontFamily: AppFonts.sans,
                   fontSize: 11,
                   fontWeight: FontWeight.w800,
                   color: turquoise,
@@ -570,7 +570,7 @@ class _StatsPanelState extends State<_StatsPanel> {
               ),
               Text(
                 widget.periodLabel.toUpperCase(),
-                style: GoogleFonts.dmSans(
+                style: const TextStyle(fontFamily: AppFonts.sans,
                   fontSize: 10,
                   fontWeight: FontWeight.w700,
                   color: Colors.grey,
@@ -755,7 +755,7 @@ class _StatsPanelState extends State<_StatsPanel> {
                             underLimitStreak == 1
                                 ? '1 giorno consecutivo sotto il limite (${singleProduct.dailyLimit})'
                                 : '$underLimitStreak giorni consecutivi sotto il limite (${singleProduct.dailyLimit})',
-                            style: GoogleFonts.dmSans(
+                            style: TextStyle(fontFamily: AppFonts.sans,
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
                               color: turquoise,
@@ -792,7 +792,7 @@ class _StatsPanelState extends State<_StatsPanel> {
                             streak == 1
                                 ? 'Attivo da 1 giorno consecutivo'
                                 : 'Attivo da $streak giorni consecutivi',
-                            style: GoogleFonts.dmSans(
+                            style: TextStyle(fontFamily: AppFonts.sans,
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
                               color: Colors.greenAccent.shade700,
@@ -838,9 +838,9 @@ class _StatsPanelState extends State<_StatsPanel> {
                   const SizedBox(height: 14),
                   const Divider(height: 1),
                   const SizedBox(height: 14),
-                  Text(
+                  const Text(
                     'DISTRIBUZIONE ORARIA',
-                    style: GoogleFonts.dmSans(
+                    style: TextStyle(fontFamily: AppFonts.sans,
                       fontSize: 9,
                       fontWeight: FontWeight.w800,
                       color: Colors.grey,
@@ -917,7 +917,7 @@ class _StatsSectionCard extends StatelessWidget {
                         children: [
                           Text(
                             title,
-                            style: GoogleFonts.dmSans(
+                            style: TextStyle(fontFamily: AppFonts.sans,
                               fontSize: 13,
                               fontWeight: FontWeight.w800,
                               color: isDark
@@ -928,7 +928,7 @@ class _StatsSectionCard extends StatelessWidget {
                           const SizedBox(height: 2),
                           Text(
                             subtitle,
-                            style: GoogleFonts.dmSans(
+                            style: const TextStyle(fontFamily: AppFonts.sans,
                               fontSize: 11,
                               fontWeight: FontWeight.w500,
                               color: Colors.grey,
@@ -997,7 +997,7 @@ class _EmptyState extends StatelessWidget {
           Text(
             title,
             textAlign: TextAlign.center,
-            style: GoogleFonts.dmSans(
+            style: const TextStyle(fontFamily: AppFonts.sans,
               fontWeight: FontWeight.w700,
               fontSize: 15,
             ),
@@ -1006,7 +1006,7 @@ class _EmptyState extends StatelessWidget {
           Text(
             message,
             textAlign: TextAlign.center,
-            style: GoogleFonts.dmSans(
+            style: const TextStyle(fontFamily: AppFonts.sans,
               fontSize: 12,
               color: Colors.grey,
               height: 1.4,
@@ -1083,7 +1083,7 @@ class _HourHeatmap extends StatelessWidget {
                       child: Center(
                         child: Text(
                           hour.toString().padLeft(2, '0'),
-                          style: GoogleFonts.dmSans(
+                          style: TextStyle(fontFamily: AppFonts.sans,
                             fontSize: 8,
                             fontWeight: FontWeight.w700,
                             color: count == 0
@@ -1144,7 +1144,7 @@ class _StatItem extends StatelessWidget {
                 child: Text(
                   label,
                   overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.dmSans(
+                  style: TextStyle(fontFamily: AppFonts.sans,
                     fontSize: 10,
                     color: labelColor,
                     fontWeight: FontWeight.w600,
@@ -1156,7 +1156,7 @@ class _StatItem extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             value,
-            style: GoogleFonts.dmSans(
+            style: TextStyle(fontFamily: AppFonts.sans,
               fontSize: 15,
               fontWeight: FontWeight.w800,
               color: color,
@@ -1191,7 +1191,7 @@ class _DayHighlight extends StatelessWidget {
       children: [
         Text(
           label.toUpperCase(),
-          style: GoogleFonts.dmSans(
+          style: const TextStyle(fontFamily: AppFonts.sans,
             fontSize: 9,
             fontWeight: FontWeight.w800,
             color: Colors.grey,
@@ -1203,7 +1203,7 @@ class _DayHighlight extends StatelessWidget {
           children: [
             Text(
               formatted,
-              style: GoogleFonts.dmSans(
+              style: TextStyle(fontFamily: AppFonts.sans,
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
                 color: isDark ? Colors.white70 : Colors.black87,
@@ -1218,7 +1218,7 @@ class _DayHighlight extends StatelessWidget {
               ),
               child: Text(
                 '$count',
-                style: GoogleFonts.dmSans(
+                style: TextStyle(fontFamily: AppFonts.sans,
                   fontSize: 11,
                   fontWeight: FontWeight.w800,
                   color: color,
@@ -1349,7 +1349,7 @@ class _WeeklyChart extends StatelessWidget {
             padding: const EdgeInsets.only(left: 4, bottom: 16),
             child: Text(
               'ULTIMI 7 GIORNI',
-              style: GoogleFonts.dmSans(
+              style: TextStyle(fontFamily: AppFonts.sans,
                 fontSize: 11,
                 fontWeight: FontWeight.w800,
                 color: turquoise,
@@ -1398,7 +1398,7 @@ class _WeeklyChart extends StatelessWidget {
                               space: 4,
                               child: Text(
                                 '${value.toInt()}',
-                                style: GoogleFonts.dmSans(
+                                style: const TextStyle(fontFamily: AppFonts.sans,
                                   fontSize: 10,
                                   color: Colors.grey,
                                 ),
@@ -1441,7 +1441,7 @@ class _WeeklyChart extends StatelessWidget {
                                         'E',
                                         'it',
                                       ).format(day).toLowerCase(),
-                                style: GoogleFonts.dmSans(
+                                style: TextStyle(fontFamily: AppFonts.sans,
                                   fontSize: 10,
                                   fontWeight: isToday
                                       ? FontWeight.w800
@@ -1461,7 +1461,7 @@ class _WeeklyChart extends StatelessWidget {
                             isDark ? const Color(0xFF1E2A2A) : Colors.white,
                         getTooltipItem: (group, _, rod, __) => BarTooltipItem(
                           '${rod.toY.toInt()}',
-                          GoogleFonts.dmSans(
+                          TextStyle(fontFamily: AppFonts.sans,
                             fontWeight: FontWeight.w800,
                             color: turquoise,
                           ),
@@ -1532,7 +1532,7 @@ class _MonthlyChart extends StatelessWidget {
             padding: const EdgeInsets.only(left: 4, bottom: 16),
             child: Text(
               'TREND ULTIMI 30 GIORNI',
-              style: GoogleFonts.dmSans(
+              style: TextStyle(fontFamily: AppFonts.sans,
                 fontSize: 11,
                 fontWeight: FontWeight.w800,
                 color: turquoise,
@@ -1583,7 +1583,7 @@ class _MonthlyChart extends StatelessWidget {
                               space: 4,
                               child: Text(
                                 '${value.toInt()}',
-                                style: GoogleFonts.dmSans(
+                                style: const TextStyle(fontFamily: AppFonts.sans,
                                   fontSize: 10,
                                   color: Colors.grey,
                                 ),
@@ -1618,7 +1618,7 @@ class _MonthlyChart extends StatelessWidget {
                             }
                             return Text(
                               DateFormat('d/M', 'it').format(days[index]),
-                              style: GoogleFonts.dmSans(
+                              style: const TextStyle(fontFamily: AppFonts.sans,
                                 fontSize: 8,
                                 color: Colors.grey,
                               ),
@@ -1654,7 +1654,7 @@ class _MonthlyChart extends StatelessWidget {
                             final count = countPerDay[days[index]]!;
                             return LineTooltipItem(
                               '${DateFormat('d MMM', 'it').format(days[index])}: $count',
-                              GoogleFonts.dmSans(
+                              TextStyle(fontFamily: AppFonts.sans,
                                 fontWeight: FontWeight.w800,
                                 color: turquoise,
                                 fontSize: 12,
@@ -1736,7 +1736,7 @@ class _EntryTile extends StatelessWidget {
               ),
               child: Text(
                 time,
-                style: GoogleFonts.dmSans(
+                style: TextStyle(fontFamily: AppFonts.sans,
                   fontWeight: FontWeight.w700,
                   fontSize: 12,
                   color: turquoise,
@@ -1757,7 +1757,7 @@ class _EntryTile extends StatelessWidget {
                   ),
                   Text(
                     'Costo: ${formatEuro(entry.costDeducted)}',
-                    style: GoogleFonts.dmSans(fontSize: 11, color: Colors.grey),
+                    style: const TextStyle(fontFamily: AppFonts.sans, fontSize: 11, color: Colors.grey),
                   ),
                 ],
               ),
@@ -1765,7 +1765,7 @@ class _EntryTile extends StatelessWidget {
             if (showMinutes)
               Text(
                 '-${entry.minutesLost}m',
-                style: GoogleFonts.dmSans(
+                style: TextStyle(fontFamily: AppFonts.sans,
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
                   color: Colors.redAccent.withValues(alpha: 0.8),

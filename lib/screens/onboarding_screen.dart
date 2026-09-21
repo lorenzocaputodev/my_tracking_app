@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'product_setup_screen.dart';
+import '../theme/app_fonts.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -96,7 +96,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 onPressed: _completeOnboarding,
                 child: Text(
                   'Salta',
-                  style: GoogleFonts.dmSans(
+                  style: TextStyle(fontFamily: AppFonts.sans,
                     color: turquoise.withValues(alpha: 0.6),
                     fontWeight: FontWeight.w600,
                   ),
@@ -147,7 +147,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         Text(
                           slide.title,
                           textAlign: TextAlign.center,
-                          style: GoogleFonts.dmSans(
+                          style: TextStyle(fontFamily: AppFonts.sans,
                             fontSize: 30,
                             fontWeight: FontWeight.w900,
                             height: 1.15,
@@ -160,7 +160,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         Text(
                           slide.description,
                           textAlign: TextAlign.center,
-                          style: GoogleFonts.dmSans(
+                          style: TextStyle(fontFamily: AppFonts.sans,
                             fontSize: 16,
                             height: 1.6,
                             color: isDark ? Colors.white54 : Colors.black54,
@@ -215,7 +215,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       ),
                       child: Text(
                         isLast ? 'INIZIA' : 'AVANTI',
-                        style: GoogleFonts.dmSans(
+                        style: const TextStyle(fontFamily: AppFonts.sans,
                           fontWeight: FontWeight.w800,
                           fontSize: 15,
                           letterSpacing: 1.2,

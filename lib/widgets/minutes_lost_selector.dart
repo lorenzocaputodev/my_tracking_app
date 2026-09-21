@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../utils/minutes_presets.dart';
 import 'tracking_input_decoration.dart';
+import '../theme/app_fonts.dart';
 
 class MinutesLostSelector extends StatelessWidget {
   final bool isDark;
@@ -32,7 +32,7 @@ class MinutesLostSelector extends StatelessWidget {
     final dropdownValue =
         customMode ? customMinutesPresetValue : (selectedPresetMinutes ?? 0);
 
-    final baseTextStyle = GoogleFonts.dmSans(
+    final baseTextStyle = TextStyle(fontFamily: AppFonts.sans,
       fontSize: 14,
       fontWeight: FontWeight.w500,
       color: isDark ? Colors.white : Colors.black87,
@@ -116,7 +116,7 @@ class MinutesLostSelector extends StatelessWidget {
                       : Colors.black.withValues(alpha: 0.05),
                 ).copyWith(
                   suffixText: 'min',
-                  suffixStyle: GoogleFonts.dmSans(
+                  suffixStyle: const TextStyle(fontFamily: AppFonts.sans,
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                     color: Colors.grey,

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../theme/app_fonts.dart';
 
 InputDecoration trackingInputDecoration({
   required String hint,
@@ -14,8 +14,8 @@ InputDecoration trackingInputDecoration({
   return InputDecoration(
     labelText: label,
     hintText: hint,
-    hintStyle: GoogleFonts.dmSans(color: mutedColor),
-    labelStyle: GoogleFonts.dmSans(color: mutedColor),
+    hintStyle: TextStyle(fontFamily: AppFonts.sans, color: mutedColor),
+    labelStyle: TextStyle(fontFamily: AppFonts.sans, color: mutedColor),
     prefixIcon: Icon(icon, size: 20, color: mutedColor),
     filled: true,
     fillColor: fillColorOverride ??

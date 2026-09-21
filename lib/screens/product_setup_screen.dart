@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -10,6 +9,7 @@ import '../services/product_notification_service.dart';
 import '../utils/minutes_presets.dart';
 import '../widgets/product_configuration_form.dart';
 import 'home_screen.dart';
+import '../theme/app_fonts.dart';
 
 class ProductSetupScreen extends StatefulWidget {
   const ProductSetupScreen({super.key});
@@ -166,9 +166,9 @@ class _ProductSetupScreenState extends State<ProductSetupScreen> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: Text(
+        title: const Text(
           'Configura il tuo prodotto',
-          style: GoogleFonts.dmSans(fontWeight: FontWeight.w800),
+          style: TextStyle(fontFamily: AppFonts.sans, fontWeight: FontWeight.w800),
         ),
       ),
       body: Form(

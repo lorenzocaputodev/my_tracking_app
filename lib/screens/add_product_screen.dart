@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import '../models/tracked_product.dart';
 import '../providers/my_tracking_provider.dart';
 import '../utils/minutes_presets.dart';
 import '../widgets/product_configuration_form.dart';
+import '../theme/app_fonts.dart';
 
 class AddProductScreen extends StatefulWidget {
   const AddProductScreen({super.key});
@@ -123,9 +123,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Nuovo prodotto',
-          style: GoogleFonts.dmSans(fontWeight: FontWeight.w800),
+          style: TextStyle(fontFamily: AppFonts.sans, fontWeight: FontWeight.w800),
         ),
       ),
       body: Form(
