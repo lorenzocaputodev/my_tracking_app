@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/app_fonts.dart';
+import '../theme/app_decorations.dart';
+import '../theme/theme_context.dart';
 
 class StatsCard extends StatelessWidget {
   final IconData icon;
@@ -20,20 +22,10 @@ class StatsCard extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final valueColor = isDark ? Colors.white : const Color(0xFF132222);
     final labelColor = isDark ? Colors.white38 : const Color(0xFF607274);
-    final borderColor = isDark
-        ? Colors.white.withValues(alpha: 0.03)
-        : Colors.black.withValues(alpha: 0.06);
-    final backgroundColor = isDark ? const Color(0xFF161B1B) : Colors.white;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        color: backgroundColor,
-        border: Border.all(
-          color: borderColor,
-        ),
-      ),
+      decoration: AppDecorations.cardSubtle(context.colors),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
