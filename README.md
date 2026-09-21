@@ -9,6 +9,9 @@
 - 📦 Tracking multi-prodotto con prodotto attivo selezionabile
 - 📊 Dashboard con conteggio giornaliero, residuo confezione, costo unitario e spesa totale
 - 📈 Cronologia con grafici a 7 giorni e trend a 30 giorni
+- 🏆 Obiettivi e badge sbloccabili
+- 📉 Piano di riduzione **indipendente per ogni prodotto**
+- 🗄️ Archiviazione dei prodotti con storico conservato
 - 📄 Import ed export CSV
 - ⚙️ Configurazione del prodotto attivo con preset e valore personalizzato per i minuti di vita persi
 - 📲 Widget Home Android responsive con layout **small**, **medium** e **large**
@@ -45,11 +48,19 @@ Le notifiche sono gestite su Android tramite:
 
 ## 🔒 Setup locale
 
-Prerequisiti consigliati:
+Prerequisiti, con le versioni su cui la build e' verificata:
 
-- Flutter SDK compatibile con il vincolo dichiarato in `pubspec.yaml`
-- Android SDK per build e test Android
+- Flutter **3.47.5** stable (Dart 3.13.4)
+- Android SDK con platform **android-36**, build-tools 36.0.0 e NDK 28.2.13676358
+- **JDK 21** — Gradle 8.14.5 non supporta JDK 25, quindi va agganciato con
+  `flutter config --jdk-dir "<percorso del JDK 21>"`
 - Visual Studio Code
+
+La catena di build usa Gradle 8.14.5, AGP 8.13.2 e Kotlin 2.2.21, volutamente
+entro la linea 8.x di AGP.
+
+`android/gradle.properties` dimensiona il daemon Gradle a 2 GB di heap: su
+macchine con poca RAM valori piu' alti fanno terminare il daemon a meta' build.
 
 ---
 
