@@ -593,6 +593,8 @@ class _PackCard extends StatelessWidget {
       ),
     );
 
+    controller.dispose();
+
     if (correctedValue == null || !context.mounted) return;
 
     try {

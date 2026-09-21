@@ -98,18 +98,35 @@ class MyTrackingProvider extends ChangeNotifier {
   AppReminderSettings _globalReminderSettings = AppReminderSettings.defaults;
 
   Timer? _ticker;
+  bool _isForeground = true;
 
   MyTrackingProvider() {
-    _ticker = Timer.periodic(
-      const Duration(minutes: 1),
-      (_) => notifyListeners(),
-    );
+    _startTicker();
   }
 
   @override
   void dispose() {
     _ticker?.cancel();
     super.dispose();
+  }
+
+  void _startTicker() {
+    _ticker?.cancel();
+    _ticker = Timer.periodic(
+      const Duration(minutes: 1),
+      (_) => notifyListeners(),
+    );
+  }
+
+  void setForeground(bool value) {
+    if (_isForeground == value) return;
+    _isForeground = value;
+    if (value) {
+      _startTicker();
+    } else {
+      _ticker?.cancel();
+      _ticker = null;
+    }
   }
 
   // Getter prodotto attivo
@@ -164,9 +181,12 @@ class MyTrackingProvider extends ChangeNotifier {
       todayEntries.fold(0.0, (sum, entry) => sum + entry.costDeducted);
   int get dailyMinutesLost =>
       todayEntries.fold(0, (sum, entry) => sum + entry.minutesLost);
-  double get totalCost => _entries.fold(0.0, (sum, e) => sum + e.costDeducted);
-  Duration get totalTimeLost =>
-      Duration(minutes: _entries.fold(0, (sum, e) => sum + e.minutesLost));
+  double get totalCost => entriesForProduct(_activeProductId)
+      .fold(0.0, (sum, e) => sum + e.costDeducted);
+  Duration get totalTimeLost => Duration(
+        minutes: entriesForProduct(_activeProductId)
+            .fold(0, (sum, e) => sum + e.minutesLost),
+      );
 
   String get timeSinceLastEntry {
     final sorted = entriesForProduct(_activeProductId)
@@ -412,12 +432,16 @@ class MyTrackingProvider extends ChangeNotifier {
     final migratedGlobalReminder =
         await _migrateLegacyGlobalReminderIfNeeded(prefs);
 
+    var achievementsChanged = false;
     try {
-      _evaluateAchievements(persist: mergedPending);
+      achievementsChanged = _evaluateAchievements(persist: false);
     } catch (_) {}
 
     _activeProductId = _normalizeActiveProductId(_activeProductId);
 
+    if (achievementsChanged) {
+      await _persistAchievements();
+    }
     if (mergedPending) {
       await _persistEntriesOnly(prefs);
     }
@@ -450,8 +474,10 @@ class MyTrackingProvider extends ChangeNotifier {
     final migratedPlan = await _migrateLegacyReductionPlanIfNeeded(prefs);
     final migratedGlobalReminder =
         await _migrateLegacyGlobalReminderIfNeeded(prefs);
+    if (_evaluateAchievements(persist: false)) {
+      await _persistAchievements();
+    }
     if (mergedPending) {
-      _evaluateAchievements();
       await _persistEntriesOnly(prefs);
     }
     if (migratedPlan) {
@@ -677,7 +703,6 @@ class MyTrackingProvider extends ChangeNotifier {
 
   Future<void> clearHistory() async {
     _entries.clear();
-    _products = _products.map((p) => p.copyWith(packRemaining: 0)).toList();
     notifyListeners();
     await _persist();
   }
@@ -720,7 +745,7 @@ class MyTrackingProvider extends ChangeNotifier {
 
   // Achievement
 
-  void _evaluateAchievements({bool persist = true}) {
+  bool _evaluateAchievements({bool persist = true}) {
     bool changed = false;
 
     void tryUnlock(AchievementId id) {
@@ -736,20 +761,27 @@ class MyTrackingProvider extends ChangeNotifier {
     if (distinctDayCount >= 7) tryUnlock(AchievementId.tracked7days);
     if (distinctDayCount >= 30) tryUnlock(AchievementId.tracked30days);
 
-    final streak = currentStreakForProduct(_activeProductId);
+    var streak = 0;
+    var underLimit = 0;
+    for (final product in _products) {
+      if (product.isArchived) continue;
+      final productStreak = currentStreakForProduct(product.id);
+      if (productStreak > streak) streak = productStreak;
+      if (product.dailyLimit > 0) {
+        final productUnderLimit = underLimitStreakForProduct(product.id);
+        if (productUnderLimit > underLimit) underLimit = productUnderLimit;
+      }
+    }
+
     if (streak >= 3) tryUnlock(AchievementId.streak3);
     if (streak >= 7) tryUnlock(AchievementId.streak7);
     if (streak >= 14) tryUnlock(AchievementId.streak14);
     if (streak >= 30) tryUnlock(AchievementId.streak30);
 
-    final lim = activeProduct.dailyLimit;
-    if (lim > 0) {
-      final ul = underLimitStreakForProduct(_activeProductId);
-      if (ul >= 1) tryUnlock(AchievementId.underLimit1);
-      if (ul >= 3) tryUnlock(AchievementId.underLimit3);
-      if (ul >= 7) tryUnlock(AchievementId.underLimit7);
-      if (ul >= 30) tryUnlock(AchievementId.underLimit30);
-    }
+    if (underLimit >= 1) tryUnlock(AchievementId.underLimit1);
+    if (underLimit >= 3) tryUnlock(AchievementId.underLimit3);
+    if (underLimit >= 7) tryUnlock(AchievementId.underLimit7);
+    if (underLimit >= 30) tryUnlock(AchievementId.underLimit30);
 
     final plan = _reductionPlan;
     if (plan != null &&
@@ -767,6 +799,7 @@ class MyTrackingProvider extends ChangeNotifier {
     }
 
     if (changed && persist) _persistAchievements();
+    return changed;
   }
 
   Future<void> _persistAchievements() async {
@@ -1288,14 +1321,16 @@ class MyTrackingProvider extends ChangeNotifier {
             : (_products.isNotEmpty ? _products.first.id : ''));
 
     final entriesJson = prefs.getStringList(_keyEntries) ?? [];
-    _entries = entriesJson
-        .map((s) => SmokeEntry.fromJson(jsonDecode(s) as Map<String, dynamic>))
-        .where(
-          (e) => e.timestamp.isAfter(
-            DateTime.now().subtract(const Duration(days: 365)),
-          ),
-        )
-        .toList();
+    final parsedEntries = <SmokeEntry>[];
+    for (final raw in entriesJson) {
+      try {
+        parsedEntries.add(
+          SmokeEntry.fromJson(jsonDecode(raw) as Map<String, dynamic>),
+        );
+      } catch (_) {}
+    }
+    parsedEntries.sort((a, b) => a.timestamp.compareTo(b.timestamp));
+    _entries = parsedEntries;
 
     final themeStr = prefs.getString(_keyTheme);
     if (themeStr != null) _themePreference = _parseTheme(themeStr);
