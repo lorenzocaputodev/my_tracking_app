@@ -528,13 +528,9 @@ class _StatsPanelState extends State<_StatsPanel> {
     final underLimitStreak = _isSingleProduct
         ? widget.provider.underLimitStreakForProduct(widget.selectedProductId!)
         : 0;
-    final trendColor = trend.deltaPercent <= 0
-        ? const Color(0xFF19724F)
-        : const Color(0xFFB06A0E);
-    const projectionColor = Color(0xFFA56A13);
-    const costColor = Color(0xFFB64A63);
-    final peakColor =
-        isDark ? turquoise.withValues(alpha: 0.78) : const Color(0xFF2D6D72);
+    final stats = context.stats;
+    final trendColor =
+        trend.deltaPercent <= 0 ? stats.positive : stats.negative;
 
     return Container(
       margin: const EdgeInsets.only(top: 8, bottom: 4),
@@ -606,7 +602,7 @@ class _StatsPanelState extends State<_StatsPanel> {
                         label: 'Media 30 giorni',
                         value: thirtyDayAverage.toStringAsFixed(1),
                         icon: Icons.calendar_view_month_rounded,
-                        color: const Color(0xFF00B8D4),
+                        color: stats.average,
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -615,7 +611,7 @@ class _StatsPanelState extends State<_StatsPanel> {
                         label: 'Totale periodo',
                         value: '${widget.entries.length} unit\u00E0',
                         icon: Icons.inventory_2_rounded,
-                        color: const Color(0xFF348B7B),
+                        color: stats.volume,
                       ),
                     ),
                   ],
@@ -627,7 +623,7 @@ class _StatsPanelState extends State<_StatsPanel> {
           _StatsSectionCard(
             title: 'Costi e proiezioni',
             subtitle: 'Spesa attuale e stime future',
-            accentColor: const Color(0xFFA56A13),
+            accentColor: stats.projection,
             isDark: isDark,
             isExpanded: _expandedSections.contains(_HistoryStatsSection.costs),
             onTap: () => _toggleSection(_HistoryStatsSection.costs),
@@ -640,7 +636,7 @@ class _StatsPanelState extends State<_StatsPanel> {
                         label: 'Costo periodo',
                         value: formatEuro(totalCost),
                         icon: Icons.euro_rounded,
-                        color: costColor,
+                        color: stats.cost,
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -651,7 +647,7 @@ class _StatsPanelState extends State<_StatsPanel> {
                             ? '$monthlyProjectionUnits unit\u00E0'
                             : '-',
                         icon: Icons.insights_rounded,
-                        color: projectionColor,
+                        color: stats.projection,
                       ),
                     ),
                   ],
@@ -666,7 +662,7 @@ class _StatsPanelState extends State<_StatsPanel> {
                             ? '$annualUnitsEstimate unit\u00E0'
                             : '-',
                         icon: Icons.calendar_today_rounded,
-                        color: const Color(0xFFB2842E),
+                        color: stats.estimate,
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -677,7 +673,7 @@ class _StatsPanelState extends State<_StatsPanel> {
                             ? formatEuro(monthlyProjectionCost, decimals: 0)
                             : formatEuro(0, decimals: 0),
                         icon: Icons.account_balance_wallet_rounded,
-                        color: Colors.pinkAccent,
+                        color: stats.cost,
                       ),
                     ),
                   ],
@@ -689,7 +685,7 @@ class _StatsPanelState extends State<_StatsPanel> {
                       ? formatEuro(annualCostEstimate, decimals: 0)
                       : formatEuro(0, decimals: 0),
                   icon: Icons.savings_rounded,
-                  color: Colors.deepOrangeAccent,
+                  color: stats.time,
                   fullWidth: true,
                 ),
               ],
@@ -699,7 +695,7 @@ class _StatsPanelState extends State<_StatsPanel> {
           _StatsSectionCard(
             title: 'Abitudini e orari',
             subtitle: 'Ritmo, giorni e fascia oraria pi\u00F9 attiva',
-            accentColor: peakColor,
+            accentColor: stats.peak,
             isDark: isDark,
             isExpanded: _expandedSections.contains(_HistoryStatsSection.habits),
             onTap: () => _toggleSection(_HistoryStatsSection.habits),
@@ -713,7 +709,7 @@ class _StatsPanelState extends State<_StatsPanel> {
                         label: 'Ora picco',
                         value: peakHour != null ? _formatHour(peakHour) : '-',
                         icon: Icons.access_time_rounded,
-                        color: peakColor,
+                        color: stats.peak,
                       ),
                     ),
                     const SizedBox(width: 10),
