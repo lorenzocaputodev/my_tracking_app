@@ -73,7 +73,8 @@ class MyTrackingProvider extends ChangeNotifier {
   static const _keyActiveProduct = 'active_product_id';
   static const _keyEntries = 'smoke_entries';
   static const _keyAchievements = 'achievements_v2';
-  static const _keyReductionPlan = 'reduction_plan';
+  static const _keyReductionPlans = 'reduction_plans_v2';
+  static const _keyReductionPlanLegacy = 'reduction_plan';
   static const _keyTheme = 'app_theme_preference';
   static const _keyOnboardingDone = 'onboarding_done';
   static const _keyHasCompletedSetup = 'hasCompletedSetup';
@@ -93,7 +94,7 @@ class MyTrackingProvider extends ChangeNotifier {
   bool _isLoading = true;
 
   final Map<AchievementId, Achievement> _achievements = {};
-  ReductionPlan? _reductionPlan;
+  final Map<String, ReductionPlan> _reductionPlans = {};
   AppThemePreference _themePreference = AppThemePreference.dark;
   AppReminderSettings _globalReminderSettings = AppReminderSettings.defaults;
 
@@ -346,9 +347,11 @@ class MyTrackingProvider extends ChangeNotifier {
       );
   }
 
-  ReductionPlan? get reductionPlan => _reductionPlan;
   ReductionPlan? get activeProductReductionPlan =>
       reductionPlanForProduct(_activeProductId);
+
+  List<ReductionPlan> get reductionPlans =>
+      List.unmodifiable(_reductionPlans.values);
 
   int? get peakHour => peakHourForProduct(_activeProductId);
   MapEntry<DateTime, int>? get worstDay => worstDayForProduct(_activeProductId);
@@ -428,7 +431,7 @@ class MyTrackingProvider extends ChangeNotifier {
     await prefs.reload();
     _hydrateFromPrefs(prefs);
     final mergedPending = await _consumePendingWidgetEntries(prefs);
-    final migratedPlan = await _migrateLegacyReductionPlanIfNeeded(prefs);
+    final migratedPlan = _needsReductionPlanRewrite(prefs);
     final migratedGlobalReminder =
         await _migrateLegacyGlobalReminderIfNeeded(prefs);
 
@@ -446,7 +449,7 @@ class MyTrackingProvider extends ChangeNotifier {
       await _persistEntriesOnly(prefs);
     }
     if (migratedPlan) {
-      await _persistReductionPlanOnly(prefs);
+      await _persistReductionPlansOnly(prefs);
     }
     if (migratedGlobalReminder) {
       await _persistGlobalReminderOnly(prefs);
@@ -471,7 +474,7 @@ class MyTrackingProvider extends ChangeNotifier {
     await prefs.reload();
     _hydrateFromPrefs(prefs);
     final mergedPending = await _consumePendingWidgetEntries(prefs);
-    final migratedPlan = await _migrateLegacyReductionPlanIfNeeded(prefs);
+    final migratedPlan = _needsReductionPlanRewrite(prefs);
     final migratedGlobalReminder =
         await _migrateLegacyGlobalReminderIfNeeded(prefs);
     if (_evaluateAchievements(persist: false)) {
@@ -481,7 +484,7 @@ class MyTrackingProvider extends ChangeNotifier {
       await _persistEntriesOnly(prefs);
     }
     if (migratedPlan) {
-      await _persistReductionPlanOnly(prefs);
+      await _persistReductionPlansOnly(prefs);
     }
     if (migratedGlobalReminder) {
       await _persistGlobalReminderOnly(prefs);
@@ -631,9 +634,7 @@ class MyTrackingProvider extends ChangeNotifier {
       await prefs.setString(_keyActiveProduct, _activeProductId);
     }
 
-    if (_reductionPlan?.productId == id) {
-      _reductionPlan = null;
-    }
+    _reductionPlans.remove(id);
 
     await _persist();
     notifyListeners();
@@ -719,7 +720,7 @@ class MyTrackingProvider extends ChangeNotifier {
         !_products.any((p) => p.id == boundProductId)) {
       return;
     }
-    _reductionPlan = ReductionPlan(
+    _reductionPlans[boundProductId] = ReductionPlan(
       productId: boundProductId,
       startAverage: dailyAverageForProduct(boundProductId) > 0
           ? dailyAverageForProduct(boundProductId)
@@ -729,17 +730,15 @@ class MyTrackingProvider extends ChangeNotifier {
       startDate: DateTime.now(),
     );
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(
-      _keyReductionPlan,
-      jsonEncode(_reductionPlan!.toJson()),
-    );
+    await _persistReductionPlansOnly(prefs);
     notifyListeners();
   }
 
-  Future<void> deleteReductionPlan() async {
-    _reductionPlan = null;
+  Future<void> deleteReductionPlan({String? productId}) async {
+    final targetId = productId ?? _activeProductId;
+    if (_reductionPlans.remove(targetId) == null) return;
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_keyReductionPlan);
+    await _persistReductionPlansOnly(prefs);
     notifyListeners();
   }
 
@@ -783,20 +782,23 @@ class MyTrackingProvider extends ChangeNotifier {
     if (underLimit >= 7) tryUnlock(AchievementId.underLimit7);
     if (underLimit >= 30) tryUnlock(AchievementId.underLimit30);
 
-    final plan = _reductionPlan;
-    if (plan != null &&
-        plan.productId.isNotEmpty &&
-        plan.startAverage > 0 &&
-        _products.any(
-          (product) => product.id == plan.productId && !product.isArchived,
-        )) {
+    var reduction = 0.0;
+    for (final plan in _reductionPlans.values) {
+      if (plan.productId.isEmpty || plan.startAverage <= 0) continue;
+      if (!_products.any(
+        (product) => product.id == plan.productId && !product.isArchived,
+      )) {
+        continue;
+      }
       final currentAverage = dailyAverageForProduct(plan.productId);
-      final reduction =
+      final planReduction =
           (plan.startAverage - currentAverage) / plan.startAverage;
-      if (reduction >= 0.10) tryUnlock(AchievementId.reduction10pct);
-      if (reduction >= 0.25) tryUnlock(AchievementId.reduction25pct);
-      if (reduction >= 0.50) tryUnlock(AchievementId.reduction50pct);
+      if (planReduction > reduction) reduction = planReduction;
     }
+
+    if (reduction >= 0.10) tryUnlock(AchievementId.reduction10pct);
+    if (reduction >= 0.25) tryUnlock(AchievementId.reduction25pct);
+    if (reduction >= 0.50) tryUnlock(AchievementId.reduction50pct);
 
     if (changed && persist) _persistAchievements();
     return changed;
@@ -809,13 +811,8 @@ class MyTrackingProvider extends ChangeNotifier {
   }
 
   ReductionPlan? reductionPlanForProduct(String productId) {
-    final plan = _reductionPlan;
-    if (plan == null ||
-        plan.productId != productId ||
-        _isArchivedProductId(productId)) {
-      return null;
-    }
-    return plan;
+    if (productId.isEmpty || _isArchivedProductId(productId)) return null;
+    return _reductionPlans[productId];
   }
 
   ReductionPlanProgress? reductionProgressForProduct(String productId) {
@@ -989,31 +986,29 @@ class MyTrackingProvider extends ChangeNotifier {
     return DateTime(local.year, local.month, local.day);
   }
 
-  ReductionPlan? _normalizeReductionPlan(ReductionPlan? plan) {
-    if (plan == null) return null;
-    if (_products.isEmpty) return null;
-    if (plan.productId.isEmpty) {
-      final fallbackId = _normalizeActiveProductId(_activeProductId);
-      return plan.copyWith(productId: fallbackId);
+  Map<String, ReductionPlan> _normalizeReductionPlans(
+    Iterable<ReductionPlan> plans,
+  ) {
+    final normalized = <String, ReductionPlan>{};
+    if (_products.isEmpty) return normalized;
+
+    final knownIds = _products.map((product) => product.id).toSet();
+    for (final plan in plans) {
+      final boundId = plan.productId.isEmpty
+          ? _normalizeActiveProductId(_activeProductId)
+          : plan.productId;
+      if (boundId.isEmpty || !knownIds.contains(boundId)) continue;
+      if (normalized.containsKey(boundId)) continue;
+      normalized[boundId] = plan.productId == boundId
+          ? plan
+          : plan.copyWith(productId: boundId);
     }
-    if (_products.any((product) => product.id == plan.productId)) {
-      return plan;
-    }
-    return plan.copyWith(
-      productId: _normalizeActiveProductId(_activeProductId),
-    );
+    return normalized;
   }
 
-  Future<bool> _migrateLegacyReductionPlanIfNeeded(SharedPreferences _) async {
-    final normalized = _normalizeReductionPlan(_reductionPlan);
-    if (normalized == null || _reductionPlan == null) {
-      return false;
-    }
-    if (normalized.productId == _reductionPlan!.productId) {
-      return false;
-    }
-    _reductionPlan = normalized;
-    return true;
+  bool _needsReductionPlanRewrite(SharedPreferences prefs) {
+    return prefs.containsKey(_keyReductionPlanLegacy) ||
+        !prefs.containsKey(_keyReductionPlans);
   }
 
   Future<bool> _migrateLegacyGlobalReminderIfNeeded(
@@ -1022,14 +1017,14 @@ class MyTrackingProvider extends ChangeNotifier {
     return !prefs.containsKey(_keyGlobalReminderSettings);
   }
 
-  Future<void> _persistReductionPlanOnly(SharedPreferences prefs) async {
-    if (_reductionPlan == null) {
-      await prefs.remove(_keyReductionPlan);
-      return;
-    }
-    await prefs.setString(
-      _keyReductionPlan,
-      jsonEncode(_reductionPlan!.toJson()),
+  Future<void> _persistReductionPlansOnly(SharedPreferences prefs) async {
+    await prefs.setString(_keyReductionPlans, _encodeReductionPlans());
+    await prefs.remove(_keyReductionPlanLegacy);
+  }
+
+  String _encodeReductionPlans() {
+    return jsonEncode(
+      _reductionPlans.map((id, plan) => MapEntry(id, plan.toJson())),
     );
   }
 
@@ -1059,7 +1054,7 @@ class MyTrackingProvider extends ChangeNotifier {
       entries: List<SmokeEntry>.from(_entries)
         ..sort((a, b) => a.timestamp.compareTo(b.timestamp)),
       achievements: List<Achievement>.from(allAchievements),
-      reductionPlan: _reductionPlan,
+      reductionPlans: List<ReductionPlan>.from(_reductionPlans.values),
     );
 
     return AppBackupCsv.encode(data);
@@ -1082,7 +1077,9 @@ class MyTrackingProvider extends ChangeNotifier {
     _achievements
       ..clear()
       ..addEntries(data.achievements.map((a) => MapEntry(a.id, a)));
-    _reductionPlan = _normalizeReductionPlan(data.reductionPlan);
+    _reductionPlans
+      ..clear()
+      ..addAll(_normalizeReductionPlans(data.reductionPlans));
     _themePreference = _parseTheme(data.themePreferenceName);
 
     final onboardingDone =
@@ -1237,14 +1234,8 @@ class MyTrackingProvider extends ChangeNotifier {
       _keyAchievements,
       jsonEncode(_achievements.values.map((a) => a.toJson()).toList()),
     );
-    if (_reductionPlan != null) {
-      await prefs.setString(
-        _keyReductionPlan,
-        jsonEncode(_reductionPlan!.toJson()),
-      );
-    } else {
-      await prefs.remove(_keyReductionPlan);
-    }
+    await prefs.setString(_keyReductionPlans, _encodeReductionPlans());
+    await prefs.remove(_keyReductionPlanLegacy);
     await prefs.setString(_keyTheme, _themePreference.name);
     await prefs.setBool(_keyOnboardingDone, onboardingDone);
     await prefs.setBool(_keyHasCompletedSetup, hasCompletedSetup);
@@ -1349,17 +1340,37 @@ class MyTrackingProvider extends ChangeNotifier {
       } catch (_) {}
     }
 
-    _reductionPlan = null;
-    final planJson = prefs.getString(_keyReductionPlan);
-    if (planJson != null) {
+    _activeProductId = _normalizeActiveProductId(_activeProductId);
+
+    final loadedPlans = <ReductionPlan>[];
+    final plansJson = prefs.getString(_keyReductionPlans);
+    if (plansJson != null) {
       try {
-        _reductionPlan = _normalizeReductionPlan(
-          ReductionPlan.fromJson(jsonDecode(planJson) as Map<String, dynamic>),
-        );
+        final decoded = (jsonDecode(plansJson) as Map).cast<String, dynamic>();
+        for (final value in decoded.values) {
+          try {
+            loadedPlans.add(
+              ReductionPlan.fromJson((value as Map).cast<String, dynamic>()),
+            );
+          } catch (_) {}
+        }
       } catch (_) {}
+    } else {
+      final legacyJson = prefs.getString(_keyReductionPlanLegacy);
+      if (legacyJson != null) {
+        try {
+          loadedPlans.add(
+            ReductionPlan.fromJson(
+              jsonDecode(legacyJson) as Map<String, dynamic>,
+            ),
+          );
+        } catch (_) {}
+      }
     }
 
-    _activeProductId = _normalizeActiveProductId(_activeProductId);
+    _reductionPlans
+      ..clear()
+      ..addAll(_normalizeReductionPlans(loadedPlans));
   }
 
   // Aggregazioni e persistenza

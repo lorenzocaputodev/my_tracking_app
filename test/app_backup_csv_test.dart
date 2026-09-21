@@ -55,13 +55,15 @@ void main() {
         Achievement.definition(AchievementId.firstEntry).unlock(),
         Achievement.definition(AchievementId.tracked7days),
       ],
-      reductionPlan: ReductionPlan(
-        productId: 'p1',
-        startAverage: 12,
-        targetPerDay: 7,
-        totalWeeks: 8,
-        startDate: DateTime.parse('2026-04-01T00:00:00.000Z'),
-      ),
+      reductionPlans: <ReductionPlan>[
+        ReductionPlan(
+          productId: 'p1',
+          startAverage: 12,
+          targetPerDay: 7,
+          totalWeeks: 8,
+          startDate: DateTime.parse('2026-04-01T00:00:00.000Z'),
+        ),
+      ],
     );
 
     final csv = AppBackupCsv.encode(data);
@@ -87,9 +89,9 @@ void main() {
           .isUnlocked,
       isTrue,
     );
-    expect(decoded.reductionPlan, isNotNull);
-    expect(decoded.reductionPlan!.productId, 'p1');
-    expect(decoded.reductionPlan!.targetPerDay, 7);
+    expect(decoded.reductionPlans, hasLength(1));
+    expect(decoded.reductionPlans.first.productId, 'p1');
+    expect(decoded.reductionPlans.first.targetPerDay, 7);
   });
 
   test('throws on full backup entries referencing missing products', () {

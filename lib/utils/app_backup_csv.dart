@@ -19,7 +19,7 @@ class AppBackupData {
   final List<TrackedProduct> products;
   final List<SmokeEntry> entries;
   final List<Achievement> achievements;
-  final ReductionPlan? reductionPlan;
+  final List<ReductionPlan> reductionPlans;
 
   const AppBackupData({
     required this.backupVersion,
@@ -32,12 +32,12 @@ class AppBackupData {
     required this.products,
     required this.entries,
     required this.achievements,
-    required this.reductionPlan,
+    required this.reductionPlans,
   });
 }
 
 class AppBackupCsv {
-  static const String backupVersion = '5';
+  static const String backupVersion = '6';
   static const String backupMarker = '__MY_TRACKING_APP_BACKUP__';
   static const String sectionMarker = '__SECTION__';
 
@@ -169,8 +169,7 @@ class AppBackupCsv {
           'startDate',
         ]),
       );
-    if (data.reductionPlan != null) {
-      final plan = data.reductionPlan!;
+    for (final plan in data.reductionPlans) {
       buffer.writeln(
         _encodeRow(<String>[
           plan.productId,
@@ -239,7 +238,8 @@ class AppBackupCsv {
     final products = _decodeProducts(sections[productsSection]);
     final entries = _decodeEntries(sections[entriesSection]);
     final achievements = _decodeAchievements(sections[achievementsSection]);
-    final reductionPlan = _decodeReductionPlan(sections[reductionPlanSection]);
+    final reductionPlans =
+        _decodeReductionPlans(sections[reductionPlanSection]);
 
     final productIds = products.map((product) => product.id).toSet();
     for (final entry in entries) {
@@ -249,6 +249,13 @@ class AppBackupCsv {
         );
       }
     }
+
+    final usablePlans = reductionPlans
+        .where(
+          (plan) =>
+              plan.productId.isEmpty || productIds.contains(plan.productId),
+        )
+        .toList(growable: false);
 
     return AppBackupData(
       backupVersion: meta['backupVersion']?.trim().isNotEmpty == true
@@ -264,7 +271,7 @@ class AppBackupCsv {
       products: products,
       entries: entries,
       achievements: achievements,
-      reductionPlan: reductionPlan,
+      reductionPlans: usablePlans,
     );
   }
 
@@ -455,13 +462,14 @@ class AppBackupCsv {
         .toList(growable: false);
   }
 
-  static ReductionPlan? _decodeReductionPlan(List<List<String>>? rows) {
+  static List<ReductionPlan> _decodeReductionPlans(List<List<String>>? rows) {
     final sectionRows = rows ?? <List<String>>[];
-    if (sectionRows.isEmpty) return null;
+    if (sectionRows.isEmpty) return <ReductionPlan>[];
 
+    final hasProductId = sectionRows.first.length >= 5;
     _expectHeader(
       sectionRows.first,
-      sectionRows.first.length >= 5
+      hasProductId
           ? <String>[
               'productId',
               'startAverage',
@@ -472,23 +480,24 @@ class AppBackupCsv {
           : <String>['startAverage', 'targetPerDay', 'totalWeeks', 'startDate'],
       'piano di riduzione',
     );
-    if (sectionRows.length < 2 ||
-        sectionRows[1].every((cell) => cell.isEmpty)) {
-      return null;
-    }
 
-    final row = sectionRows[1];
-    if (row.length < 4) {
-      throw const FormatException('Riga piano di riduzione incompleta.');
+    final plans = <ReductionPlan>[];
+    for (final row in sectionRows.skip(1)) {
+      if (row.isEmpty || row.every((cell) => cell.trim().isEmpty)) continue;
+      if (row.length < 4) {
+        throw const FormatException('Riga piano di riduzione incompleta.');
+      }
+      plans.add(
+        ReductionPlan(
+          productId: hasProductId ? row[0] : '',
+          startAverage: double.parse(row[hasProductId ? 1 : 0]),
+          targetPerDay: double.parse(row[hasProductId ? 2 : 1]),
+          totalWeeks: int.parse(row[hasProductId ? 3 : 2]),
+          startDate: DateTime.parse(row[hasProductId ? 4 : 3]),
+        ),
+      );
     }
-    final hasProductId = sectionRows.first.length >= 5;
-    return ReductionPlan(
-      productId: hasProductId ? row[0] : '',
-      startAverage: double.parse(row[hasProductId ? 1 : 0]),
-      targetPerDay: double.parse(row[hasProductId ? 2 : 1]),
-      totalWeeks: int.parse(row[hasProductId ? 3 : 2]),
-      startDate: DateTime.parse(row[hasProductId ? 4 : 3]),
-    );
+    return plans;
   }
 
   static void _expectHeader(
