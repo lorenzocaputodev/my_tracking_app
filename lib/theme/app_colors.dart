@@ -15,6 +15,8 @@ class AppColors extends ThemeExtension<AppColors> {
   final Color textMuted;
   final Color textFaint;
   final Color inputFill;
+  final Color action;
+  final Color onAction;
 
   const AppColors({
     required this.scaffold,
@@ -30,6 +32,8 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.textMuted,
     required this.textFaint,
     required this.inputFill,
+    required this.action,
+    required this.onAction,
   });
 
   static final AppColors dark = AppColors(
@@ -46,6 +50,8 @@ class AppColors extends ThemeExtension<AppColors> {
     textMuted: Colors.grey,
     textFaint: Colors.white38,
     inputFill: Colors.white.withValues(alpha: 0.06),
+    action: const Color(0xFF00CED1),
+    onAction: Colors.black87,
   );
 
   static final AppColors light = AppColors(
@@ -54,7 +60,7 @@ class AppColors extends ThemeExtension<AppColors> {
     surfaceElevated: Colors.white,
     surfaceSunken: Colors.white,
     surfaceInset: const Color(0xFFF9FCFC),
-    cardBorder: Colors.black.withValues(alpha: 0.05),
+    cardBorder: Colors.black.withValues(alpha: 0.10),
     subtleBorder: Colors.black.withValues(alpha: 0.06),
     textPrimary: const Color(0xFF132222),
     textHeading: const Color(0xFF1A1A1A),
@@ -62,6 +68,8 @@ class AppColors extends ThemeExtension<AppColors> {
     textMuted: const Color(0xFF556B6D),
     textFaint: const Color(0xFF607274),
     inputFill: const Color(0xFFE8F0F0),
+    action: const Color(0xFF00C2C6),
+    onAction: Colors.black87,
   );
 
   @override
@@ -79,6 +87,8 @@ class AppColors extends ThemeExtension<AppColors> {
     Color? textMuted,
     Color? textFaint,
     Color? inputFill,
+    Color? action,
+    Color? onAction,
   }) {
     return AppColors(
       scaffold: scaffold ?? this.scaffold,
@@ -94,6 +104,8 @@ class AppColors extends ThemeExtension<AppColors> {
       textMuted: textMuted ?? this.textMuted,
       textFaint: textFaint ?? this.textFaint,
       inputFill: inputFill ?? this.inputFill,
+      action: action ?? this.action,
+      onAction: onAction ?? this.onAction,
     );
   }
 

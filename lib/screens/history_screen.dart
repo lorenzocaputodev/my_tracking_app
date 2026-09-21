@@ -10,12 +10,15 @@ import '../theme/app_fonts.dart';
 import '../theme/app_decorations.dart';
 import '../theme/theme_context.dart';
 import '../theme/app_dimens.dart';
+import '../theme/app_text_styles.dart';
 
 enum _HistoryProductFilter { all, specific }
 
 enum _HistoryPeriodPreset { today, sevenDays, thirtyDays, all, custom }
 
 enum _HistoryStatsSection { overview, costs, habits }
+
+const int _minDaysForProjections = 7;
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -514,6 +517,11 @@ class _StatsPanelState extends State<_StatsPanel> {
     final monthlyProjectionCost = widget.provider.projectedMonthlyCost(
       productId: widget.selectedProductId,
     );
+    final trackedDays = widget.entries
+        .map((entry) => _dateOnly(entry.timestamp))
+        .toSet()
+        .length;
+    final thinData = trackedDays < _minDaysForProjections;
     final annualUnitsEstimate =
         dayCount > 0 ? ((widget.entries.length / dayCount) * 365).round() : 0;
     final annualCostEstimate = dayCount > 0 ? (totalCost / dayCount) * 365 : 0;
@@ -688,6 +696,10 @@ class _StatsPanelState extends State<_StatsPanel> {
                   color: stats.cost,
                   fullWidth: true,
                 ),
+                if (thinData) ...[
+                  const SizedBox(height: 10),
+                  _ThinDataNote(trackedDays: trackedDays),
+                ],
               ],
             ),
           ),
@@ -1078,6 +1090,39 @@ class _HourHeatmap extends StatelessWidget {
           ),
         );
       }),
+    );
+  }
+}
+
+class _ThinDataNote extends StatelessWidget {
+  final int trackedDays;
+
+  const _ThinDataNote({required this.trackedDays});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final accent = context.stats.projection;
+    final giorni = trackedDays == 1 ? 'un giorno' : '$trackedDays giorni';
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: accent.withValues(alpha: AppAlphas.tintPanel),
+        borderRadius: BorderRadius.circular(AppRadii.chip),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.info_outline_rounded, size: 15, color: accent),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: Text(
+              'Stime basate su $giorni di dati: diventeranno attendibili con qualche giorno in piu.',
+              style: AppTextStyles.hint(colors.textBody),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
