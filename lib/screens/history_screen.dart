@@ -7,6 +7,9 @@ import '../providers/my_tracking_provider.dart';
 import '../utils/app_formatters.dart';
 import '../widgets/tracking_input_decoration.dart';
 import '../theme/app_fonts.dart';
+import '../theme/app_decorations.dart';
+import '../theme/theme_context.dart';
+import '../theme/app_dimens.dart';
 
 enum _HistoryProductFilter { all, specific }
 
@@ -335,15 +338,7 @@ class _HistoryFiltersCard extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF161B1B) : Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: isDark
-              ? Colors.white.withValues(alpha: 0.05)
-              : Colors.black.withValues(alpha: 0.05),
-        ),
-      ),
+      decoration: AppDecorations.card(context.colors),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -544,15 +539,7 @@ class _StatsPanelState extends State<_StatsPanel> {
     return Container(
       margin: const EdgeInsets.only(top: 8, bottom: 4),
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF161B1B) : Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: isDark
-              ? Colors.white.withValues(alpha: 0.05)
-              : Colors.black.withValues(alpha: 0.05),
-        ),
-      ),
+      decoration: AppDecorations.card(context.colors),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -984,12 +971,7 @@ class _EmptyState extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
-      decoration: BoxDecoration(
-        color: Theme.of(context).brightness == Brightness.dark
-            ? const Color(0xFF161B1B)
-            : Colors.white,
-        borderRadius: BorderRadius.circular(20),
-      ),
+      decoration: AppDecorations.surface(context.colors),
       child: Column(
         children: [
           Icon(icon, size: 42, color: color.withValues(alpha: 0.4)),
@@ -1333,15 +1315,7 @@ class _WeeklyChart extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 8, top: 4),
       padding: const EdgeInsets.fromLTRB(12, 20, 16, 12),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF161B1B) : Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: isDark
-              ? Colors.white.withValues(alpha: 0.05)
-              : Colors.black.withValues(alpha: 0.05),
-        ),
-      ),
+      decoration: AppDecorations.card(context.colors),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1516,15 +1490,7 @@ class _MonthlyChart extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 8, top: 4),
       padding: const EdgeInsets.fromLTRB(12, 20, 16, 12),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF161B1B) : Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: isDark
-              ? Colors.white.withValues(alpha: 0.05)
-              : Colors.black.withValues(alpha: 0.05),
-        ),
-      ),
+      decoration: AppDecorations.card(context.colors),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1683,7 +1649,6 @@ class _EntryTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final turquoise = Theme.of(context).colorScheme.primary;
     final productName =
         provider.productNameById(entry.productId) ?? provider.config.name;
@@ -1717,14 +1682,9 @@ class _EntryTile extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.only(bottom: 8),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF161B1B) : Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: isDark
-                ? Colors.white.withValues(alpha: 0.05)
-                : Colors.black.withValues(alpha: 0.05),
-          ),
+        decoration: AppDecorations.card(
+          context.colors,
+          radius: AppRadii.tile,
         ),
         child: Row(
           children: [

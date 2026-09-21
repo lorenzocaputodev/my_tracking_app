@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import '../models/achievement.dart';
 import '../providers/my_tracking_provider.dart';
 import '../theme/app_fonts.dart';
+import '../theme/app_decorations.dart';
+import '../theme/theme_context.dart';
 
 class AchievementsScreen extends StatelessWidget {
   const AchievementsScreen({super.key});
@@ -79,12 +81,11 @@ class _ProgressBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final pct = total > 0 ? unlocked / total : 0.0;
 
     return Container(
       padding: const EdgeInsets.all(18),
-      decoration: _cardDecoration(isDark),
+      decoration: AppDecorations.card(context.colors),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -133,7 +134,6 @@ class _ReductionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final plan = provider.activeProductReductionPlan;
 
     if (plan == null) {
@@ -178,7 +178,7 @@ class _ReductionCard extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.all(18),
-      decoration: _cardDecoration(isDark),
+      decoration: AppDecorations.card(context.colors),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -892,11 +892,10 @@ class _EmptyHint extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
-      decoration: _cardDecoration(isDark),
+      decoration: AppDecorations.card(context.colors),
       child: Text(
         text,
         textAlign: TextAlign.center,
@@ -908,16 +907,4 @@ class _EmptyHint extends StatelessWidget {
       ),
     );
   }
-}
-
-BoxDecoration _cardDecoration(bool isDark) {
-  return BoxDecoration(
-    color: isDark ? const Color(0xFF161B1B) : Colors.white,
-    borderRadius: BorderRadius.circular(20),
-    border: Border.all(
-      color: isDark
-          ? Colors.white.withValues(alpha: 0.05)
-          : Colors.black.withValues(alpha: 0.05),
-    ),
-  );
 }
