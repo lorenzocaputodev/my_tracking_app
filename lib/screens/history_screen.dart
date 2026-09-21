@@ -1117,7 +1117,7 @@ class _ThinDataNote extends StatelessWidget {
           const SizedBox(width: AppSpacing.sm),
           Expanded(
             child: Text(
-              'Stime basate su $giorni di dati: diventeranno attendibili con qualche giorno in piu.',
+              'Stime basate su $giorni di dati: diventeranno attendibili con qualche giorno in più.',
               style: AppTextStyles.hint(colors.textBody),
             ),
           ),
