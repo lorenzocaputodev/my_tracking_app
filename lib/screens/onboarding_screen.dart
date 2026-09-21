@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'product_setup_screen.dart';
 import '../theme/app_fonts.dart';
+import '../theme/theme_context.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -152,7 +153,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                             fontWeight: FontWeight.w900,
                             height: 1.15,
                             color:
-                                isDark ? Colors.white : const Color(0xFF1A1A1A),
+                                context.colors.textHeading,
                             letterSpacing: -0.5,
                           ),
                         ),
