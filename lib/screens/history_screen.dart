@@ -1263,7 +1263,6 @@ class _WeeklyChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final turquoise = Theme.of(context).colorScheme.primary;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final today = _dateOnly(DateTime.now());
     final days = List.generate(7, (index) {
       return today.subtract(Duration(days: 6 - index));
@@ -1428,7 +1427,7 @@ class _WeeklyChart extends StatelessWidget {
                     barTouchData: BarTouchData(
                       touchTooltipData: BarTouchTooltipData(
                         getTooltipColor: (_) =>
-                            isDark ? const Color(0xFF1E2A2A) : Colors.white,
+                            context.colors.surfaceSunken,
                         getTooltipItem: (group, _, rod, __) => BarTooltipItem(
                           '${rod.toY.toInt()}',
                           TextStyle(fontFamily: AppFonts.sans,
@@ -1457,7 +1456,6 @@ class _MonthlyChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final turquoise = Theme.of(context).colorScheme.primary;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final today = _dateOnly(DateTime.now());
     final days = List.generate(30, (index) {
       return today.subtract(Duration(days: 29 - index));
@@ -1609,7 +1607,7 @@ class _MonthlyChart extends StatelessWidget {
                     lineTouchData: LineTouchData(
                       touchTooltipData: LineTouchTooltipData(
                         getTooltipColor: (_) =>
-                            isDark ? const Color(0xFF1E2A2A) : Colors.white,
+                            context.colors.surfaceSunken,
                         getTooltipItems: (touchedSpots) {
                           return touchedSpots.map((spot) {
                             final index = spot.x.round().clamp(0, 29);

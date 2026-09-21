@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../utils/minutes_presets.dart';
 import 'tracking_input_decoration.dart';
 import '../theme/app_fonts.dart';
+import '../theme/theme_context.dart';
 
 class MinutesLostSelector extends StatelessWidget {
   final bool isDark;
@@ -60,7 +61,7 @@ class MinutesLostSelector extends StatelessWidget {
                   size: 20,
                 ),
                 style: baseTextStyle,
-                dropdownColor: isDark ? const Color(0xFF1C1C1E) : Colors.white,
+                dropdownColor: context.colors.surfaceElevated,
                 borderRadius: BorderRadius.circular(14),
                 items: [
                   ...minutesPresets.map(
