@@ -134,11 +134,7 @@ class _ReductionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final plan = provider.reductionPlan;
-    final isArchivedPlan = plan != null &&
-        provider.archivedProducts.any(
-          (product) => product.id == plan.productId,
-        );
+    final plan = provider.activeProductReductionPlan;
 
     if (plan == null) {
       return OutlinedButton.icon(
@@ -165,9 +161,7 @@ class _ReductionCard extends StatelessWidget {
     }
 
     final productName = provider.productNameById(plan.productId) ?? 'Prodotto';
-    final progress = isArchivedPlan
-        ? null
-        : provider.reductionProgressForProduct(plan.productId);
+    final progress = provider.reductionProgressForProduct(plan.productId);
     final recentAverage = progress?.recentAverage ??
         provider.averageDailyCountForRange(
           productId: plan.productId,
@@ -175,17 +169,12 @@ class _ReductionCard extends StatelessWidget {
           end: DateTime.now(),
         );
     final status = progress?.status;
-    final (statusLabel, statusColor) = isArchivedPlan
-        ? ('SOSPESO', Colors.orangeAccent)
-        : switch (status) {
-            ReductionPlanStatus.ahead => (
-                'AVANTI',
-                Colors.greenAccent.shade700,
-              ),
-            ReductionPlanStatus.onTrack => ('IN LINEA', color),
-            ReductionPlanStatus.behind => ('IN RITARDO', Colors.orangeAccent),
-            null => ('ATTIVO', color),
-          };
+    final (statusLabel, statusColor) = switch (status) {
+      ReductionPlanStatus.ahead => ('AVANTI', Colors.greenAccent.shade700),
+      ReductionPlanStatus.onTrack => ('IN LINEA', color),
+      ReductionPlanStatus.behind => ('IN RITARDO', Colors.orangeAccent),
+      null => ('ATTIVO', color),
+    };
 
     return Container(
       padding: const EdgeInsets.all(18),
@@ -301,17 +290,15 @@ class _ReductionCard extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    isArchivedPlan
-                        ? 'Piano sospeso. Ripristina il prodotto dalle impostazioni per riattivarlo.'
-                        : switch (status) {
-                            ReductionPlanStatus.ahead =>
-                              'Sei sotto il target settimanale previsto.',
-                            ReductionPlanStatus.onTrack =>
-                              'Sei in linea con il piano attivo.',
-                            ReductionPlanStatus.behind =>
-                              'Sei sopra il target settimanale previsto.',
-                            null => 'Piano attivo su questo prodotto.',
-                          },
+                    switch (status) {
+                      ReductionPlanStatus.ahead =>
+                        'Sei sotto il target settimanale previsto.',
+                      ReductionPlanStatus.onTrack =>
+                        'Sei in linea con il piano attivo.',
+                      ReductionPlanStatus.behind =>
+                        'Sei sopra il target settimanale previsto.',
+                      null => 'Piano attivo su questo prodotto.',
+                    },
                     style: GoogleFonts.dmSans(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
@@ -327,17 +314,15 @@ class _ReductionCard extends StatelessWidget {
             children: [
               Expanded(
                 child: OutlinedButton(
-                  onPressed: isArchivedPlan
-                      ? null
-                      : () => _showPlanSheet(
-                            context,
-                            provider,
-                            color,
-                            productId: plan.productId,
-                          ),
+                  onPressed: () => _showPlanSheet(
+                    context,
+                    provider,
+                    color,
+                    productId: plan.productId,
+                  ),
                   style: _outlinedButtonStyle(color),
                   child: Text(
-                    isArchivedPlan ? 'Sospeso' : 'Modifica',
+                    'Modifica',
                     style: GoogleFonts.dmSans(
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
@@ -347,7 +332,8 @@ class _ReductionCard extends StatelessWidget {
               ),
               const SizedBox(width: 10),
               OutlinedButton(
-                onPressed: () => _confirmDeletePlan(context, provider),
+                onPressed: () =>
+                    _confirmDeletePlan(context, provider, plan.productId),
                 style: _outlinedButtonStyle(Colors.redAccent),
                 child: Text(
                   'Elimina',
@@ -375,6 +361,7 @@ class _ReductionCard extends StatelessWidget {
   Future<void> _confirmDeletePlan(
     BuildContext context,
     MyTrackingProvider provider,
+    String productId,
   ) async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -403,7 +390,7 @@ class _ReductionCard extends StatelessWidget {
       ),
     );
     if (confirmed == true) {
-      await provider.deleteReductionPlan();
+      await provider.deleteReductionPlan(productId: productId);
     }
   }
 }
