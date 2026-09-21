@@ -5,6 +5,7 @@ import '../models/app_reminder_settings.dart';
 import '../widgets/minutes_lost_selector.dart';
 import '../widgets/tracking_input_decoration.dart';
 import '../theme/app_fonts.dart';
+import '../theme/theme_context.dart';
 
 enum FormSubmitPlacement { afterNotifications, bottom }
 
@@ -89,7 +90,7 @@ class ProductConfigurationForm extends StatelessWidget {
           style: TextStyle(fontFamily: AppFonts.sans,
             fontSize: 22,
             fontWeight: FontWeight.w900,
-            color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+            color: context.colors.textHeading,
             letterSpacing: -0.5,
           ),
         ),
@@ -482,7 +483,7 @@ class _TrackingModeSection extends StatelessWidget {
             style: TextStyle(fontFamily: AppFonts.sans,
               fontSize: 12,
               height: 1.5,
-              color: isDark ? Colors.grey[400] : Colors.grey[700],
+              color: context.colors.textBody,
             ),
           ),
         ],
@@ -531,7 +532,7 @@ class _NotificationToggleTile extends StatelessWidget {
                   style: TextStyle(fontFamily: AppFonts.sans,
                     fontSize: 15,
                     fontWeight: FontWeight.w800,
-                    color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                    color: context.colors.textHeading,
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -540,7 +541,7 @@ class _NotificationToggleTile extends StatelessWidget {
                   style: TextStyle(fontFamily: AppFonts.sans,
                     fontSize: 12,
                     height: 1.45,
-                    color: isDark ? Colors.grey[400] : Colors.grey[700],
+                    color: context.colors.textBody,
                   ),
                 ),
               ],
@@ -587,7 +588,7 @@ class _NotificationsUnavailableCard extends StatelessWidget {
               style: TextStyle(fontFamily: AppFonts.sans,
                 fontSize: 13,
                 height: 1.5,
-                color: isDark ? Colors.grey[400] : Colors.grey[700],
+                color: context.colors.textBody,
               ),
             ),
           ),
@@ -627,7 +628,7 @@ class _WidgetHomeSection extends StatelessWidget {
             style: TextStyle(fontFamily: AppFonts.sans,
               fontSize: 17,
               fontWeight: FontWeight.w800,
-              color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+              color: context.colors.textHeading,
             ),
           ),
           const SizedBox(height: 10),
@@ -636,7 +637,7 @@ class _WidgetHomeSection extends StatelessWidget {
             style: TextStyle(fontFamily: AppFonts.sans,
               fontSize: 13,
               height: 1.55,
-              color: isDark ? Colors.grey[400] : Colors.grey[700],
+              color: context.colors.textBody,
             ),
           ),
           const SizedBox(height: 18),
@@ -710,7 +711,7 @@ class _WidgetFeatureBox extends StatelessWidget {
             style: TextStyle(fontFamily: AppFonts.sans,
               fontSize: 14,
               fontWeight: FontWeight.w800,
-              color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+              color: context.colors.textHeading,
             ),
           ),
           const SizedBox(height: 8),
@@ -719,7 +720,7 @@ class _WidgetFeatureBox extends StatelessWidget {
             style: TextStyle(fontFamily: AppFonts.sans,
               fontSize: 12,
               height: 1.45,
-              color: isDark ? Colors.grey[400] : Colors.grey[700],
+              color: context.colors.textBody,
             ),
           ),
         ],

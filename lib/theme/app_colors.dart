@@ -9,6 +9,8 @@ class AppColors extends ThemeExtension<AppColors> {
   final Color cardBorder;
   final Color subtleBorder;
   final Color textPrimary;
+  final Color textHeading;
+  final Color textBody;
   final Color textMuted;
   final Color textFaint;
   final Color inputFill;
@@ -21,6 +23,8 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.cardBorder,
     required this.subtleBorder,
     required this.textPrimary,
+    required this.textHeading,
+    required this.textBody,
     required this.textMuted,
     required this.textFaint,
     required this.inputFill,
@@ -34,6 +38,8 @@ class AppColors extends ThemeExtension<AppColors> {
     cardBorder: Colors.white.withValues(alpha: 0.05),
     subtleBorder: Colors.white.withValues(alpha: 0.03),
     textPrimary: Colors.white,
+    textHeading: Colors.white,
+    textBody: Colors.grey[400]!,
     textMuted: Colors.grey,
     textFaint: Colors.white38,
     inputFill: Colors.white.withValues(alpha: 0.06),
@@ -47,6 +53,8 @@ class AppColors extends ThemeExtension<AppColors> {
     cardBorder: Colors.black.withValues(alpha: 0.05),
     subtleBorder: Colors.black.withValues(alpha: 0.06),
     textPrimary: const Color(0xFF132222),
+    textHeading: const Color(0xFF1A1A1A),
+    textBody: Colors.grey[700]!,
     textMuted: const Color(0xFF556B6D),
     textFaint: const Color(0xFF607274),
     inputFill: const Color(0xFFE8F0F0),
@@ -61,6 +69,8 @@ class AppColors extends ThemeExtension<AppColors> {
     Color? cardBorder,
     Color? subtleBorder,
     Color? textPrimary,
+    Color? textHeading,
+    Color? textBody,
     Color? textMuted,
     Color? textFaint,
     Color? inputFill,
@@ -73,6 +83,8 @@ class AppColors extends ThemeExtension<AppColors> {
       cardBorder: cardBorder ?? this.cardBorder,
       subtleBorder: subtleBorder ?? this.subtleBorder,
       textPrimary: textPrimary ?? this.textPrimary,
+      textHeading: textHeading ?? this.textHeading,
+      textBody: textBody ?? this.textBody,
       textMuted: textMuted ?? this.textMuted,
       textFaint: textFaint ?? this.textFaint,
       inputFill: inputFill ?? this.inputFill,
