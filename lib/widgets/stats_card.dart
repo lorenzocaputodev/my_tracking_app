@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import '../theme/app_fonts.dart';
+
 import '../theme/app_decorations.dart';
+import '../theme/app_dimens.dart';
+import '../theme/app_fonts.dart';
 import '../theme/theme_context.dart';
 
 class StatsCard extends StatelessWidget {
@@ -19,31 +21,30 @@ class StatsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final valueColor = isDark ? Colors.white : const Color(0xFF132222);
-    final labelColor = isDark ? Colors.white38 : const Color(0xFF607274);
+    final colors = context.colors;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-      decoration: AppDecorations.cardSubtle(context.colors),
+      decoration: AppDecorations.cardSubtle(colors),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(AppSpacing.sm),
             decoration: BoxDecoration(
-              color: accent.withValues(alpha: 0.12),
+              color: accent.withValues(alpha: AppAlphas.accentMuted),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(icon, color: accent, size: 18),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppSpacing.md),
           Text(
             value,
-            style: TextStyle(fontFamily: AppFonts.sans,
+            style: TextStyle(
+              fontFamily: AppFonts.sans,
               fontSize: 14,
               fontWeight: FontWeight.w800,
-              color: valueColor,
+              color: colors.textPrimary,
               letterSpacing: -0.5,
             ),
             maxLines: 1,
@@ -52,9 +53,10 @@ class StatsCard extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             label.toUpperCase(),
-            style: TextStyle(fontFamily: AppFonts.sans,
+            style: TextStyle(
+              fontFamily: AppFonts.sans,
               fontSize: 9,
-              color: labelColor,
+              color: colors.textFaint,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.5,
             ),
