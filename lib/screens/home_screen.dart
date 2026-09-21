@@ -8,6 +8,8 @@ import 'settings_screen.dart';
 import 'history_screen.dart';
 import 'achievements_screen.dart';
 import '../theme/app_fonts.dart';
+import '../theme/app_dimens.dart';
+import '../theme/theme_context.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -341,10 +343,8 @@ class _ProductPickerBar extends StatelessWidget {
             value: provider.activeProduct.id,
             isExpanded: true,
             icon: Icon(Icons.expand_more_rounded, color: turquoise, size: 22),
-            dropdownColor: Theme.of(context).brightness == Brightness.dark
-                ? const Color(0xFF1C1C1E)
-                : Colors.white,
-            borderRadius: BorderRadius.circular(14),
+            dropdownColor: context.colors.surfaceElevated,
+            borderRadius: BorderRadius.circular(AppRadii.field),
             items: provider.activeProducts
                 .map(
                   (p) => DropdownMenuItem(
