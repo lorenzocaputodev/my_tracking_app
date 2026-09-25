@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../models/smoke_entry.dart';
 import '../providers/my_tracking_provider.dart';
 import '../utils/app_formatters.dart';
+import '../widgets/history_period_list.dart';
 import '../widgets/tracking_input_decoration.dart';
 import '../theme/app_fonts.dart';
 import '../theme/app_decorations.dart';
@@ -201,8 +202,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
             );
           }
 
-          final grouped = _groupEntriesByDay(filteredEntries);
-
           return ListView(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             children: [
@@ -252,60 +251,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   ),
                 )
               else
-                ...grouped.entries.map((group) {
-                  final dayEntries = group.value;
-                  final dayTotal = dayEntries.fold<double>(
-                    0,
-                    (sum, entry) => sum + entry.costDeducted,
-                  );
-                  final dayMinutes = dayEntries.fold<int>(
-                    0,
-                    (sum, entry) => sum + entry.minutesLost,
-                  );
-                  final minutesPart =
-                      dayMinutes > 0 ? ' \u2022 ${dayMinutes}m' : '';
-
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          top: 20,
-                          bottom: 10,
-                          left: 4,
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: Text(
-                                group.key.toUpperCase(),
-                                style: TextStyle(fontFamily: AppFonts.sans,
-                                  fontWeight: FontWeight.w800,
-                                  fontSize: 11,
-                                  letterSpacing: 0.8,
-                                  color: turquoise,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Text(
-                              '${dayEntries.length} unit\u00E0 \u2022 ${formatEuro(dayTotal)}$minutesPart',
-                              style: const TextStyle(fontFamily: AppFonts.sans,
-                                fontSize: 11,
-                                color: Colors.grey,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      ...dayEntries.map(
-                        (entry) => _EntryTile(entry: entry, provider: provider),
-                      ),
-                    ],
-                  );
-                }),
+                HistoryPeriodList(
+                  entries: filteredEntries,
+                  provider: provider,
+                ),
             ],
           );
         },
@@ -1578,6 +1527,10 @@ class _MonthlyChart extends StatelessWidget {
                           reservedSize: _yAxisReservedSize(maxY),
                           interval: yInterval,
                           getTitlesWidget: (value, meta) {
+                            // Lo zero finirebbe sopra la prima data dell'asse x.
+                            if (value == meta.min) {
+                              return const SizedBox.shrink();
+                            }
                             if (value != meta.min &&
                                 value != meta.max &&
                                 (value % yInterval) != 0) {
@@ -1678,112 +1631,6 @@ class _MonthlyChart extends StatelessWidget {
       ),
     );
   }
-}
-
-class _EntryTile extends StatelessWidget {
-  final SmokeEntry entry;
-  final MyTrackingProvider provider;
-
-  const _EntryTile({required this.entry, required this.provider});
-
-  @override
-  Widget build(BuildContext context) {
-    final turquoise = Theme.of(context).colorScheme.primary;
-    final productName =
-        provider.productNameById(entry.productId) ?? provider.config.name;
-    final time = DateFormat('HH:mm').format(entry.timestamp.toLocal());
-    final showMinutes = entry.minutesLost > 0;
-
-    return Dismissible(
-      key: Key(entry.id),
-      direction: DismissDirection.endToStart,
-      onDismissed: (_) async {
-        await provider.deleteEntry(entry.id);
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('$productName rimosso'),
-              duration: const Duration(seconds: 2),
-            ),
-          );
-        }
-      },
-      background: Container(
-        alignment: Alignment.centerRight,
-        padding: const EdgeInsets.only(right: 20),
-        margin: const EdgeInsets.only(bottom: 8),
-        decoration: BoxDecoration(
-          color: context.stats.danger.withValues(alpha: 0.8),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: const Icon(Icons.delete_outline_rounded, color: Colors.white),
-      ),
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 8),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        decoration: AppDecorations.card(
-          context.colors,
-          radius: AppRadii.tile,
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: turquoise.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                time,
-                style: TextStyle(fontFamily: AppFonts.sans,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 12,
-                  color: turquoise,
-                ),
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    productName,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 14,
-                    ),
-                  ),
-                  Text(
-                    'Costo: ${formatEuro(entry.costDeducted)}',
-                    style: const TextStyle(fontFamily: AppFonts.sans, fontSize: 11, color: Colors.grey),
-                  ),
-                ],
-              ),
-            ),
-            if (showMinutes)
-              Text(
-                '-${entry.minutesLost}m',
-                style: TextStyle(fontFamily: AppFonts.sans,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: context.stats.danger.withValues(alpha: 0.8),
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-Map<String, List<SmokeEntry>> _groupEntriesByDay(List<SmokeEntry> entries) {
-  final grouped = <String, List<SmokeEntry>>{};
-  for (final entry in entries) {
-    final key = DateFormat('EEEE d MMMM yyyy', 'it').format(entry.timestamp);
-    grouped.putIfAbsent(key, () => []).add(entry);
-  }
-  return grouped;
 }
 
 String _periodPresetLabel(_HistoryPeriodPreset preset) {
