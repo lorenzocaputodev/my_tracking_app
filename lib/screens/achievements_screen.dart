@@ -731,7 +731,7 @@ void _showPlanSheet(
                     );
                   },
                   style: FilledButton.styleFrom(
-                    backgroundColor: color,
+                    backgroundColor: context.colors.action,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),
@@ -739,10 +739,10 @@ void _showPlanSheet(
                   ),
                   child: Text(
                     existingPlan != null ? 'Aggiorna piano' : 'Imposta piano',
-                    style: const TextStyle(fontFamily: AppFonts.sans,
+                    style: TextStyle(fontFamily: AppFonts.sans,
                       fontSize: 15,
                       fontWeight: FontWeight.w800,
-                      color: Colors.white,
+                      color: context.colors.onAction,
                     ),
                   ),
                 ),

@@ -36,6 +36,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
         MaterialPageRoute(builder: (_) => screen),
       );
 
+  /// Un prodotto nuovo diventa quello in uso: lo diciamo, altrimenti la
+  /// home cambierebbe senza spiegazione.
+  Future<void> _addProduct() async {
+    final added = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(builder: (_) => const AddProductScreen()),
+    );
+    if (added != true || !mounted) return;
+    final name = context.read<MyTrackingProvider>().activeProduct.name;
+    _showFeedback('$name aggiunto e in uso');
+  }
+
   // Promemoria: si salvano subito, non c'e' un pulsante da premere.
 
   Future<void> _setReminderEnabled(bool value) async {
@@ -270,7 +281,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 icon: Icons.add_rounded,
                 title: 'Aggiungi prodotto',
                 trailing: const SizedBox.shrink(),
-                onTap: () => _open(const AddProductScreen()),
+                onTap: _addProduct,
               ),
             ],
           ),

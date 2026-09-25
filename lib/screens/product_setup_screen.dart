@@ -2,14 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../models/app_reminder_settings.dart';
 import '../models/tracked_product.dart';
 import '../providers/my_tracking_provider.dart';
-import '../services/product_notification_service.dart';
 import '../utils/minutes_presets.dart';
 import '../widgets/product_configuration_form.dart';
+import '../widgets/save_bar.dart';
 import 'home_screen.dart';
-import '../theme/app_fonts.dart';
 
 class ProductSetupScreen extends StatefulWidget {
   const ProductSetupScreen({super.key});
@@ -31,8 +29,6 @@ class _ProductSetupScreenState extends State<ProductSetupScreen> {
   bool _tracksInventory = true;
   int? _selectedPresetMinutes = 11;
   bool _minutesCustomMode = false;
-  AppReminderSettings _globalReminderSettings =
-      ProductNotificationService.defaultGlobalReminderSettings();
 
   @override
   void initState() {
@@ -93,22 +89,6 @@ class _ProductSetupScreenState extends State<ProductSetupScreen> {
     });
   }
 
-  Future<void> _setGlobalReminderEnabled(bool value) async {
-    if (value) {
-      final granted = await ProductNotificationService.ensurePermission();
-      if (!granted) {
-        _showPermissionFeedback();
-        return;
-      }
-    }
-    if (!mounted) return;
-    setState(() {
-      _globalReminderSettings = _globalReminderSettings.copyWith(
-        enabled: value,
-      );
-    });
-  }
-
   TrackedProduct _buildProduct() {
     final totalCost =
         double.tryParse(_packCostCtrl.text.replaceAll(',', '.')) ?? 0;
@@ -138,23 +118,12 @@ class _ProductSetupScreenState extends State<ProductSetupScreen> {
     if (!mounted) return;
 
     final provider = context.read<MyTrackingProvider>();
-    await provider.updateGlobalReminderSettings(_globalReminderSettings);
     await provider.addProduct(_buildProduct());
     await prefs.setBool('hasCompletedSetup', true);
 
     if (!mounted) return;
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(builder: (_) => const HomeScreen()),
-    );
-  }
-
-  void _showPermissionFeedback() {
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content:
-            Text('Permesso notifiche non concesso. Attivazione annullata.'),
-      ),
     );
   }
 
@@ -166,15 +135,18 @@ class _ProductSetupScreenState extends State<ProductSetupScreen> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: const Text(
-          'Configura il tuo prodotto',
-          style: TextStyle(fontFamily: AppFonts.sans, fontWeight: FontWeight.w800),
-        ),
+        title: const Text('Configura il tuo prodotto'),
+      ),
+      bottomNavigationBar: SaveBar(
+        saveLabel: 'Inizia a tracciare',
+        onSave: _isSaving ? null : _finish,
       ),
       body: Form(
         key: _formKey,
+        // Dopo il primo errore il messaggio sparisce appena il campo e' giusto.
+        autovalidateMode: AutovalidateMode.onUserInteraction,
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(24, 8, 24, 32),
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
           children: [
             ProductConfigurationForm(
               isDark: isDark,
@@ -182,9 +154,8 @@ class _ProductSetupScreenState extends State<ProductSetupScreen> {
               title: 'Cosa vuoi tracciare?',
               subtitle:
                   'Puoi modificare tutto nelle impostazioni in qualsiasi momento.',
-              widgetMessage:
-                  'Dopo il setup potrai aggiungere il widget Android dalla schermata Home e tenere il prodotto sempre a portata di tap.',
-              submitLabel: 'Inizia a tracciare!',
+              widgetMessage: '',
+              submitLabel: '',
               nameController: _nameCtrl,
               packCostController: _packCostCtrl,
               piecesController: _piecesCtrl,
@@ -199,20 +170,14 @@ class _ProductSetupScreenState extends State<ProductSetupScreen> {
               minutesCustomMode: _minutesCustomMode,
               onMinutesPresetSelected: _onMinutesPresetSelected,
               onChanged: () => setState(() {}),
-              notificationsSupported: ProductNotificationService.isSupported,
-              showNotificationsSection: true,
-              showWidgetHomeSection: true,
-              globalReminderSettings: _globalReminderSettings,
-              onGlobalReminderEnabledChanged: _setGlobalReminderEnabled,
-              onGlobalReminderMinutesChanged: (value) => setState(() {
-                _globalReminderSettings = _globalReminderSettings.copyWith(
-                  intervalMinutes: value,
-                );
-              }),
-              onSubmit: (_isSaving || !_canContinue) ? null : _finish,
-              submitEnabled: !_isSaving && _canContinue,
+              // Promemoria e widget si configurano dalle impostazioni.
+              notificationsSupported: false,
+              showNotificationsSection: false,
+              showWidgetHomeSection: false,
+              onSubmit: null,
+              submitEnabled: false,
               isSubmitting: _isSaving,
-              submitPlacement: FormSubmitPlacement.bottom,
+              submitPlacement: FormSubmitPlacement.none,
             ),
           ],
         ),

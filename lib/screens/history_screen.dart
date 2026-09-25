@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../models/smoke_entry.dart';
 import '../providers/my_tracking_provider.dart';
+import '../utils/app_clock.dart';
 import '../utils/app_formatters.dart';
 import '../widgets/history_period_list.dart';
 import '../widgets/tracking_input_decoration.dart';
@@ -49,7 +50,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   DateTimeRange _selectedRange(MyTrackingProvider provider) {
-    final now = DateTime.now();
+    final now = appNow();
     final today = DateTime(now.year, now.month, now.day);
 
     return switch (_periodPreset) {
@@ -90,7 +91,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   DateTimeRange _allAvailableRange(MyTrackingProvider provider) {
-    final today = _dateOnly(DateTime.now());
+    final today = _dateOnly(appNow());
     final effectiveProductId = _effectiveProductId(provider);
     final sourceEntries = effectiveProductId == null
         ? provider.visibleEntries
@@ -111,7 +112,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   Future<void> _pickCustomRange() async {
-    final now = DateTime.now();
+    final now = appNow();
     final initialRange = _customRange ??
         DateTimeRange(start: now.subtract(const Duration(days: 29)), end: now);
     final picked = await showDateRangePicker(
@@ -270,6 +271,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 HistoryPeriodList(
                   entries: filteredEntries,
                   provider: provider,
+                  range: selectedRange,
                 ),
             ],
           );
@@ -458,8 +460,8 @@ class _StatsPanelState extends State<_StatsPanel> {
     );
     final thirtyDayAverage = widget.provider.averageDailyCountForRange(
       productId: widget.selectedProductId,
-      start: DateTime.now().subtract(const Duration(days: 29)),
-      end: DateTime.now(),
+      start: appNow().subtract(const Duration(days: 29)),
+      end: appNow(),
     );
     final trend = widget.provider.weeklyTrend(
       productId: widget.selectedProductId,
@@ -1268,7 +1270,7 @@ class _MonthlyChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final turquoise = Theme.of(context).colorScheme.primary;
-    final today = _dateOnly(DateTime.now());
+    final today = _dateOnly(appNow());
     final days = List.generate(30, (index) {
       return today.subtract(Duration(days: 29 - index));
     });
