@@ -1,8 +1,11 @@
+String formatDecimal(num value, {int decimals = 2}) =>
+    value.toStringAsFixed(decimals).replaceAll('.', ',');
+
 String formatEuro(
   num amount, {
   int decimals = 2,
 }) {
-  return '\u20AC${amount.toStringAsFixed(decimals)}';
+  return '${formatDecimal(amount, decimals: decimals)} \u20AC';
 }
 
 String formatSignedInt(int value) {
