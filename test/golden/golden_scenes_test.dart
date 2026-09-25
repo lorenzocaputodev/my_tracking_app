@@ -179,7 +179,7 @@ void main() {
                     child: StatsCard(
                       icon: Icons.euro_rounded,
                       label: 'Oggi',
-                      value: '€0.90',
+                      value: '0,90 €',
                       accent: Color(0xFF00CED1),
                     ),
                   ),

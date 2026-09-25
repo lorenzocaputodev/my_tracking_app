@@ -7,6 +7,7 @@ import '../models/pack_config.dart';
 import '../models/tracked_product.dart';
 import '../providers/my_tracking_provider.dart';
 import '../services/product_notification_service.dart';
+import '../utils/app_formatters.dart';
 import '../utils/backup_file_service.dart';
 import '../utils/minutes_presets.dart';
 import '../widgets/product_configuration_form.dart';
@@ -86,9 +87,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final config = context.read<MyTrackingProvider>().config;
     setState(() {
       _nameCtrl.text = config.name;
-      _packCostCtrl.text = config.totalCost.toStringAsFixed(2);
+      _packCostCtrl.text = formatDecimal(config.totalCost);
       _piecesCtrl.text = '${config.pieces}';
-      _directCostCtrl.text = config.directUnitCost?.toStringAsFixed(2) ?? '';
+      _directCostCtrl.text = config.directUnitCost == null
+          ? ''
+          : formatDecimal(config.directUnitCost!);
       _minutesCtrl.text = '${config.minutesLost}';
       _dailyGoal = config.dailyLimit;
       _tracksInventory = config.tracksInventory;
