@@ -337,4 +337,31 @@ void main() {
     expect(byId('p1').packRemaining, 12);
     provider.dispose();
   });
+
+  test('annullare una cancellazione rimette la voce e riprende la scorta',
+      () async {
+    SharedPreferences.setMockInitialValues(<String, Object>{
+      'tracked_products_v1': _productsJson([
+        _product(id: 'p1', name: 'Prodotto', packRemaining: 10),
+      ]),
+      'active_product_id': 'p1',
+      'smoke_entries': <String>[
+        _entry(id: 'a', productId: 'p1', timestamp: _daysAgo(2)),
+        _entry(id: 'b', productId: 'p1', timestamp: _daysAgo(1)),
+      ],
+    });
+    final provider = MyTrackingProvider();
+    await provider.init();
+
+    final deleted = await provider.deleteEntry('a');
+    expect(deleted, isNotNull);
+    expect(provider.packRemaining, 11);
+    expect(provider.entries.map((e) => e.id), ['b']);
+
+    await provider.restoreEntry(deleted!);
+    expect(provider.packRemaining, 10);
+    expect(provider.entries.map((e) => e.id), ['a', 'b'],
+        reason: 'la voce torna al suo posto in ordine cronologico');
+    provider.dispose();
+  });
 }

@@ -7,4 +7,6 @@
     android:configure="com.example.my_tracking_app.widget.WidgetConfigureActivity"
     android:resizeMode="horizontal|vertical"
     android:widgetCategory="home_screen"
-    android:previewImage="@mipmap/ic_launcher" />
+    android:description="@string/widget_description"
+    android:previewImage="@mipmap/ic_launcher"
+    android:previewLayout="@layout/tracking_widget_small" />

@@ -55,6 +55,21 @@ abstract final class AppTheme {
         iconTheme: IconThemeData(color: primary),
       ),
       progressIndicatorTheme: ProgressIndicatorThemeData(color: primary),
+      // Il default Material e' chiaro anche nel tema scuro: qui l'avviso
+      // resta una superficie dell'app, con l'azione nel colore d'azione.
+      snackBarTheme: SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: isDark ? colors.surfaceElevated : colors.textPrimary,
+        contentTextStyle: TextStyle(
+          fontFamily: AppFonts.sans,
+          fontWeight: FontWeight.w600,
+          color: isDark ? colors.textPrimary : Colors.white,
+        ),
+        actionTextColor: colors.action,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadii.field),
+        ),
+      ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: colors.inputFill,

@@ -130,7 +130,7 @@ class _ProductSettingsScreenState extends State<ProductSettingsScreen> {
 
   Future<void> _save() async {
     if (_isSaving) return;
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate() || !_canSave) return;
 
     setState(() => _isSaving = true);
     try {
@@ -249,11 +249,13 @@ class _ProductSettingsScreenState extends State<ProductSettingsScreen> {
                 message: 'Modifiche non salvate',
                 onCancel: _reload,
                 saveLabel: 'Salva',
-                onSave: (_isSaving || !_canSave) ? null : _save,
+                onSave: _isSaving ? null : _save,
               )
             : null,
         body: Form(
           key: _formKey,
+          // Dopo il primo errore il messaggio sparisce appena il campo e' giusto.
+          autovalidateMode: AutovalidateMode.onUserInteraction,
           child: ListView(
             padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
             children: [
@@ -303,6 +305,37 @@ class _StockCard extends StatelessWidget {
   final TrackedProduct product;
 
   const _StockCard({required this.product});
+
+  Future<void> _confirmNewPack(BuildContext context) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Nuova confezione?'),
+        content: Text(
+          'La scorta di ${product.name} torna a '
+          '${product.pieces}/${product.pieces}.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Annulla'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Reintegra'),
+          ),
+        ],
+      ),
+    );
+    if (ok != true || !context.mounted) return;
+    await context
+        .read<MyTrackingProvider>()
+        .openNewPack(productId: product.id);
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Scorta reintegrata')),
+    );
+  }
 
   Future<void> _showCorrectDialog(BuildContext context) async {
     final controller = TextEditingController(text: '${product.packRemaining}');
@@ -448,9 +481,7 @@ class _StockCard extends StatelessWidget {
             children: [
               Expanded(
                 child: FilledButton.icon(
-                  onPressed: () => context
-                      .read<MyTrackingProvider>()
-                      .openNewPack(productId: product.id),
+                  onPressed: () => _confirmNewPack(context),
                   style: buttonStyle,
                   icon: const Icon(Icons.refresh_rounded, size: 18),
                   label: const Text('Reintegra'),

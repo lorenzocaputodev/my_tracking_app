@@ -167,12 +167,14 @@ class HomeScreen extends StatelessWidget {
                                   provider.packRemaining <= 0) {
                                 return;
                               }
-                              await provider.logEntry();
+                              final entry = await provider.logEntry();
+                              if (entry == null || !context.mounted) return;
                               if (provider.activeProduct.tracksInventory &&
-                                  provider.packRemaining == 0 &&
-                                  context.mounted) {
+                                  provider.packRemaining == 0) {
                                 _showPackFinishedAlert(context, provider);
+                                return;
                               }
+                              _showUndoLogged(context, provider, entry.id);
                             },
                           ),
                         if (fit.showCost) ...[
@@ -278,6 +280,31 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
+  /// Dopo ogni tocco, per qualche secondo, si puo' annullare: rimedia al
+  /// tocco di troppo senza impedire di registrarne piu' di fila, come fa chi
+  /// segna tutto a fine giornata.
+  void _showUndoLogged(
+    BuildContext context,
+    MyTrackingProvider provider,
+    String entryId,
+  ) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text('Registrato · ${provider.dailyCount} oggi'),
+          duration: const Duration(seconds: 3),
+          // Con un'azione Flutter lo lascerebbe a schermo finche' non lo si
+          // chiude: qui deve sparire da solo.
+          persist: false,
+          action: SnackBarAction(
+            label: 'Annulla',
+            onPressed: () => provider.deleteEntry(entryId),
+          ),
+        ),
+      );
+  }
+
   void _showCreatorEasterEgg(BuildContext context, Color accent) {
     showDialog<void>(
       context: context,
@@ -370,8 +397,9 @@ class HomeScreen extends StatelessWidget {
         content: Text('📦 ${provider.config.name} terminato!'),
         backgroundColor: context.stats.warning,
         duration: const Duration(seconds: 4),
+        persist: false,
         action: SnackBarAction(
-          label: 'RICARICA',
+          label: 'Reintegra',
           textColor: Colors.black,
           onPressed: () => provider.openNewPack(),
         ),

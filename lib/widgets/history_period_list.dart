@@ -22,11 +22,23 @@ const _monthsShort = [
 ];
 const _weekdays = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'];
 
-String _weekLabel(HistoryPeriod p) {
-  final last = p.end.subtract(const Duration(hours: 12));
-  return p.start.month == last.month
-      ? '${p.start.day} – ${last.day} ${_monthsShort[last.month - 1]}'
-      : '${p.start.day} ${_monthsShort[p.start.month - 1]} – '
+/// Intervallo della settimana, ristretto al filtro del periodo: con "7
+/// giorni" la settimana iniziata prima mostra solo i giorni inclusi.
+String _weekLabel(HistoryPeriod p, DateTimeRange? range) {
+  var first = p.start;
+  var last = DateTime(p.end.year, p.end.month, p.end.day - 1);
+  if (range != null) {
+    if (range.start.isAfter(first)) first = range.start;
+    if (range.end.isBefore(last)) last = range.end;
+  }
+  if (first.year == last.year &&
+      first.month == last.month &&
+      first.day == last.day) {
+    return '${first.day} ${_monthsShort[first.month - 1]}';
+  }
+  return first.month == last.month
+      ? '${first.day} – ${last.day} ${_monthsShort[last.month - 1]}'
+      : '${first.day} ${_monthsShort[first.month - 1]} – '
           '${last.day} ${_monthsShort[last.month - 1]}';
 }
 
@@ -45,10 +57,15 @@ class HistoryPeriodList extends StatefulWidget {
   final List<SmokeEntry> entries;
   final MyTrackingProvider provider;
 
+  /// Periodo del filtro, giorni inclusi: le etichette e le medie non lo
+  /// oltrepassano.
+  final DateTimeRange? range;
+
   const HistoryPeriodList({
     super.key,
     required this.entries,
     required this.provider,
+    this.range,
   });
 
   @override
@@ -83,14 +100,23 @@ class _HistoryPeriodListState extends State<HistoryPeriodList> {
             .where((e) => drill.contains(e.timestamp.toLocal()))
             .toList();
     final periods = groupHistory(entries, _grouping);
+    final range = widget.range;
+    // Con prodotti diversi le quantita' non si sommano come "unita'".
+    final unit = widget.entries.map((e) => e.productId).toSet().length > 1
+        ? 'registrazioni'
+        : 'unità';
 
     final rows = <Widget>[];
     switch (_grouping) {
       case HistoryGrouping.months:
-        final trackingStart = widget.entries
+        var trackingStart = widget.entries
             .map((e) => e.timestamp.toLocal())
             .reduce((a, b) => a.isBefore(b) ? a : b);
-        final today = appNow();
+        var today = appNow();
+        if (range != null) {
+          if (range.start.isAfter(trackingStart)) trackingStart = range.start;
+          if (range.end.isBefore(today)) today = range.end;
+        }
         for (var i = 0; i < periods.length; i++) {
           final p = periods[i];
           final avg = p.dailyAverage(today: today, trackingStart: trackingStart);
@@ -103,7 +129,7 @@ class _HistoryPeriodListState extends State<HistoryPeriodList> {
           }
           rows.add(_SummaryRow(
             title: _monthLabel(p.start),
-            subtitle: '${p.count} unità · ${formatEuro(p.cost)} · '
+            subtitle: '${p.count} $unit · ${formatEuro(p.cost)} · '
                 'media ${formatDecimal(avg, decimals: 1)}/giorno',
             trailing: delta == null ? null : _Delta(delta),
             onTap: () => _drillInto(
@@ -116,13 +142,13 @@ class _HistoryPeriodListState extends State<HistoryPeriodList> {
       case HistoryGrouping.weeks:
         for (final p in periods) {
           rows.add(_SummaryRow(
-            title: _weekLabel(p),
-            subtitle: '${p.count} unità · ${formatEuro(p.cost)}',
+            title: _weekLabel(p, range),
+            subtitle: '${p.count} $unit · ${formatEuro(p.cost)}',
             trailing: _MiniWeek(perDay: p.perWeekday),
             onTap: () => _drillInto(
               p,
               HistoryGrouping.days,
-              'Settimana ${_weekLabel(p)}',
+              'Settimana ${_weekLabel(p, range)}',
             ),
           ));
         }
@@ -132,7 +158,7 @@ class _HistoryPeriodListState extends State<HistoryPeriodList> {
           final minutes = p.minutes > 0 ? ' · ${p.minutes}m' : '';
           rows.add(_SummaryRow(
             title: _dayLabel(p.start),
-            subtitle: '${p.count} unità · ${formatEuro(p.cost)}$minutes',
+            subtitle: '${p.count} $unit · ${formatEuro(p.cost)}$minutes',
             expanded: open,
             onTap: () => setState(
               () => open ? _openDays.remove(p.start) : _openDays.add(p.start),
@@ -319,15 +345,25 @@ class _EntryRow extends StatelessWidget {
       key: Key(entry.id),
       direction: DismissDirection.endToStart,
       onDismissed: (_) async {
-        await provider.deleteEntry(entry.id);
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
+        // Il messenger va preso prima dell'attesa: la riga sparisce.
+        final messenger = ScaffoldMessenger.of(context);
+        final deleted = await provider.deleteEntry(entry.id);
+        if (deleted == null) return;
+        messenger
+          ..hideCurrentSnackBar()
+          ..showSnackBar(
             SnackBar(
-              content: Text('$productName rimosso'),
-              duration: const Duration(seconds: 2),
+              content: const Text('Registrazione rimossa'),
+              duration: const Duration(seconds: 4),
+              // Con un'azione Flutter lo lascerebbe a schermo finche' non lo
+              // si chiude: qui deve sparire da solo.
+              persist: false,
+              action: SnackBarAction(
+                label: 'Annulla',
+                onPressed: () => provider.restoreEntry(deleted),
+              ),
             ),
           );
-        }
       },
       background: Container(
         alignment: Alignment.centerRight,

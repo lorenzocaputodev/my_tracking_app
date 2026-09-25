@@ -111,7 +111,7 @@ class ProductConfigurationForm extends StatelessWidget {
           controller: nameController,
           style: const TextStyle(fontFamily: AppFonts.sans, fontWeight: FontWeight.w500),
           decoration: _inputDecoration(
-            hint: 'Cosa vuoi tracciare?',
+            hint: 'Es. Sigarette',
             icon: Icons.label_outline_rounded,
             isDark: isDark,
             accentColor: accentColor,
@@ -145,7 +145,7 @@ class ProductConfigurationForm extends StatelessWidget {
               FilteringTextInputFormatter.allow(RegExp(r'[0-9,\.]')),
             ],
             decoration: _inputDecoration(
-              hint: '\u20AC per confezione',
+              hint: 'Es. 6,00',
               icon: Icons.euro_rounded,
               isDark: isDark,
               accentColor: accentColor,
@@ -174,13 +174,16 @@ class ProductConfigurationForm extends StatelessWidget {
             keyboardType: TextInputType.number,
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             decoration: _inputDecoration(
-              hint: 'es. 20',
+              hint: 'Es. 20',
               icon: Icons.format_list_numbered_rounded,
               isDark: isDark,
               accentColor: accentColor,
             ),
             validator: (value) {
-              final parsed = int.tryParse(value ?? '');
+              if (value == null || value.trim().isEmpty) {
+                return 'Inserisci un numero';
+              }
+              final parsed = int.tryParse(value.trim());
               if (parsed == null || parsed <= 0) {
                 return 'Numero non valido';
               }
@@ -204,7 +207,7 @@ class ProductConfigurationForm extends StatelessWidget {
               FilteringTextInputFormatter.allow(RegExp(r'[0-9,\.]')),
             ],
             decoration: _inputDecoration(
-              hint: '\u20AC opzionale per utilizzo',
+              hint: 'Facoltativo, es. 0,10',
               icon: Icons.euro_rounded,
               isDark: isDark,
               accentColor: accentColor,

@@ -93,13 +93,16 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           children: [
             Align(
               alignment: Alignment.topRight,
-              child: TextButton(
-                onPressed: _completeOnboarding,
-                child: Text(
-                  'Salta',
-                  style: TextStyle(fontFamily: AppFonts.sans,
-                    color: turquoise.withValues(alpha: 0.6),
-                    fontWeight: FontWeight.w600,
+              child: Padding(
+                padding: const EdgeInsets.only(right: 12, top: 4),
+                child: TextButton(
+                  onPressed: _completeOnboarding,
+                  child: Text(
+                    'Salta',
+                    style: TextStyle(fontFamily: AppFonts.sans,
+                      color: turquoise.withValues(alpha: 0.6),
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ),
@@ -206,8 +209,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                 curve: Curves.easeInOut,
                               ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: turquoise,
-                        foregroundColor: isDark ? Colors.black87 : Colors.white,
+                        backgroundColor: context.colors.action,
+                        foregroundColor: context.colors.onAction,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
@@ -215,11 +218,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         elevation: 0,
                       ),
                       child: Text(
-                        isLast ? 'INIZIA' : 'AVANTI',
+                        isLast ? 'Inizia' : 'Avanti',
                         style: const TextStyle(fontFamily: AppFonts.sans,
                           fontWeight: FontWeight.w800,
-                          fontSize: 15,
-                          letterSpacing: 1.2,
+                          fontSize: 16,
                         ),
                       ),
                     ),

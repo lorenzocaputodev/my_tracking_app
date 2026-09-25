@@ -15,14 +15,15 @@ class AddProductScreen extends StatefulWidget {
 }
 
 class _AddProductScreenState extends State<AddProductScreen> {
-  final _nameCtrl = TextEditingController(text: 'Nuovo prodotto');
-  final _packCostCtrl = TextEditingController(text: '5,00');
-  final _piecesCtrl = TextEditingController(text: '20');
+  final _nameCtrl = TextEditingController();
+  final _packCostCtrl = TextEditingController();
+  final _piecesCtrl = TextEditingController();
   final _directCostCtrl = TextEditingController();
   final _minutesCtrl = TextEditingController(text: '11');
   final _formKey = GlobalKey<FormState>();
 
-  int _dailyGoal = 0;
+  // Stessi valori iniziali della configurazione al primo avvio.
+  int _dailyGoal = 10;
   bool _isSaving = false;
   bool _tracksInventory = true;
   int? _selectedPresetMinutes = 11;
@@ -125,10 +126,12 @@ class _AddProductScreenState extends State<AddProductScreen> {
       appBar: AppBar(title: const Text('Nuovo prodotto')),
       bottomNavigationBar: SaveBar(
         saveLabel: 'Aggiungi prodotto',
-        onSave: (_isSaving || !_canSave) ? null : _save,
+        onSave: _isSaving ? null : _save,
       ),
       body: Form(
         key: _formKey,
+        // Dopo il primo errore il messaggio sparisce appena il campo e' giusto.
+        autovalidateMode: AutovalidateMode.onUserInteraction,
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
           children: [

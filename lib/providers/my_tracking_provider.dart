@@ -653,13 +653,15 @@ class MyTrackingProvider extends ChangeNotifier {
 
   // Voci cronologia
 
-  Future<void> logEntry({String? productId}) async {
+  /// Registra un utilizzo e restituisce la voce creata, oppure null se il
+  /// prodotto non esiste, e' archiviato o ha la scorta a zero.
+  Future<SmokeEntry?> logEntry({String? productId}) async {
     final pid = productId ?? _activeProductId;
     final pIdx = _products.indexWhere((p) => p.id == pid);
-    if (pIdx == -1) return;
+    if (pIdx == -1) return null;
     final p = _products[pIdx];
-    if (p.isArchived) return;
-    if (p.tracksInventory && p.packRemaining <= 0) return;
+    if (p.isArchived) return null;
+    if (p.tracksInventory && p.packRemaining <= 0) return null;
 
     final entry = SmokeEntry(
       id: const Uuid().v4(),
@@ -675,6 +677,7 @@ class MyTrackingProvider extends ChangeNotifier {
     _evaluateAchievements();
     notifyListeners();
     await _persist();
+    return entry;
   }
 
   Future<void> openNewPack({String? productId}) async {
@@ -689,19 +692,48 @@ class MyTrackingProvider extends ChangeNotifier {
     await _persistProducts();
   }
 
-  Future<void> deleteEntry(String id) async {
+  /// Toglie una voce e, se il prodotto usa la scorta, le restituisce
+  /// un'unita'. Restituisce cio' che serve a [restoreEntry] per annullare.
+  Future<({SmokeEntry entry, bool stockReturned})?> deleteEntry(
+    String id,
+  ) async {
     final idx = _entries.indexWhere((e) => e.id == id);
-    if (idx == -1) return;
+    if (idx == -1) return null;
     final entry = _entries[idx];
+    var stockReturned = false;
     final pIdx = _products.indexWhere((p) => p.id == entry.productId);
     if (pIdx != -1) {
       final pr = _products[pIdx];
       if (pr.tracksInventory && pr.packRemaining < pr.pieces) {
         _products = List<TrackedProduct>.from(_products)
           ..[pIdx] = pr.copyWith(packRemaining: pr.packRemaining + 1);
+        stockReturned = true;
       }
     }
     _entries.removeAt(idx);
+    _evaluateAchievements();
+    notifyListeners();
+    await _persist();
+    return (entry: entry, stockReturned: stockReturned);
+  }
+
+  /// Annulla [deleteEntry]: rimette la voce al suo posto nella cronologia e
+  /// riprende l'unita' eventualmente restituita alla scorta.
+  Future<void> restoreEntry(
+    ({SmokeEntry entry, bool stockReturned}) deleted,
+  ) async {
+    final entry = deleted.entry;
+    if (_entries.any((e) => e.id == entry.id)) return;
+    final at = _entries.indexWhere((e) => e.timestamp.isAfter(entry.timestamp));
+    _entries.insert(at == -1 ? _entries.length : at, entry);
+    if (deleted.stockReturned) {
+      final pIdx = _products.indexWhere((p) => p.id == entry.productId);
+      if (pIdx != -1 && _products[pIdx].packRemaining > 0) {
+        final pr = _products[pIdx];
+        _products = List<TrackedProduct>.from(_products)
+          ..[pIdx] = pr.copyWith(packRemaining: pr.packRemaining - 1);
+      }
+    }
     _evaluateAchievements();
     notifyListeners();
     await _persist();
