@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../utils/minutes_presets.dart';
+import 'option_sheet.dart';
+import 'select_field.dart';
 import 'tracking_input_decoration.dart';
 import '../theme/app_fonts.dart';
-import '../theme/theme_context.dart';
 
 class MinutesLostSelector extends StatelessWidget {
   final bool isDark;
@@ -39,95 +40,57 @@ class MinutesLostSelector extends StatelessWidget {
       color: isDark ? Colors.white : Colors.black87,
     );
 
-    return Container(
-      decoration: BoxDecoration(
-        color: isDark
-            ? Colors.white.withValues(alpha: 0.06)
-            : Colors.black.withValues(alpha: 0.04),
-        borderRadius: BorderRadius.circular(18),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14),
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton<int>(
-                value: dropdownValue,
-                isExpanded: true,
-                icon: Icon(
-                  Icons.expand_more_rounded,
-                  color: accentColor,
-                  size: 20,
-                ),
-                style: baseTextStyle,
-                dropdownColor: context.colors.surfaceElevated,
-                borderRadius: BorderRadius.circular(14),
-                items: [
-                  ...minutesPresets.map(
-                    (preset) => DropdownMenuItem<int>(
-                      value: preset.minutes,
-                      child: Text(
-                        preset.label,
-                        style: baseTextStyle,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SelectField<int>(
+          icon: Icons.timer_rounded,
+          sheetTitle: 'Minuti di vita persi',
+          value: dropdownValue,
+          onChanged: onPresetSelected,
+          options: [
+            for (final preset in minutesPresets)
+              preset.minutes == 0
+                  ? SheetOption(
+                      0,
+                      'Nessuna stima',
+                      subtitle: 'Non conta la vita persa',
+                      fieldLabel: preset.label,
+                    )
+                  : SheetOption(
+                      preset.minutes,
+                      preset.label.split(' — ').first,
+                      subtitle: preset.label.split(' — ').last,
+                      fieldLabel: preset.label,
                     ),
-                  ),
-                  DropdownMenuItem<int>(
-                    value: customMinutesPresetValue,
-                    child: Text(
-                      'Personalizzato...',
-                      style: baseTextStyle,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-                onChanged: (value) {
-                  if (value != null) {
-                    onPresetSelected(value);
-                  }
-                },
+            const SheetOption(customMinutesPresetValue, 'Personalizzato…'),
+          ],
+        ),
+        if (customMode) ...[
+          const SizedBox(height: 10),
+          TextFormField(
+            controller: controller,
+            keyboardType: TextInputType.number,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            validator: validator,
+            onChanged: onCustomChanged,
+            style: baseTextStyle,
+            decoration: trackingInputDecoration(
+              hint: 'Minuti per utilizzo',
+              icon: Icons.edit_rounded,
+              isDark: isDark,
+              accentColor: accentColor,
+            ).copyWith(
+              suffixText: 'min',
+              suffixStyle: const TextStyle(fontFamily: AppFonts.sans,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: Colors.grey,
               ),
             ),
           ),
-          if (customMode) ...[
-            const SizedBox(height: 6),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-              child: TextFormField(
-                controller: controller,
-                keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                validator: validator,
-                onChanged: onCustomChanged,
-                style: baseTextStyle,
-                decoration: trackingInputDecoration(
-                  hint: 'Inserisci minuti personalizzati',
-                  icon: Icons.favorite_border_rounded,
-                  isDark: isDark,
-                  accentColor: accentColor,
-                  fillColorOverride: isDark
-                      ? Colors.white.withValues(alpha: 0.04)
-                      : Colors.white.withValues(alpha: 0.94),
-                  enabledBorderColor: isDark
-                      ? Colors.white.withValues(alpha: 0.05)
-                      : Colors.black.withValues(alpha: 0.05),
-                ).copyWith(
-                  suffixText: 'min',
-                  suffixStyle: const TextStyle(fontFamily: AppFonts.sans,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.grey,
-                  ),
-                ),
-              ),
-            ),
-          ],
         ],
-      ),
+      ],
     );
   }
 }

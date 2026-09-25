@@ -1,3 +1,5 @@
+import '../utils/app_clock.dart';
+
 class ReductionPlan {
   final String productId;
   final double startAverage;
@@ -13,7 +15,7 @@ class ReductionPlan {
     required this.startDate,
   });
 
-  int get weeksPassed => DateTime.now().difference(startDate).inDays ~/ 7;
+  int get weeksPassed => appNow().difference(startDate).inDays ~/ 7;
 
   bool get isCompleted => weeksPassed >= totalWeeks;
 
@@ -28,7 +30,7 @@ class ReductionPlan {
 
   int get daysRemaining {
     final endDate = startDate.add(Duration(days: totalWeeks * 7));
-    final remaining = endDate.difference(DateTime.now()).inDays;
+    final remaining = endDate.difference(appNow()).inDays;
     return remaining < 0 ? 0 : remaining;
   }
 

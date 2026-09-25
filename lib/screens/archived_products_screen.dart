@@ -6,6 +6,7 @@ import '../providers/my_tracking_provider.dart';
 import '../theme/app_fonts.dart';
 import '../theme/theme_context.dart';
 import '../widgets/settings_rows.dart';
+import '../theme/app_icons.dart';
 
 class ArchivedProductsScreen extends StatelessWidget {
   const ArchivedProductsScreen({super.key});
@@ -105,7 +106,7 @@ class ArchivedProductsScreen extends StatelessWidget {
               children: [
                 for (final product in archived)
                   SettingsRow(
-                    icon: Icons.inventory_2_outlined,
+                    icon: AppIcons.archive,
                     title: product.name,
                     subtitle: 'Storico conservato',
                     trailing: Row(

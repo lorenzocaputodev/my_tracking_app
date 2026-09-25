@@ -8,12 +8,17 @@ import '../theme/theme_context.dart';
 
 class SettingsSectionLabel extends StatelessWidget {
   final String text;
-  const SettingsSectionLabel(this.text, {super.key});
+
+  /// Rientro a sinistra: 4 sopra una card, 0 in un modulo, dove le altre
+  /// etichette partono dal bordo.
+  final double inset;
+
+  const SettingsSectionLabel(this.text, {super.key, this.inset = 4});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(4, 28, 0, 10),
+      padding: EdgeInsets.fromLTRB(inset, 28, 0, 10),
       child: Text(text, style: AppTextStyles.sectionLabel(context.accent)),
     );
   }
@@ -22,7 +27,15 @@ class SettingsSectionLabel extends StatelessWidget {
 /// Card che raccoglie piu' righe, separate da un filo.
 class SettingsGroup extends StatelessWidget {
   final List<Widget> children;
-  const SettingsGroup({super.key, required this.children});
+
+  /// Il filo parte dal testo: 56 con l'icona a sinistra, 16 senza.
+  final double dividerIndent;
+
+  const SettingsGroup({
+    super.key,
+    required this.children,
+    this.dividerIndent = 56,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +47,11 @@ class SettingsGroup extends StatelessWidget {
         children: [
           for (var i = 0; i < children.length; i++) ...[
             if (i > 0)
-              Divider(height: 1, indent: 56, color: colors.subtleBorder),
+              Divider(
+                height: 1,
+                indent: dividerIndent,
+                color: colors.subtleBorder,
+              ),
             children[i],
           ],
         ],
@@ -44,7 +61,7 @@ class SettingsGroup extends StatelessWidget {
 }
 
 class SettingsRow extends StatelessWidget {
-  final IconData icon;
+  final IconData? icon;
   final String title;
   final String? subtitle;
 
@@ -73,16 +90,19 @@ class SettingsRow extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(14, 12, 12, 12),
       child: Row(
         children: [
-          Container(
-            width: 30,
-            height: 30,
-            decoration: BoxDecoration(
-              color: tint.withValues(alpha: AppAlphas.accentMuted),
-              borderRadius: BorderRadius.circular(9),
+          if (icon != null) ...[
+            Container(
+              width: 30,
+              height: 30,
+              decoration: BoxDecoration(
+                color: tint.withValues(alpha: AppAlphas.accentMuted),
+                borderRadius: BorderRadius.circular(9),
+              ),
+              child: Icon(icon, size: 17, color: tint),
             ),
-            child: Icon(icon, size: 17, color: tint),
-          ),
-          const SizedBox(width: 12),
+            const SizedBox(width: 12),
+          ] else
+            const SizedBox(width: 4),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

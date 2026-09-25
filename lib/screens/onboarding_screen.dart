@@ -20,49 +20,40 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     _OnboardingSlide(
       imagePath: 'assets/icon/logo_app.png',
       title: 'Benvenuto su\nMy Tracking App',
-      description: 'Il tuo strumento personale per monitorare prodotti, '
-          'abitudini, obiettivi e progressi in modo semplice, chiaro e completo.',
+      description: "Tieni d'occhio quanto usi, quanto spendi e come cambiano "
+          'le tue abitudini. Tutti i dati restano sul tuo telefono.',
     ),
     _OnboardingSlide(
       icon: Icons.track_changes_rounded,
       title: 'Tieni traccia\ndi tutto',
-      description: 'L\'app ti permette di tracciare pi\u00F9 prodotti in modo '
-          'semplice e veloce. Ogni registrazione aggiorna subito i dati del '
-          'prodotto attivo e costruisce una cronologia chiara delle tue abitudini.',
+      description: 'Puoi seguire più prodotti insieme. Ognuno ha la sua '
+          'cronologia, i suoi costi e il suo obiettivo.',
     ),
     _OnboardingSlide(
       icon: Icons.tune_rounded,
       title: 'Personalizza\nil tuo prodotto',
-      description:
-          'Puoi configurare ogni prodotto con nome, costo, modalit\u00E0 '
-          'di tracciamento, limite giornaliero e altri parametri utili. L\'app '
-          'calcola automaticamente i valori principali per ogni utilizzo.',
+      description: 'Indica nome, costo e confezione, e se vuoi un limite '
+          "giornaliero: il costo di ogni utilizzo lo calcola l'app.",
     ),
     _OnboardingSlide(
       icon: Icons.favorite_border_rounded,
       title: 'Quanto tempo\nti costa?',
-      description:
-          'Puoi impostare anche una stima dei minuti di vita persi per '
-          'utilizzo. Non si tratta del tempo necessario a usare il prodotto, ma '
-          'di una stima simbolica del suo impatto nel tempo sulla salute e sulla '
-          'durata della vita. L\'app somma questo valore a ogni registrazione; '
-          'se non \u00E8 rilevante, puoi lasciarlo a 0.',
+      description: 'Puoi aggiungere una stima dei minuti di vita persi per '
+          'ogni utilizzo: è un valore simbolico, non il tempo per '
+          'consumarlo. Se non ti serve, lascialo a 0.',
     ),
     _OnboardingSlide(
       icon: Icons.bolt_rounded,
-      title: 'Premi il bottone\nogni volta',
-      description: 'Con un tap registri subito un utilizzo e aggiorni i dati '
-          'della giornata. Se il prodotto usa la scorta, l\'app aggiorna anche '
-          'il residuo. Puoi farlo rapidamente dall\'app e, su Android, anche dal '
-          'widget per avere tutto ancora pi\u00F9 a portata di mano.',
+      title: 'Un tocco\nper registrare',
+      description: 'Premi HO USATO ogni volta, oppure registra tutto a fine '
+          'giornata. Se tocchi per sbaglio puoi annullare subito, e su '
+          "Android c'è anche il widget.",
     ),
     _OnboardingSlide(
       icon: Icons.bar_chart_rounded,
       title: 'Osserva\ni tuoi progressi',
-      description: 'Consulta cronologia, statistiche e progressi per capire '
-          'meglio le tue abitudini nel tempo. L\'app include grafici, obiettivi, '
-          'badge, piano di riduzione, archivio prodotti e backup CSV, mantenendo '
-          'tutti i dati salvati direttamente sul tuo dispositivo.',
+      description: 'Cronologia per giorni, settimane e mesi, obiettivi e un '
+          'piano di riduzione. Con il backup non perdi nulla.',
     ),
   ];
 

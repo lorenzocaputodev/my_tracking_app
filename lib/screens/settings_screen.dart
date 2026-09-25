@@ -3,17 +3,17 @@ import 'package:provider/provider.dart';
 
 import '../models/tracked_product.dart';
 import '../providers/my_tracking_provider.dart';
-import '../services/product_notification_service.dart';
 import '../theme/app_dimens.dart';
 import '../theme/app_fonts.dart';
 import '../theme/theme_context.dart';
 import '../utils/backup_file_service.dart';
 import '../widgets/pill_selector.dart';
-import '../widgets/product_configuration_form.dart';
+import '../widgets/reminder_settings.dart';
 import '../widgets/settings_rows.dart';
 import 'add_product_screen.dart';
 import 'archived_products_screen.dart';
 import 'product_settings_screen.dart';
+import '../theme/app_icons.dart';
 
 /// Impostazioni generali: prodotti, preferenze dell'app e dati. I parametri
 /// di un prodotto stanno nella sua pagina, [ProductSettingsScreen].
@@ -45,69 +45,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (added != true || !mounted) return;
     final name = context.read<MyTrackingProvider>().activeProduct.name;
     _showFeedback('$name aggiunto e in uso');
-  }
-
-  // Promemoria: si salvano subito, non c'e' un pulsante da premere.
-
-  Future<void> _setReminderEnabled(bool value) async {
-    final provider = context.read<MyTrackingProvider>();
-    if (value) {
-      final warningColor = context.stats.warning;
-      final granted = await ProductNotificationService.ensurePermission();
-      if (!granted) {
-        _showFeedback(
-          'Permesso notifiche non concesso.',
-          backgroundColor: warningColor,
-        );
-        return;
-      }
-    }
-    await provider.updateGlobalReminderSettings(
-      provider.globalReminderSettings.copyWith(enabled: value),
-    );
-  }
-
-  Future<void> _pickReminderInterval() async {
-    final provider = context.read<MyTrackingProvider>();
-    final current = provider.globalReminderSettings.intervalMinutes;
-    final picked = await showModalBottomSheet<int>(
-      context: context,
-      showDragHandle: true,
-      builder: (ctx) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
-              child: Text(
-                'Ricordamelo ogni',
-                style: TextStyle(
-                  fontFamily: AppFonts.sans,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w800,
-                  color: ctx.colors.textPrimary,
-                ),
-              ),
-            ),
-            for (final option in reminderIntervalOptions)
-              ListTile(
-                contentPadding: const EdgeInsets.symmetric(horizontal: 24),
-                title: Text(option.label),
-                trailing: option.minutes == current
-                    ? Icon(Icons.check_rounded, color: ctx.accent)
-                    : null,
-                onTap: () => Navigator.pop(ctx, option.minutes),
-              ),
-            const SizedBox(height: 8),
-          ],
-        ),
-      ),
-    );
-    if (picked == null || picked == current) return;
-    await provider.updateGlobalReminderSettings(
-      provider.globalReminderSettings.copyWith(intervalMinutes: picked),
-    );
   }
 
   // Backup
@@ -229,21 +166,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ? '${product.packRemaining}/${product.pieces} in scorta'
       : 'Senza scorta';
 
-  String _intervalLabel(int minutes) => reminderIntervalOptions
-      .firstWhere(
-        (o) => o.minutes == minutes,
-        orElse: () => reminderIntervalOptions[2],
-      )
-      .label;
-
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<MyTrackingProvider>();
     final colors = context.colors;
     final accent = context.accent;
     final danger = context.stats.danger;
-    final reminders = provider.globalReminderSettings;
-    final notificationsSupported = ProductNotificationService.isSupported;
     final archivedCount = provider.archivedProducts.length;
 
     return Scaffold(
@@ -257,8 +185,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               for (final product in provider.activeProducts)
                 SettingsRow(
                   icon: product.tracksInventory
-                      ? Icons.inventory_2_rounded
-                      : Icons.show_chart_rounded,
+                      ? AppIcons.stock
+                      : AppIcons.noStock,
                   title: product.name,
                   subtitle: _productSubtitle(product),
                   onTap: () =>
@@ -310,43 +238,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   onChanged: provider.setThemePreference,
                 ),
               ),
-              SettingsRow(
-                icon: Icons.notifications_rounded,
-                title: 'Promemoria',
-                subtitle: notificationsSupported
-                    ? 'Ti ricorda di registrare'
-                    : 'Disponibile solo su Android',
-                enabled: notificationsSupported,
-                trailing: Switch(
-                  value: notificationsSupported && reminders.enabled,
-                  onChanged:
-                      notificationsSupported ? _setReminderEnabled : null,
-                ),
-              ),
-              if (notificationsSupported && reminders.enabled)
-                SettingsRow(
-                  icon: Icons.schedule_rounded,
-                  title: 'Frequenza',
-                  onTap: _pickReminderInterval,
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        'Ogni ${_intervalLabel(reminders.intervalMinutes)}',
-                        style: TextStyle(
-                          fontFamily: AppFonts.sans,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          color: accent,
-                        ),
-                      ),
-                      Icon(
-                        Icons.chevron_right_rounded,
-                        color: colors.textFaint,
-                      ),
-                    ],
-                  ),
-                ),
+              ...reminderRows(context),
             ],
           ),
           const SettingsSectionLabel('DATI'),

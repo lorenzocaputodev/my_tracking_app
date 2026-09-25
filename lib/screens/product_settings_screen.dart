@@ -10,6 +10,8 @@ import '../theme/app_fonts.dart';
 import '../theme/theme_context.dart';
 import '../utils/app_formatters.dart';
 import '../utils/minutes_presets.dart';
+import '../theme/app_icons.dart';
+import '../widgets/option_sheet.dart';
 import '../widgets/product_configuration_form.dart';
 import '../widgets/save_bar.dart';
 
@@ -230,17 +232,31 @@ class _ProductSettingsScreenState extends State<ProductSettingsScreen> {
         appBar: AppBar(
           title: Text(product.name),
           actions: [
-            PopupMenuButton<String>(
+            IconButton(
+              tooltip: 'Altre azioni',
               icon: Icon(Icons.more_vert_rounded, color: colors.textMuted),
-              onSelected: (value) => _onMenu(value, provider),
-              itemBuilder: (_) => [
-                if (!isActive)
-                  const PopupMenuItem(
-                    value: 'use',
-                    child: Text('Usa questo prodotto'),
-                  ),
-                const PopupMenuItem(value: 'archive', child: Text('Archivia')),
-              ],
+              onPressed: () async {
+                final action = await showOptionSheet<String>(
+                  context,
+                  title: product.name,
+                  options: [
+                    if (!isActive)
+                      const SheetOption(
+                        'use',
+                        'Usa questo prodotto',
+                        subtitle: 'Diventa quello registrato in home',
+                        icon: Icons.check_circle_outline_rounded,
+                      ),
+                    const SheetOption(
+                      'archive',
+                      'Archivia',
+                      subtitle: 'Sparisce dalla home, la cronologia resta',
+                      icon: AppIcons.archive,
+                    ),
+                  ],
+                );
+                if (action != null) await _onMenu(action, provider);
+              },
             ),
           ],
         ),
@@ -268,8 +284,6 @@ class _ProductSettingsScreenState extends State<ProductSettingsScreen> {
                 accentColor: accent,
                 title: '',
                 subtitle: '',
-                widgetMessage: '',
-                submitLabel: '',
                 nameController: _nameCtrl,
                 packCostController: _packCostCtrl,
                 piecesController: _piecesCtrl,
@@ -285,13 +299,6 @@ class _ProductSettingsScreenState extends State<ProductSettingsScreen> {
                 minutesCustomMode: _minutesCustomMode,
                 onMinutesPresetSelected: _onMinutesPresetSelected,
                 onChanged: () => setState(() {}),
-                notificationsSupported: false,
-                showNotificationsSection: false,
-                showWidgetHomeSection: false,
-                onSubmit: null,
-                submitEnabled: false,
-                isSubmitting: _isSaving,
-                submitPlacement: FormSubmitPlacement.none,
               ),
             ],
           ),

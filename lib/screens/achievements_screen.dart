@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../models/achievement.dart';
 import '../providers/my_tracking_provider.dart';
 import '../theme/app_fonts.dart';
+import '../theme/app_text_styles.dart';
 import '../theme/app_decorations.dart';
 import '../theme/theme_context.dart';
 import '../utils/app_formatters.dart';
@@ -602,7 +603,7 @@ void _showPlanSheet(
   required String productId,
 }) {
   final productName = provider.productNameById(productId) ?? 'Prodotto';
-  final currentAverage = provider.dailyAverageForProduct(productId);
+  final currentAverage = provider.recentDailyAverage(productId);
   final existingPlan = provider.reductionPlanForProduct(productId);
   double target =
       (existingPlan?.targetPerDay ?? (currentAverage / 2).clamp(0.0, 40.0))
@@ -625,7 +626,8 @@ void _showPlanSheet(
             MediaQuery.of(ctx).viewInsets.bottom + 32,
           ),
           decoration: BoxDecoration(
-            color: context.colors.surfaceElevated,
+            // Stesso fondo e stessa maniglia degli altri pannelli dal basso.
+            color: context.colors.scaffold,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           ),
           child: Column(
@@ -634,21 +636,18 @@ void _showPlanSheet(
             children: [
               Center(
                 child: Container(
-                  width: 40,
+                  width: 32,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: Colors.grey.withValues(alpha: 0.3),
+                    color: context.colors.textFaint,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
               ),
               const SizedBox(height: 22),
-              const Text(
-                'Piano di riduzione',
-                style: TextStyle(fontFamily: AppFonts.sans,
-                  fontSize: 20,
-                  fontWeight: FontWeight.w800,
-                ),
+              Text(
+                'PIANO DI RIDUZIONE',
+                style: AppTextStyles.sectionLabel(context.accent),
               ),
               const SizedBox(height: 6),
               Text(
@@ -659,7 +658,7 @@ void _showPlanSheet(
                 ),
               ),
               Text(
-                'Media su tutta la cronologia: ${formatDecimal(currentAverage, decimals: 1)} unit\u00E0/giorno',
+                'Media degli ultimi 14 giorni: ${formatDecimal(currentAverage, decimals: 1)} unit\u00E0/giorno',
                 style: const TextStyle(fontFamily: AppFonts.sans, fontSize: 13, color: Colors.grey),
               ),
               const SizedBox(height: 24),

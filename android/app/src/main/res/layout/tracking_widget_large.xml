@@ -25,7 +25,6 @@
             android:autoSizeTextType="uniform"
             android:ellipsize="end"
             android:gravity="center"
-            android:includeFontPadding="false"
             android:maxLines="1"
             android:text="Nome prodotto"
             android:textColor="@color/widget_text_primary"
@@ -53,7 +52,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
-            android:includeFontPadding="false"
             android:text="Totale usato oggi"
             android:textColor="@color/widget_text_muted"
             android:textSize="12sp" />
@@ -69,7 +67,6 @@
             android:layout_marginTop="6dp"
             android:ellipsize="end"
             android:gravity="center"
-            android:includeFontPadding="false"
             android:maxLines="2"
             android:text="Residuo 0/0 &#8226; Costo unit."
             android:textColor="@color/widget_text_muted"
@@ -93,7 +90,8 @@
             android:background="@drawable/widget_stat_background"
             android:gravity="center"
             android:orientation="vertical"
-            android:padding="10dp">
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="6dp">
 
             <TextView
                 android:fontFamily="@font/dm_sans"
@@ -103,7 +101,6 @@
                 android:autoSizeMaxTextSize="16sp"
                 android:autoSizeMinTextSize="10sp"
                 android:autoSizeTextType="uniform"
-                android:includeFontPadding="false"
                 android:maxLines="1"
                 android:text="&#8364;0,00"
                 android:textColor="@color/widget_text_primary"
@@ -112,11 +109,14 @@
 
             <TextView
                 android:fontFamily="@font/dm_sans"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_width="match_parent"
+                android:layout_height="16dp"
+                android:layout_marginTop="2dp"
                 android:gravity="center"
-                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:autoSizeTextType="uniform"
+                android:autoSizeMinTextSize="7sp"
+                android:autoSizeMaxTextSize="10sp"
                 android:text="Spesa oggi"
                 android:textColor="@color/widget_text_faint"
                 android:textSize="10sp" />
@@ -131,7 +131,8 @@
             android:background="@drawable/widget_stat_background"
             android:gravity="center"
             android:orientation="vertical"
-            android:padding="10dp">
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="6dp">
 
             <TextView
                 android:fontFamily="@font/dm_sans"
@@ -141,7 +142,6 @@
                 android:autoSizeMaxTextSize="16sp"
                 android:autoSizeMinTextSize="10sp"
                 android:autoSizeTextType="uniform"
-                android:includeFontPadding="false"
                 android:maxLines="1"
                 android:text="--"
                 android:textColor="@color/widget_text_primary"
@@ -150,11 +150,14 @@
 
             <TextView
                 android:fontFamily="@font/dm_sans"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_width="match_parent"
+                android:layout_height="16dp"
+                android:layout_marginTop="2dp"
                 android:gravity="center"
-                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:autoSizeTextType="uniform"
+                android:autoSizeMinTextSize="7sp"
+                android:autoSizeMaxTextSize="10sp"
                 android:text="Vita persa"
                 android:textColor="@color/widget_text_faint"
                 android:textSize="10sp" />
@@ -168,7 +171,8 @@
             android:background="@drawable/widget_stat_background"
             android:gravity="center"
             android:orientation="vertical"
-            android:padding="10dp">
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="6dp">
 
             <TextView
                 android:fontFamily="@font/dm_sans"
@@ -178,7 +182,6 @@
                 android:autoSizeMaxTextSize="16sp"
                 android:autoSizeMinTextSize="10sp"
                 android:autoSizeTextType="uniform"
-                android:includeFontPadding="false"
                 android:maxLines="1"
                 android:text="&#8364;0,00"
                 android:textColor="@color/widget_text_primary"
@@ -187,11 +190,14 @@
 
             <TextView
                 android:fontFamily="@font/dm_sans"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_width="match_parent"
+                android:layout_height="16dp"
+                android:layout_marginTop="2dp"
                 android:gravity="center"
-                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:autoSizeTextType="uniform"
+                android:autoSizeMinTextSize="7sp"
+                android:autoSizeMaxTextSize="10sp"
                 android:text="Totale speso"
                 android:textColor="@color/widget_text_faint"
                 android:textSize="10sp" />

@@ -4,6 +4,7 @@ import '../providers/my_tracking_provider.dart';
 import '../utils/app_clock.dart';
 import '../utils/app_formatters.dart';
 import '../widgets/action_button.dart';
+import '../widgets/option_sheet.dart';
 import '../widgets/stats_card.dart';
 import '../widgets/week_bars.dart';
 import 'settings_screen.dart';
@@ -13,6 +14,7 @@ import '../theme/app_fonts.dart';
 import '../theme/app_dimens.dart';
 import '../theme/app_decorations.dart';
 import '../theme/theme_context.dart';
+import '../theme/app_icons.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -92,17 +94,7 @@ class HomeScreen extends StatelessWidget {
       child: Column(
         children: [
           const SizedBox(height: 10),
-          _ProductPickerBar(provider: provider, turquoise: turquoise),
-          if (provider.activeProducts.length > 1) const SizedBox(height: 8),
-          if (usesInventory)
-            _PackStatusChip(
-              // Con piu' prodotti il nome e' gia' nel selettore sopra.
-              name: provider.activeProducts.length > 1
-                  ? null
-                  : provider.config.name,
-              remaining: provider.packRemaining,
-              total: provider.config.pieces,
-            ),
+          _ProductChip(provider: provider),
           if (provider.dailyLimitReached) ...[
             const SizedBox(height: 8),
             _DailyLimitBanner(
@@ -415,57 +407,6 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-class _ProductPickerBar extends StatelessWidget {
-  final MyTrackingProvider provider;
-  final Color turquoise;
-
-  const _ProductPickerBar({required this.provider, required this.turquoise});
-
-  @override
-  Widget build(BuildContext context) {
-    if (provider.activeProducts.length < 2) return const SizedBox.shrink();
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-        decoration: BoxDecoration(
-          color: turquoise.withValues(alpha: 0.06),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: turquoise.withValues(alpha: 0.12)),
-        ),
-        child: DropdownButtonHideUnderline(
-          child: DropdownButton<String>(
-            value: provider.activeProduct.id,
-            isExpanded: true,
-            icon: Icon(Icons.expand_more_rounded, color: turquoise, size: 22),
-            dropdownColor: context.colors.surfaceElevated,
-            borderRadius: BorderRadius.circular(AppRadii.field),
-            items: provider.activeProducts
-                .map(
-                  (p) => DropdownMenuItem(
-                    value: p.id,
-                    child: Text(
-                      p.name,
-                      style: const TextStyle(fontFamily: AppFonts.sans,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 14,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                )
-                .toList(),
-            onChanged: (id) {
-              if (id != null) provider.setActiveProduct(id);
-            },
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 class _DailyLimitBanner extends StatelessWidget {
   final int count;
   final int limit;
@@ -564,75 +505,111 @@ class _OpenPackButton extends StatelessWidget {
   }
 }
 
-class _PackStatusChip extends StatelessWidget {
-  final String? name;
-  final int remaining;
-  final int total;
-  const _PackStatusChip({
-    required this.name,
-    required this.remaining,
-    required this.total,
-  });
+/// Prodotto in uso e scorta, in un'unica pillola. Con piu' prodotti si
+/// tocca per cambiarlo: sostituisce il vecchio menu a tendina, che occupava
+/// mezza schermata.
+class _ProductChip extends StatelessWidget {
+  final MyTrackingProvider provider;
+  const _ProductChip({required this.provider});
+
+  Future<void> _choose(BuildContext context) async {
+    final picked = await showOptionSheet<String>(
+      context,
+      title: 'Prodotto in uso',
+      selected: provider.activeProduct.id,
+      options: [
+        for (final p in provider.activeProducts)
+          SheetOption(
+            p.id,
+            p.name,
+            icon: p.tracksInventory ? AppIcons.stock : AppIcons.noStock,
+            subtitle: p.tracksInventory
+                ? '${p.packRemaining}/${p.pieces} in scorta'
+                : 'Senza scorta',
+          ),
+      ],
+    );
+    if (picked != null) await provider.setActiveProduct(picked);
+  }
 
   @override
   Widget build(BuildContext context) {
-    final turquoise = Theme.of(context).colorScheme.primary;
-    final isLow = remaining <= 5;
-    final isZero = remaining == 0;
+    final product = provider.activeProduct;
+    final canSwitch = provider.activeProducts.length > 1;
+    if (!product.tracksInventory && !canSwitch) return const SizedBox.shrink();
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+    final accent = context.accent;
+    final remaining = provider.packRemaining;
+    final isZero = product.tracksInventory && remaining == 0;
+    final stockColor = isZero
+        ? context.stats.danger
+        : (remaining <= 5 ? context.stats.warning : accent);
+
+    final chip = Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: BoxDecoration(
         color: isZero
             ? context.stats.danger.withValues(alpha: 0.1)
-            : turquoise.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(20),
+            : accent.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(AppRadii.pill),
         border: Border.all(
           color: isZero
               ? context.stats.danger.withValues(alpha: 0.3)
-              : turquoise.withValues(alpha: 0.1),
+              : accent.withValues(alpha: canSwitch ? 0.3 : 0.1),
         ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (name != null) ...[
-            Text(
-              name!.toUpperCase(),
-              style: TextStyle(fontFamily: AppFonts.sans,
-                fontSize: 10,
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 180),
+            child: Text(
+              product.name.toUpperCase(),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontFamily: AppFonts.sans,
+                fontSize: 11,
                 fontWeight: FontWeight.w800,
-                color:
-                    isZero ? context.stats.danger : turquoise.withValues(alpha: 0.6),
+                color: canSwitch ? accent : accent.withValues(alpha: 0.6),
                 letterSpacing: 1.0,
               ),
             ),
+          ),
+          if (canSwitch) ...[
+            const SizedBox(width: 2),
+            Icon(Icons.expand_more_rounded, size: 18, color: accent),
+          ],
+          if (product.tracksInventory) ...[
             Container(
               height: 12,
               width: 1,
-              color: turquoise.withValues(alpha: 0.2),
+              color: accent.withValues(alpha: 0.2),
               margin: const EdgeInsets.symmetric(horizontal: 10),
             ),
-          ],
-          Icon(
-            Icons.inventory_2_rounded,
-            size: 14,
-            color: isZero
-                ? context.stats.danger
-                : (isLow ? context.stats.warning : turquoise),
-          ),
-          const SizedBox(width: 6),
-          Text(
-            '$remaining / $total',
-            style: TextStyle(fontFamily: AppFonts.sans,
-              fontSize: 11,
-              fontWeight: FontWeight.w900,
-              color: isZero
-                  ? context.stats.danger
-                  : (isLow ? context.stats.warning : turquoise),
+            Icon(AppIcons.stock, size: 14, color: stockColor),
+            const SizedBox(width: 6),
+            Text(
+              '$remaining / ${product.pieces}',
+              style: TextStyle(
+                fontFamily: AppFonts.sans,
+                fontSize: 11,
+                fontWeight: FontWeight.w900,
+                color: stockColor,
+              ),
             ),
-          ),
+          ],
         ],
+      ),
+    );
+
+    if (!canSwitch) return chip;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => _choose(context),
+        borderRadius: BorderRadius.circular(AppRadii.pill),
+        child: chip,
       ),
     );
   }
