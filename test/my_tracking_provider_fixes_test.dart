@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_tracking_app/models/achievement.dart';
+import 'package:my_tracking_app/models/pack_config.dart';
 import 'package:my_tracking_app/models/tracked_product.dart';
 import 'package:my_tracking_app/providers/my_tracking_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -298,5 +299,42 @@ void main() {
 
       second.dispose();
     });
+  });
+
+  test('un prodotto non in uso si modifica e si reintegra senza toccare '
+      'quello attivo', () async {
+    SharedPreferences.setMockInitialValues(<String, Object>{
+      'tracked_products_v1': _productsJson([
+        _product(id: 'p1', name: 'Attivo', packRemaining: 12),
+        _product(id: 'p2', name: 'Altro', packRemaining: 3),
+      ]),
+      'active_product_id': 'p1',
+    });
+    final provider = MyTrackingProvider();
+    await provider.init();
+
+    await provider.updateProductConfig(
+      const PackConfig(
+        name: 'Rinominato',
+        totalCost: 8.0,
+        pieces: 10,
+        minutesLost: 5,
+        dailyLimit: 4,
+      ),
+      productId: 'p2',
+    );
+    await provider.correctPackRemaining(7, productId: 'p2');
+    TrackedProduct byId(String id) =>
+        provider.products.firstWhere((p) => p.id == id);
+    expect(byId('p2').name, 'Rinominato');
+    expect(byId('p2').packRemaining, 7);
+
+    await provider.openNewPack(productId: 'p2');
+    expect(byId('p2').packRemaining, 10);
+
+    expect(provider.activeProduct.id, 'p1');
+    expect(byId('p1').name, 'Attivo');
+    expect(byId('p1').packRemaining, 12);
+    provider.dispose();
   });
 }

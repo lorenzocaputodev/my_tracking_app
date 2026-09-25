@@ -9,6 +9,7 @@ import '../theme/theme_context.dart';
 import '../utils/app_clock.dart';
 import '../utils/app_formatters.dart';
 import '../utils/history_grouping.dart';
+import 'pill_selector.dart';
 
 const _months = [
   'Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio',
@@ -167,7 +168,15 @@ class _HistoryPeriodListState extends State<HistoryPeriodList> {
               ),
             ),
             const Spacer(),
-            _GroupingToggle(value: _grouping, onChanged: _setGrouping),
+            PillSelector<HistoryGrouping>(
+              options: const {
+                HistoryGrouping.days: 'Giorni',
+                HistoryGrouping.weeks: 'Settimane',
+                HistoryGrouping.months: 'Mesi',
+              },
+              value: _grouping,
+              onChanged: _setGrouping,
+            ),
           ],
         ),
         if (_drillLabel != null) ...[
@@ -218,57 +227,6 @@ class _HistoryPeriodListState extends State<HistoryPeriodList> {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _GroupingToggle extends StatelessWidget {
-  final HistoryGrouping value;
-  final ValueChanged<HistoryGrouping> onChanged;
-
-  const _GroupingToggle({required this.value, required this.onChanged});
-
-  static const _labels = {
-    HistoryGrouping.days: 'Giorni',
-    HistoryGrouping.weeks: 'Settimane',
-    HistoryGrouping.months: 'Mesi',
-  };
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-    return Container(
-      padding: const EdgeInsets.all(3),
-      decoration: BoxDecoration(
-        color: colors.inputFill,
-        borderRadius: BorderRadius.circular(AppRadii.pill),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          for (final g in HistoryGrouping.values)
-            GestureDetector(
-              onTap: () => onChanged(g),
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: g == value ? context.accent : Colors.transparent,
-                  borderRadius: BorderRadius.circular(AppRadii.pill),
-                ),
-                child: Text(
-                  _labels[g]!,
-                  style: TextStyle(
-                    fontFamily: AppFonts.sans,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: g == value ? colors.onAction : colors.textMuted,
-                  ),
-                ),
-              ),
-            ),
-        ],
-      ),
     );
   }
 }
