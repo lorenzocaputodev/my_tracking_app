@@ -197,7 +197,10 @@ class MyTrackingProvider extends ChangeNotifier {
     final diff = appNow().difference(sorted.first.timestamp);
     if (diff.inDays > 0) return '${diff.inDays}g fa';
     if (diff.inHours > 0) {
-      return '${diff.inHours}h ${diff.inMinutes.remainder(60)}m fa';
+      final minutes = diff.inMinutes.remainder(60);
+      return minutes == 0
+          ? '${diff.inHours}h fa'
+          : '${diff.inHours}h ${minutes}m fa';
     }
     if (diff.inMinutes > 0) return '${diff.inMinutes}m fa';
     return 'Adesso';

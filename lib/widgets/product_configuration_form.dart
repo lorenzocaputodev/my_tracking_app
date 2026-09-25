@@ -4,8 +4,11 @@ import 'package:flutter/services.dart';
 import '../models/app_reminder_settings.dart';
 import '../widgets/minutes_lost_selector.dart';
 import '../widgets/tracking_input_decoration.dart';
+import '../theme/app_decorations.dart';
 import '../theme/app_fonts.dart';
+import '../theme/app_text_styles.dart';
 import '../theme/theme_context.dart';
+import 'pill_selector.dart';
 
 enum FormSubmitPlacement { afterNotifications, bottom, none }
 
@@ -251,7 +254,9 @@ class ProductConfigurationForm extends StatelessWidget {
           children: [
             Expanded(
               child: Text(
-                'Voglio stare sotto ${dailyGoal == 0 ? 'nessun limite' : '$dailyGoal al giorno'}',
+                dailyGoal == 0
+                    ? 'Nessun limite giornaliero'
+                    : 'Voglio stare sotto $dailyGoal al giorno',
                 style: const TextStyle(fontFamily: AppFonts.sans,
                   fontWeight: FontWeight.w700,
                   fontSize: 15,
@@ -437,45 +442,16 @@ class _TrackingModeSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: accentColor.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: accentColor.withValues(alpha: 0.12)),
-      ),
+      padding: const EdgeInsets.all(14),
+      decoration: AppDecorations.cardSubtle(context.colors),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(
-            width: double.infinity,
-            child: SegmentedButton<bool>(
-              segments: const [
-                ButtonSegment<bool>(
-                  value: true,
-                  icon: Icon(Icons.inventory_2_rounded, size: 18),
-                  label: Text('Con scorta'),
-                ),
-                ButtonSegment<bool>(
-                  value: false,
-                  icon: Icon(Icons.timeline_rounded, size: 18),
-                  label: Text('Senza scorta'),
-                ),
-              ],
-              selected: <bool>{tracksInventory},
-              showSelectedIcon: false,
-              style: SegmentedButton.styleFrom(
-                textStyle: const TextStyle(fontFamily: AppFonts.sans,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w800,
-                ),
-                padding: const EdgeInsets.symmetric(vertical: 14),
-              ),
-              onSelectionChanged: (selection) {
-                if (selection.isNotEmpty) {
-                  onChanged(selection.first);
-                }
-              },
-            ),
+          PillSelector<bool>(
+            expand: true,
+            options: const {true: 'Con scorta', false: 'Senza scorta'},
+            value: tracksInventory,
+            onChanged: onChanged,
           ),
           const SizedBox(height: 12),
           Text(
@@ -741,15 +717,8 @@ class ReminderIntervalOption {
   });
 }
 
-Widget _sectionLabel(String text, Color accentColor) => Text(
-      text,
-      style: TextStyle(fontFamily: AppFonts.sans,
-        fontSize: 11,
-        fontWeight: FontWeight.w800,
-        color: accentColor,
-        letterSpacing: 1.6,
-      ),
-    );
+Widget _sectionLabel(String text, Color accentColor) =>
+    Text(text, style: AppTextStyles.sectionLabel(accentColor));
 
 InputDecoration _inputDecoration({
   required String hint,

@@ -5,7 +5,7 @@ import '../models/tracked_product.dart';
 import '../providers/my_tracking_provider.dart';
 import '../utils/minutes_presets.dart';
 import '../widgets/product_configuration_form.dart';
-import '../theme/app_fonts.dart';
+import '../widgets/save_bar.dart';
 
 class AddProductScreen extends StatefulWidget {
   const AddProductScreen({super.key});
@@ -16,7 +16,7 @@ class AddProductScreen extends StatefulWidget {
 
 class _AddProductScreenState extends State<AddProductScreen> {
   final _nameCtrl = TextEditingController(text: 'Nuovo prodotto');
-  final _packCostCtrl = TextEditingController(text: '5.00');
+  final _packCostCtrl = TextEditingController(text: '5,00');
   final _piecesCtrl = TextEditingController(text: '20');
   final _directCostCtrl = TextEditingController();
   final _minutesCtrl = TextEditingController(text: '11');
@@ -122,23 +122,21 @@ class _AddProductScreenState extends State<AddProductScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Nuovo prodotto',
-          style: TextStyle(fontFamily: AppFonts.sans, fontWeight: FontWeight.w800),
-        ),
+      appBar: AppBar(title: const Text('Nuovo prodotto')),
+      bottomNavigationBar: SaveBar(
+        saveLabel: 'Aggiungi prodotto',
+        onSave: (_isSaving || !_canSave) ? null : _save,
       ),
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(24, 8, 24, 32),
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
           children: [
             ProductConfigurationForm(
               isDark: isDark,
               accentColor: accent,
-              title: 'Aggiungi un nuovo prodotto',
-              subtitle:
-                  'Configura un altro prodotto con gli stessi parametri disponibili nel setup iniziale.',
+              title: '',
+              subtitle: '',
               widgetMessage:
                   'Dopo il salvataggio potrai selezionare questo prodotto nell\'app e usarlo anche dal widget Android.',
               submitLabel: 'Aggiungi prodotto',
@@ -162,7 +160,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
               onSubmit: (_isSaving || !_canSave) ? null : _save,
               submitEnabled: !_isSaving && _canSave,
               isSubmitting: _isSaving,
-              submitPlacement: FormSubmitPlacement.bottom,
+              submitPlacement: FormSubmitPlacement.none,
             ),
           ],
         ),

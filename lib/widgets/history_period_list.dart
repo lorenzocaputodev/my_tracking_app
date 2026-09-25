@@ -5,6 +5,7 @@ import '../providers/my_tracking_provider.dart';
 import '../theme/app_decorations.dart';
 import '../theme/app_dimens.dart';
 import '../theme/app_fonts.dart';
+import '../theme/app_text_styles.dart';
 import '../theme/theme_context.dart';
 import '../utils/app_clock.dart';
 import '../utils/app_formatters.dart';
@@ -158,13 +159,7 @@ class _HistoryPeriodListState extends State<HistoryPeriodList> {
               padding: const EdgeInsets.only(left: 4),
               child: Text(
                 'REGISTRAZIONI',
-                style: TextStyle(
-                  fontFamily: AppFonts.sans,
-                  fontWeight: FontWeight.w800,
-                  fontSize: 11,
-                  letterSpacing: 0.8,
-                  color: accent,
-                ),
+                style: AppTextStyles.sectionLabel(accent),
               ),
             ),
             const Spacer(),

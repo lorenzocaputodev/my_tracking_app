@@ -204,7 +204,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               backgroundColor: context.stats.danger,
               foregroundColor: Colors.white,
             ),
-            child: const Text('Elimina definitivamente'),
+            child: const Text('Elimina'),
           ),
         ],
       ),
