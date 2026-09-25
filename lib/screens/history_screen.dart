@@ -7,6 +7,7 @@ import '../providers/my_tracking_provider.dart';
 import '../utils/app_formatters.dart';
 import '../widgets/history_period_list.dart';
 import '../widgets/tracking_input_decoration.dart';
+import '../widgets/week_bars.dart';
 import '../theme/app_fonts.dart';
 import '../theme/app_decorations.dart';
 import '../theme/theme_context.dart';
@@ -230,7 +231,22 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 onCustomRangeTap: _pickCustomRange,
               ),
               const SizedBox(height: 8),
-              _WeeklyChart(entries: chartEntries),
+              Container(
+                margin: const EdgeInsets.only(bottom: 8, top: 4),
+                padding: const EdgeInsets.fromLTRB(16, 20, 16, 12),
+                decoration: AppDecorations.card(context.colors),
+                child: WeekBars(
+                  entries: chartEntries,
+                  // Il limite e' di un prodotto: con tutti i prodotti non
+                  // avrebbe senso.
+                  dailyLimit: effectiveProductId == null
+                      ? 0
+                      : provider.products
+                          .firstWhere((p) => p.id == effectiveProductId)
+                          .dailyLimit,
+                  barHeight: 96,
+                ),
+              ),
               _MonthlyChart(entries: chartEntries),
               _StatsPanel(
                 provider: provider,
@@ -338,24 +354,19 @@ class _HistoryFiltersCard extends StatelessWidget {
             runSpacing: 8,
             children: _HistoryPeriodPreset.values.map((preset) {
               final selected = preset == periodPreset;
+              final colors = context.colors;
               return ChoiceChip(
                 label: Text(_periodPresetLabel(preset)),
                 selected: selected,
+                showCheckmark: false,
+                shape: const StadiumBorder(),
                 labelStyle: TextStyle(fontFamily: AppFonts.sans,
                   fontWeight: FontWeight.w700,
-                  color: selected
-                      ? Colors.white
-                      : (isDark ? Colors.white70 : const Color(0xFF314344)),
+                  color: selected ? colors.onAction : colors.textMuted,
                 ),
-                selectedColor: turquoise,
-                backgroundColor: isDark
-                    ? Colors.white.withValues(alpha: 0.05)
-                    : Colors.black.withValues(alpha: 0.05),
-                side: BorderSide(
-                  color: selected
-                      ? Colors.transparent
-                      : turquoise.withValues(alpha: 0.18),
-                ),
+                selectedColor: colors.action,
+                backgroundColor: colors.inputFill,
+                side: BorderSide.none,
                 onSelected: (_) => onPresetSelected(preset),
               );
             }).toList(),
@@ -535,7 +546,7 @@ class _StatsPanelState extends State<_StatsPanel> {
                     Expanded(
                       child: _StatItem(
                         label: 'Media periodo/g',
-                        value: periodAverage.toStringAsFixed(1),
+                        value: formatDecimal(periodAverage, decimals: 1),
                         icon: Icons.show_chart_rounded,
                         color: turquoise,
                       ),
@@ -557,7 +568,7 @@ class _StatsPanelState extends State<_StatsPanel> {
                     Expanded(
                       child: _StatItem(
                         label: 'Media 30 giorni',
-                        value: thirtyDayAverage.toStringAsFixed(1),
+                        value: formatDecimal(thirtyDayAverage, decimals: 1),
                         icon: Icons.calendar_view_month_rounded,
                         color: stats.average,
                       ),
@@ -1247,199 +1258,6 @@ bool _shouldShowXAxisLabel({
   if (index == 0 || index == total - 1) return true;
   if (highlightIndex != null && index == highlightIndex) return true;
   return index % interval == 0;
-}
-
-class _WeeklyChart extends StatelessWidget {
-  final List<SmokeEntry> entries;
-
-  const _WeeklyChart({required this.entries});
-
-  @override
-  Widget build(BuildContext context) {
-    final turquoise = Theme.of(context).colorScheme.primary;
-    final today = _dateOnly(DateTime.now());
-    final days = List.generate(7, (index) {
-      return today.subtract(Duration(days: 6 - index));
-    });
-
-    final countPerDay = {for (final day in days) day: 0};
-    for (final entry in entries) {
-      final day = _dateOnly(entry.timestamp);
-      if (countPerDay.containsKey(day)) {
-        countPerDay[day] = countPerDay[day]! + 1;
-      }
-    }
-
-    final rawMax = countPerDay.values.fold<double>(
-      0,
-      (max, value) => max > value ? max : value.toDouble(),
-    );
-    final maxY = _niceAxisMax(rawMax);
-    final yInterval = _niceYInterval(maxY);
-
-    final bars = days.asMap().entries.map((item) {
-      final index = item.key;
-      final day = item.value;
-      final count = countPerDay[day]!.toDouble();
-      final isToday = day == today;
-
-      return BarChartGroupData(
-        x: index,
-        barRods: [
-          BarChartRodData(
-            toY: count,
-            color: isToday ? turquoise : turquoise.withValues(alpha: 0.4),
-            width: 18,
-            borderRadius: BorderRadius.circular(6),
-            backDrawRodData: BackgroundBarChartRodData(
-              show: true,
-              toY: maxY,
-              color: turquoise.withValues(alpha: 0.05),
-            ),
-          ),
-        ],
-      );
-    }).toList();
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8, top: 4),
-      padding: const EdgeInsets.fromLTRB(12, 20, 16, 12),
-      decoration: AppDecorations.card(context.colors),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 4, bottom: 16),
-            child: Text(
-              'ULTIMI 7 GIORNI',
-              style: TextStyle(fontFamily: AppFonts.sans,
-                fontSize: 11,
-                fontWeight: FontWeight.w800,
-                color: turquoise,
-                letterSpacing: 1.2,
-              ),
-            ),
-          ),
-          SizedBox(
-            height: 160,
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                final intervalX = _adaptiveBottomInterval(
-                  days.length,
-                  constraints.maxWidth,
-                  minLabelWidth: 36,
-                );
-                final todayIndex = days.indexOf(today);
-                return BarChart(
-                  BarChartData(
-                    maxY: maxY,
-                    minY: 0,
-                    gridData: FlGridData(
-                      show: true,
-                      drawVerticalLine: false,
-                      horizontalInterval: yInterval,
-                      getDrawingHorizontalLine: (_) => FlLine(
-                        color: turquoise.withValues(alpha: 0.08),
-                        strokeWidth: 1,
-                      ),
-                    ),
-                    borderData: FlBorderData(show: false),
-                    titlesData: FlTitlesData(
-                      leftTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          reservedSize: _yAxisReservedSize(maxY),
-                          interval: yInterval,
-                          getTitlesWidget: (value, meta) {
-                            if (value != 0 &&
-                                value != maxY &&
-                                (value % yInterval) != 0) {
-                              return const SizedBox.shrink();
-                            }
-                            return SideTitleWidget(
-                              axisSide: meta.axisSide,
-                              space: 4,
-                              child: Text(
-                                '${value.toInt()}',
-                                style: const TextStyle(fontFamily: AppFonts.sans,
-                                  fontSize: 10,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                      rightTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false),
-                      ),
-                      topTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false),
-                      ),
-                      bottomTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          reservedSize: 34,
-                          getTitlesWidget: (value, _) {
-                            final index = value.toInt();
-                            if (index < 0 || index >= days.length) {
-                              return const SizedBox.shrink();
-                            }
-                            if (!_shouldShowXAxisLabel(
-                              index: index,
-                              total: days.length,
-                              interval: intervalX,
-                              highlightIndex: todayIndex,
-                            )) {
-                              return const SizedBox.shrink();
-                            }
-                            final day = days[index];
-                            final isToday = day == today;
-                            return Padding(
-                              padding: const EdgeInsets.only(top: 6),
-                              child: Text(
-                                isToday
-                                    ? 'oggi'
-                                    : DateFormat(
-                                        'E',
-                                        'it',
-                                      ).format(day).toLowerCase(),
-                                style: TextStyle(fontFamily: AppFonts.sans,
-                                  fontSize: 10,
-                                  fontWeight: isToday
-                                      ? FontWeight.w800
-                                      : FontWeight.w500,
-                                  color: isToday ? turquoise : Colors.grey,
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                    barGroups: bars,
-                    barTouchData: BarTouchData(
-                      touchTooltipData: BarTouchTooltipData(
-                        getTooltipColor: (_) =>
-                            context.colors.surfaceSunken,
-                        getTooltipItem: (group, _, rod, __) => BarTooltipItem(
-                          '${rod.toY.toInt()}',
-                          TextStyle(fontFamily: AppFonts.sans,
-                            fontWeight: FontWeight.w800,
-                            color: turquoise,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 class _MonthlyChart extends StatelessWidget {

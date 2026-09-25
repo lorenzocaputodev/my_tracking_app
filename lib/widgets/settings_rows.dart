@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_decorations.dart';
 import '../theme/app_dimens.dart';
 import '../theme/app_fonts.dart';
+import '../theme/app_text_styles.dart';
 import '../theme/theme_context.dart';
 
 class SettingsSectionLabel extends StatelessWidget {
@@ -13,16 +14,7 @@ class SettingsSectionLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(4, 28, 0, 10),
-      child: Text(
-        text,
-        style: TextStyle(
-          fontFamily: AppFonts.sans,
-          fontSize: 11,
-          fontWeight: FontWeight.w800,
-          letterSpacing: 1.1,
-          color: context.colors.textMuted,
-        ),
-      ),
+      child: Text(text, style: AppTextStyles.sectionLabel(context.accent)),
     );
   }
 }

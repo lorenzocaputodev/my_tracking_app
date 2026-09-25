@@ -11,6 +11,7 @@ import '../theme/theme_context.dart';
 import '../utils/app_formatters.dart';
 import '../utils/minutes_presets.dart';
 import '../widgets/product_configuration_form.dart';
+import '../widgets/save_bar.dart';
 
 /// Scorta e parametri di un prodotto, anche se non e' quello in uso.
 /// "Salva" compare in una barra fissa solo quando c'e' qualcosa da salvare.
@@ -244,8 +245,10 @@ class _ProductSettingsScreenState extends State<ProductSettingsScreen> {
           ],
         ),
         bottomNavigationBar: _isDirty
-            ? _SaveBar(
+            ? SaveBar(
+                message: 'Modifiche non salvate',
                 onCancel: _reload,
+                saveLabel: 'Salva',
                 onSave: (_isSaving || !_canSave) ? null : _save,
               )
             : null,
@@ -287,62 +290,6 @@ class _ProductSettingsScreenState extends State<ProductSettingsScreen> {
                 submitEnabled: false,
                 isSubmitting: _isSaving,
                 submitPlacement: FormSubmitPlacement.none,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _SaveBar extends StatelessWidget {
-  final VoidCallback onCancel;
-  final VoidCallback? onSave;
-
-  const _SaveBar({required this.onCancel, required this.onSave});
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-    return Container(
-      decoration: BoxDecoration(
-        color: colors.surface,
-        border: Border(top: BorderSide(color: colors.cardBorder)),
-      ),
-      child: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  'Modifiche non salvate',
-                  style: TextStyle(
-                    fontFamily: AppFonts.sans,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: colors.textMuted,
-                  ),
-                ),
-              ),
-              TextButton(onPressed: onCancel, child: const Text('Annulla')),
-              const SizedBox(width: 8),
-              FilledButton(
-                onPressed: onSave,
-                style: FilledButton.styleFrom(
-                  backgroundColor: colors.action,
-                  foregroundColor: colors.onAction,
-                  padding: const EdgeInsets.symmetric(horizontal: 22),
-                ),
-                child: const Text(
-                  'Salva',
-                  style: TextStyle(
-                    fontFamily: AppFonts.sans,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
               ),
             ],
           ),

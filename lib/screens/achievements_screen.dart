@@ -6,6 +6,7 @@ import '../providers/my_tracking_provider.dart';
 import '../theme/app_fonts.dart';
 import '../theme/app_decorations.dart';
 import '../theme/theme_context.dart';
+import '../utils/app_formatters.dart';
 
 class AchievementsScreen extends StatelessWidget {
   const AchievementsScreen({super.key});
@@ -211,7 +212,7 @@ class _ReductionCard extends StatelessWidget {
               Expanded(
                 child: _PlanStat(
                   label: 'Inizio',
-                  value: plan.startAverage.toStringAsFixed(1),
+                  value: formatDecimal(plan.startAverage, decimals: 1),
                   unit: 'unit\u00E0/g',
                 ),
               ),
@@ -219,7 +220,7 @@ class _ReductionCard extends StatelessWidget {
               Expanded(
                 child: _PlanStat(
                   label: 'Media 7 giorni',
-                  value: recentAverage.toStringAsFixed(1),
+                  value: formatDecimal(recentAverage, decimals: 1),
                   unit: 'unit\u00E0/g',
                   highlight: statusColor,
                 ),
@@ -232,7 +233,7 @@ class _ReductionCard extends StatelessWidget {
               Expanded(
                 child: _PlanStat(
                   label: 'Target oggi',
-                  value: plan.currentWeekTarget.toStringAsFixed(1),
+                  value: formatDecimal(plan.currentWeekTarget, decimals: 1),
                   unit: 'unit\u00E0/g',
                 ),
               ),
@@ -240,7 +241,7 @@ class _ReductionCard extends StatelessWidget {
               Expanded(
                 child: _PlanStat(
                   label: 'Obiettivo finale',
-                  value: plan.targetPerDay.toStringAsFixed(1),
+                  value: formatDecimal(plan.targetPerDay, decimals: 1),
                   unit: 'unit\u00E0/g',
                   highlight: color,
                 ),
@@ -658,12 +659,12 @@ void _showPlanSheet(
                 ),
               ),
               Text(
-                'Media attuale: ${currentAverage.toStringAsFixed(1)} unit\u00E0/giorno',
+                'Media su tutta la cronologia: ${formatDecimal(currentAverage, decimals: 1)} unit\u00E0/giorno',
                 style: const TextStyle(fontFamily: AppFonts.sans, fontSize: 13, color: Colors.grey),
               ),
               const SizedBox(height: 24),
               Text(
-                'Obiettivo finale: ${target.toStringAsFixed(1)} unit\u00E0/giorno',
+                'Obiettivo finale: ${formatDecimal(target, decimals: 1)} unit\u00E0/giorno',
                 style: const TextStyle(fontFamily: AppFonts.sans,
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
@@ -710,7 +711,7 @@ void _showPlanSheet(
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        'Riduzione di ${(currentAverage - target).toStringAsFixed(1)} unit\u00E0/g in $weeks settimane.',
+                        'Riduzione di ${formatDecimal(currentAverage - target, decimals: 1)} unit\u00E0/g in $weeks settimane.',
                         style: TextStyle(fontFamily: AppFonts.sans, fontSize: 12, color: color),
                       ),
                     ),

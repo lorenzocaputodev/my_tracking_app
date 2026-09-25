@@ -4,22 +4,57 @@ import '../theme/app_dimens.dart';
 import '../theme/app_fonts.dart';
 import '../theme/theme_context.dart';
 
-/// Selettore a pillole, per poche opzioni brevi.
+/// Selettore a pillole, per poche opzioni brevi. La scelta usa il colore
+/// d'azione dell'app, lo stesso di "HO USATO" e di "Salva", leggibile in
+/// entrambi i temi.
 class PillSelector<T> extends StatelessWidget {
   final Map<T, String> options;
   final T value;
   final ValueChanged<T> onChanged;
+
+  /// Occupa tutta la larghezza, dividendola in parti uguali.
+  final bool expand;
 
   const PillSelector({
     super.key,
     required this.options,
     required this.value,
     required this.onChanged,
+    this.expand = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    Widget pill(MapEntry<T, String> entry) {
+      final selected = entry.key == value;
+      return GestureDetector(
+        onTap: () => onChanged(entry.key),
+        behavior: HitTestBehavior.opaque,
+        child: Container(
+          alignment: expand ? Alignment.center : null,
+          padding: EdgeInsets.symmetric(
+            horizontal: 11,
+            vertical: expand ? 9 : 6,
+          ),
+          decoration: BoxDecoration(
+            color: selected ? colors.action : Colors.transparent,
+            borderRadius: BorderRadius.circular(AppRadii.pill),
+          ),
+          child: Text(
+            entry.value,
+            maxLines: 1,
+            style: TextStyle(
+              fontFamily: AppFonts.sans,
+              fontSize: expand ? 14 : 12,
+              fontWeight: FontWeight.w700,
+              color: selected ? colors.onAction : colors.textMuted,
+            ),
+          ),
+        ),
+      );
+    }
+
     return Container(
       padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
@@ -27,33 +62,10 @@ class PillSelector<T> extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppRadii.pill),
       ),
       child: Row(
-        mainAxisSize: MainAxisSize.min,
+        mainAxisSize: expand ? MainAxisSize.max : MainAxisSize.min,
         children: [
           for (final entry in options.entries)
-            GestureDetector(
-              onTap: () => onChanged(entry.key),
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 11, vertical: 6),
-                decoration: BoxDecoration(
-                  color: entry.key == value
-                      ? context.accent
-                      : Colors.transparent,
-                  borderRadius: BorderRadius.circular(AppRadii.pill),
-                ),
-                child: Text(
-                  entry.value,
-                  style: TextStyle(
-                    fontFamily: AppFonts.sans,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: entry.key == value
-                        ? colors.onAction
-                        : colors.textMuted,
-                  ),
-                ),
-              ),
-            ),
+            expand ? Expanded(child: pill(entry)) : pill(entry),
         ],
       ),
     );

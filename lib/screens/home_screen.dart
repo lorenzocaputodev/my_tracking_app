@@ -5,6 +5,7 @@ import '../utils/app_clock.dart';
 import '../utils/app_formatters.dart';
 import '../widgets/action_button.dart';
 import '../widgets/stats_card.dart';
+import '../widgets/week_bars.dart';
 import 'settings_screen.dart';
 import 'history_screen.dart';
 import 'achievements_screen.dart';
@@ -95,7 +96,10 @@ class HomeScreen extends StatelessWidget {
           if (provider.activeProducts.length > 1) const SizedBox(height: 8),
           if (usesInventory)
             _PackStatusChip(
-              name: provider.config.name,
+              // Con piu' prodotti il nome e' gia' nel selettore sopra.
+              name: provider.activeProducts.length > 1
+                  ? null
+                  : provider.config.name,
               remaining: provider.packRemaining,
               total: provider.config.pieces,
             ),
@@ -110,6 +114,12 @@ class HomeScreen extends StatelessWidget {
             flex: 5,
             child: LayoutBuilder(
               builder: (context, constraints) {
+                final fit = _fitCenter(
+                  context,
+                  available: constraints.maxHeight,
+                  buttonSize: size.width * 0.55,
+                  hasInsight: provider.homeInsight != null,
+                );
                 return SingleChildScrollView(
                   child: ConstrainedBox(
                     constraints: BoxConstraints(
@@ -119,7 +129,10 @@ class HomeScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        _DailyCounter(count: provider.dailyCount),
+                        _DailyCounter(
+                          count: provider.dailyCount,
+                          fontSize: fit.counterSize,
+                        ),
                         const SizedBox(height: 8),
                         Text(
                           'ULTIMA: ${provider.timeSinceLastEntry.toUpperCase()}',
@@ -130,14 +143,14 @@ class HomeScreen extends StatelessWidget {
                             letterSpacing: 1.5,
                           ),
                         ),
-                        if (provider.homeInsight != null) ...[
+                        if (fit.showInsight) ...[
                           const SizedBox(height: 10),
                           _HomeInsightBadge(
                             insight: provider.homeInsight!,
                             accent: turquoise,
                           ),
                         ],
-                        const SizedBox(height: 40),
+                        SizedBox(height: fit.above),
                         if (isPackEmpty)
                           _OpenPackButton(
                             size: size.width * 0.55,
@@ -162,8 +175,10 @@ class HomeScreen extends StatelessWidget {
                               }
                             },
                           ),
-                        const SizedBox(height: 30),
-                        _SubLabel(provider: provider),
+                        if (fit.showCost) ...[
+                          SizedBox(height: fit.below),
+                          _SubLabel(provider: provider),
+                        ],
                       ],
                     ),
                   ),
@@ -210,6 +225,56 @@ class HomeScreen extends StatelessWidget {
           const SizedBox(height: 20),
         ],
       ),
+    );
+  }
+
+  /// Adatta la parte centrale della home allo spazio che resta sopra le
+  /// card. Con posto a sufficienza tutto resta com'e' (spazi di 40 e 30);
+  /// quando manca (piu' prodotti, banner del limite) riduce prima gli spazi,
+  /// poi toglie la riga del costo, poi rimpicciolisce il contatore, e solo
+  /// alla fine toglie il suggerimento. "HO USATO" non cambia mai dimensione.
+  ({
+    double above,
+    double below,
+    bool showInsight,
+    bool showCost,
+    double counterSize,
+  }) _fitCenter(
+    BuildContext context, {
+    required double available,
+    required double buttonSize,
+    required bool hasInsight,
+  }) {
+    final t = MediaQuery.textScalerOf(context).scale(1);
+    const minAbove = 12.0, minBelow = 8.0;
+    var showInsight = hasInsight;
+    var showCost = true;
+    var counterSize = 92.0;
+
+    // Contatore con OGGI, riga ULTIMA, pulsante, e le parti facoltative.
+    double content() =>
+        (counterSize + 16) * t +
+        8 +
+        16 * t +
+        buttonSize +
+        (showInsight ? 10 + 36 * t : 0) +
+        (showCost ? 16 * t : 0);
+    // Le altezze del testo sono stime: 8 di margine per non toccare la card.
+    double needed() => content() + minAbove + (showCost ? minBelow : 0) + 8;
+
+    if (needed() > available) showCost = false;
+    if (needed() > available) counterSize = 64;
+    if (needed() > available) showInsight = false;
+
+    final free = available - content() - 8;
+    return (
+      above: showCost
+          ? (free * 4 / 7).clamp(minAbove, 40.0)
+          : free.clamp(minAbove, 40.0),
+      below: showCost ? (free * 3 / 7).clamp(minBelow, 30.0) : 0,
+      showInsight: showInsight,
+      showCost: showCost,
+      counterSize: counterSize,
     );
   }
 
@@ -472,7 +537,7 @@ class _OpenPackButton extends StatelessWidget {
 }
 
 class _PackStatusChip extends StatelessWidget {
-  final String name;
+  final String? name;
   final int remaining;
   final int total;
   const _PackStatusChip({
@@ -503,22 +568,24 @@ class _PackStatusChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            name.toUpperCase(),
-            style: TextStyle(fontFamily: AppFonts.sans,
-              fontSize: 10,
-              fontWeight: FontWeight.w800,
-              color:
-                  isZero ? context.stats.danger : turquoise.withValues(alpha: 0.6),
-              letterSpacing: 1.0,
+          if (name != null) ...[
+            Text(
+              name!.toUpperCase(),
+              style: TextStyle(fontFamily: AppFonts.sans,
+                fontSize: 10,
+                fontWeight: FontWeight.w800,
+                color:
+                    isZero ? context.stats.danger : turquoise.withValues(alpha: 0.6),
+                letterSpacing: 1.0,
+              ),
             ),
-          ),
-          Container(
-            height: 12,
-            width: 1,
-            color: turquoise.withValues(alpha: 0.2),
-            margin: const EdgeInsets.symmetric(horizontal: 10),
-          ),
+            Container(
+              height: 12,
+              width: 1,
+              color: turquoise.withValues(alpha: 0.2),
+              margin: const EdgeInsets.symmetric(horizontal: 10),
+            ),
+          ],
           Icon(
             Icons.inventory_2_rounded,
             size: 14,
@@ -545,7 +612,8 @@ class _PackStatusChip extends StatelessWidget {
 
 class _DailyCounter extends StatelessWidget {
   final int count;
-  const _DailyCounter({required this.count});
+  final double fontSize;
+  const _DailyCounter({required this.count, this.fontSize = 92});
 
   @override
   Widget build(BuildContext context) {
@@ -562,7 +630,7 @@ class _DailyCounter extends StatelessWidget {
             '$count',
             key: ValueKey(count),
             style: TextStyle(fontFamily: AppFonts.sans,
-              fontSize: 92,
+              fontSize: fontSize,
               fontWeight: FontWeight.w900,
               color: isDark ? Colors.white : Colors.black,
               height: 1.0,
@@ -661,124 +729,19 @@ class _WeekStrip extends StatelessWidget {
   final MyTrackingProvider provider;
   const _WeekStrip({required this.provider});
 
-  static const _weekdays = ['L', 'M', 'M', 'G', 'V', 'S', 'D'];
-
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final accent = context.accent;
-    final now = appNow();
-    final today = DateTime(now.year, now.month, now.day);
-    final days = [
-      for (var i = 6; i >= 0; i--) today.subtract(Duration(days: i)),
-    ];
-    final counts = List<int>.filled(7, 0);
-    for (final e in provider.entriesForProduct(provider.activeProduct.id)) {
-      final t = e.timestamp.toLocal();
-      final idx = days.indexWhere(
-        (d) => d.year == t.year && d.month == t.month && d.day == t.day,
-      );
-      if (idx >= 0) counts[idx]++;
+    final entries = provider.entriesForProduct(provider.activeProduct.id);
+    if (WeekBars.countsFor(entries, appNow()).every((c) => c == 0)) {
+      return const SizedBox.shrink();
     }
-    if (counts.every((c) => c == 0)) return const SizedBox.shrink();
-    final limit = provider.config.dailyLimit;
-    final scale = [...counts, limit, 1].reduce((a, b) => a > b ? a : b);
-    final avg = counts.reduce((a, b) => a + b) / 7;
-    const barArea = 44.0;
-    final label = TextStyle(
-      fontFamily: AppFonts.sans,
-      fontSize: 9,
-      color: colors.textFaint,
-      fontWeight: FontWeight.w700,
-      letterSpacing: 0.5,
-    );
-
     return Container(
-      margin: const EdgeInsets.fromLTRB(20, 0, 20, 10),
-      padding: const EdgeInsets.fromLTRB(14, 12, 14, 10),
-      decoration: AppDecorations.cardSubtle(colors),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Text('ULTIMI 7 GIORNI', style: label),
-              const Spacer(),
-              Text(
-                'media ${formatDecimal(avg, decimals: 1)}/giorno',
-                style: TextStyle(
-                  fontFamily: AppFonts.sans,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color: colors.textMuted,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.md),
-          SizedBox(
-            height: barArea + 18,
-            child: Stack(
-              children: [
-                if (limit > 0)
-                  Positioned(
-                    left: 0,
-                    right: 0,
-                    bottom: 18 + barArea * limit / scale,
-                    child: Row(
-                      children: [
-                        for (var i = 0; i < 40; i++)
-                          Expanded(
-                            child: Container(
-                              height: 1,
-                              margin: const EdgeInsets.symmetric(horizontal: 2),
-                              color: context.stats.warning
-                                  .withValues(alpha: 0.6),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    for (var i = 0; i < 7; i++)
-                      Expanded(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Container(
-                              width: 18,
-                              height: counts[i] == 0
-                                  ? 4
-                                  : 6 + (barArea - 6) * counts[i] / scale,
-                              decoration: BoxDecoration(
-                                color: counts[i] == 0
-                                    ? colors.textFaint.withValues(alpha: 0.3)
-                                    : i == 6
-                                        ? accent
-                                        : limit > 0 && counts[i] > limit
-                                            ? context.stats.warning
-                                            : accent.withValues(alpha: 0.45),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              i == 6 ? 'OGGI' : _weekdays[days[i].weekday - 1],
-                              style: label.copyWith(
-                                color: i == 6 ? accent : colors.textFaint,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
+      margin: const EdgeInsets.fromLTRB(20, 8, 20, 10),
+      padding: const EdgeInsets.fromLTRB(14, 12, 14, 8),
+      decoration: AppDecorations.cardSubtle(context.colors),
+      child: WeekBars(
+        entries: entries,
+        dailyLimit: provider.config.dailyLimit,
       ),
     );
   }
