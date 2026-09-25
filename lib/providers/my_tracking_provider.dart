@@ -530,8 +530,9 @@ class MyTrackingProvider extends ChangeNotifier {
     await _syncNotifications();
   }
 
-  Future<void> updateActiveProductConfig(PackConfig cfg) async {
-    final idx = _products.indexWhere((p) => p.id == _activeProductId);
+  Future<void> updateProductConfig(PackConfig cfg, {String? productId}) async {
+    final pid = productId ?? _activeProductId;
+    final idx = _products.indexWhere((p) => p.id == pid);
     if (idx == -1) return;
     final cur = _products[idx];
     var next = cur.copyWith(
@@ -557,10 +558,14 @@ class MyTrackingProvider extends ChangeNotifier {
     await _persistProducts();
   }
 
-  Future<void> correctActiveProductPackRemaining(int packRemaining) async {
-    final idx = _products.indexWhere((p) => p.id == _activeProductId);
+  Future<void> correctPackRemaining(
+    int packRemaining, {
+    String? productId,
+  }) async {
+    final pid = productId ?? _activeProductId;
+    final idx = _products.indexWhere((p) => p.id == pid);
     if (idx == -1) {
-      throw StateError('Nessun prodotto attivo disponibile.');
+      throw StateError('Prodotto non trovato.');
     }
 
     final product = _products[idx];
@@ -669,8 +674,9 @@ class MyTrackingProvider extends ChangeNotifier {
     await _persist();
   }
 
-  Future<void> openNewPack() async {
-    final idx = _products.indexWhere((p) => p.id == _activeProductId);
+  Future<void> openNewPack({String? productId}) async {
+    final pid = productId ?? _activeProductId;
+    final idx = _products.indexWhere((p) => p.id == pid);
     if (idx == -1) return;
     final p = _products[idx];
     if (p.isArchived || !p.tracksInventory) return;

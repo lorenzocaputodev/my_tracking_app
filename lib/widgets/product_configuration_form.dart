@@ -7,7 +7,7 @@ import '../widgets/tracking_input_decoration.dart';
 import '../theme/app_fonts.dart';
 import '../theme/theme_context.dart';
 
-enum FormSubmitPlacement { afterNotifications, bottom }
+enum FormSubmitPlacement { afterNotifications, bottom, none }
 
 class ProductConfigurationForm extends StatelessWidget {
   final bool isDark;
@@ -75,31 +75,33 @@ class ProductConfigurationForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final reminderLabel = _notificationIntervals
+    final reminderLabel = reminderIntervalOptions
         .firstWhere(
           (option) => option.minutes == globalReminderSettings.intervalMinutes,
-          orElse: () => _notificationIntervals[2],
+          orElse: () => reminderIntervalOptions[2],
         )
         .label;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          title,
-          style: TextStyle(fontFamily: AppFonts.sans,
-            fontSize: 22,
-            fontWeight: FontWeight.w900,
-            color: context.colors.textHeading,
-            letterSpacing: -0.5,
+        if (title.isNotEmpty) ...[
+          Text(
+            title,
+            style: TextStyle(fontFamily: AppFonts.sans,
+              fontSize: 22,
+              fontWeight: FontWeight.w900,
+              color: context.colors.textHeading,
+              letterSpacing: -0.5,
+            ),
           ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          subtitle,
-          style: const TextStyle(fontFamily: AppFonts.sans, fontSize: 13, color: Colors.grey),
-        ),
-        const SizedBox(height: 28),
+          const SizedBox(height: 4),
+          Text(
+            subtitle,
+            style: const TextStyle(fontFamily: AppFonts.sans, fontSize: 13, color: Colors.grey),
+          ),
+          const SizedBox(height: 28),
+        ],
         _sectionLabel('NOME PRODOTTO', accentColor),
         const SizedBox(height: 10),
         TextFormField(
@@ -344,7 +346,7 @@ class ProductConfigurationForm extends StatelessWidget {
                 hint: 'Intervallo promemoria',
                 icon: Icons.schedule_rounded,
               ),
-              items: _notificationIntervals
+              items: reminderIntervalOptions
                   .map(
                     (option) => DropdownMenuItem<int>(
                       value: option.minutes,
@@ -729,11 +731,11 @@ class _WidgetFeatureBox extends StatelessWidget {
   }
 }
 
-class _NotificationIntervalOption {
+class ReminderIntervalOption {
   final int minutes;
   final String label;
 
-  const _NotificationIntervalOption({
+  const ReminderIntervalOption({
     required this.minutes,
     required this.label,
   });
@@ -763,11 +765,11 @@ InputDecoration _inputDecoration({
   );
 }
 
-const List<_NotificationIntervalOption> _notificationIntervals = [
-  _NotificationIntervalOption(minutes: 30, label: '30 minuti'),
-  _NotificationIntervalOption(minutes: 60, label: '1 ora'),
-  _NotificationIntervalOption(minutes: 120, label: '2 ore'),
-  _NotificationIntervalOption(minutes: 240, label: '4 ore'),
-  _NotificationIntervalOption(minutes: 480, label: '8 ore'),
-  _NotificationIntervalOption(minutes: 720, label: '12 ore'),
+const List<ReminderIntervalOption> reminderIntervalOptions = [
+  ReminderIntervalOption(minutes: 30, label: '30 minuti'),
+  ReminderIntervalOption(minutes: 60, label: '1 ora'),
+  ReminderIntervalOption(minutes: 120, label: '2 ore'),
+  ReminderIntervalOption(minutes: 240, label: '4 ore'),
+  ReminderIntervalOption(minutes: 480, label: '8 ore'),
+  ReminderIntervalOption(minutes: 720, label: '12 ore'),
 ];
