@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:my_tracking_app/theme/app_theme.dart';
+import 'package:my_tracking_app/utils/app_clock.dart';
 import 'package:my_tracking_app/providers/my_tracking_provider.dart';
 import 'package:my_tracking_app/screens/achievements_screen.dart';
 import 'package:my_tracking_app/screens/home_screen.dart';
@@ -28,18 +29,32 @@ String _products({bool tracksInventory = true}) => jsonEncode([
       },
     ]);
 
-List<String> _entriesToday(int count) {
-  final now = DateTime.now();
-  return List.generate(
-    count,
-    (i) => jsonEncode(<String, dynamic>{
-      'id': 'e$i',
-      'timestamp': now.toIso8601String(),
+/// Venerdi' a mezzogiorno: le scene non devono dipendere dal giorno reale.
+final _now = DateTime(2026, 9, 25, 12);
+
+String _entry(String id, DateTime timestamp) => jsonEncode(<String, dynamic>{
+      'id': id,
+      'timestamp': timestamp.toIso8601String(),
       'costDeducted': 0.3,
       'minutesLost': 11,
       'productId': _productId,
-    }),
-  );
+    });
+
+List<String> _entriesToday(int count) =>
+    List.generate(count, (i) => _entry('e$i', _now));
+
+/// Sei giorni precedenti, registrati tutti alle 22 come fa chi segna a fine
+/// giornata; due sopra il limite di 10.
+List<String> _entriesPastWeek() {
+  const perDay = [7, 9, 12, 6, 8, 11];
+  return [
+    for (var d = 0; d < perDay.length; d++)
+      for (var i = 0; i < perDay[d]; i++)
+        _entry(
+          'w$d-$i',
+          DateTime(_now.year, _now.month, _now.day - 6 + d, 22),
+        ),
+  ];
 }
 
 String _achievements() => jsonEncode([
@@ -99,6 +114,9 @@ Future<void> _shoot(WidgetTester tester, String name) async {
 }
 
 void main() {
+  setUpAll(() => appNow = () => _now);
+  tearDownAll(() => appNow = DateTime.now);
+
   for (final brightness in Brightness.values) {
     final suffix = brightness == Brightness.dark ? 'dark' : 'light';
 
@@ -106,7 +124,7 @@ void main() {
       final provider = await _seed(tester, <String, Object>{
         'tracked_products_v1': _products(),
         'active_product_id': _productId,
-        'smoke_entries': _entriesToday(3),
+        'smoke_entries': [..._entriesPastWeek(), ..._entriesToday(3)],
       });
 
       await _pumpScene(

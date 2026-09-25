@@ -12,6 +12,7 @@ import '../models/smoke_entry.dart';
 import '../models/tracked_product.dart';
 import '../services/product_notification_service.dart';
 import '../utils/app_backup_csv.dart';
+import '../utils/app_clock.dart';
 import '../utils/widget_bridge.dart';
 
 enum AppThemePreference { dark, light, system }
@@ -193,7 +194,7 @@ class MyTrackingProvider extends ChangeNotifier {
     final sorted = entriesForProduct(_activeProductId)
       ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
     if (sorted.isEmpty) return 'Mai';
-    final diff = DateTime.now().difference(sorted.first.timestamp);
+    final diff = appNow().difference(sorted.first.timestamp);
     if (diff.inDays > 0) return '${diff.inDays}g fa';
     if (diff.inHours > 0) {
       return '${diff.inHours}h ${diff.inMinutes.remainder(60)}m fa';
@@ -203,7 +204,7 @@ class MyTrackingProvider extends ChangeNotifier {
   }
 
   List<SmokeEntry> get todayEntries {
-    final now = DateTime.now();
+    final now = appNow();
     return _entries
         .where(
           (e) =>
@@ -269,7 +270,7 @@ class MyTrackingProvider extends ChangeNotifier {
     String productId,
     int n,
   ) {
-    final today = DateTime.now();
+    final today = appNow();
     final list = entriesForProduct(productId);
     return List.generate(n, (i) {
       final d = today.subtract(Duration(days: n - 1 - i));
@@ -285,7 +286,7 @@ class MyTrackingProvider extends ChangeNotifier {
   int currentStreakForProduct(String productId) {
     final list = entriesForProduct(productId);
     if (list.isEmpty) return 0;
-    final now = DateTime.now();
+    final now = appNow();
     int streak = 0;
     DateTime day = DateTime(now.year, now.month, now.day);
     if (!_hasEntriesOnForProduct(productId, day)) {
@@ -321,9 +322,9 @@ class MyTrackingProvider extends ChangeNotifier {
     final limit = p.dailyLimit;
     int streak = 0;
     var day = DateTime(
-      DateTime.now().year,
-      DateTime.now().month,
-      DateTime.now().day,
+      appNow().year,
+      appNow().month,
+      appNow().day,
     );
     while (true) {
       if (day.isBefore(first)) break;
@@ -391,7 +392,7 @@ class MyTrackingProvider extends ChangeNotifier {
 
     final yesterday = countOnDayForProduct(
       _activeProductId,
-      DateTime.now().subtract(const Duration(days: 1)),
+      appNow().subtract(const Duration(days: 1)),
     );
     if (dailyCount == 0 && yesterday == 0) return null;
 
@@ -654,7 +655,7 @@ class MyTrackingProvider extends ChangeNotifier {
 
     final entry = SmokeEntry(
       id: const Uuid().v4(),
-      timestamp: DateTime.now(),
+      timestamp: appNow(),
       costDeducted: p.unitCost,
       minutesLost: p.minutesLost,
       productId: pid,
@@ -727,7 +728,7 @@ class MyTrackingProvider extends ChangeNotifier {
           : 1.0,
       targetPerDay: targetPerDay,
       totalWeeks: totalWeeks,
-      startDate: DateTime.now(),
+      startDate: appNow(),
     );
     final prefs = await SharedPreferences.getInstance();
     await _persistReductionPlansOnly(prefs);
@@ -820,8 +821,8 @@ class MyTrackingProvider extends ChangeNotifier {
     if (plan == null) return null;
     final recentAverage = averageDailyCountForRange(
       productId: productId,
-      start: DateTime.now().subtract(const Duration(days: 6)),
-      end: DateTime.now(),
+      start: appNow().subtract(const Duration(days: 6)),
+      end: appNow(),
     );
     final currentTarget = plan.currentWeekTarget;
     final delta = recentAverage - currentTarget;
@@ -887,7 +888,7 @@ class MyTrackingProvider extends ChangeNotifier {
   }
 
   WeeklyTrend weeklyTrend({String? productId}) {
-    final now = DateTime.now();
+    final now = appNow();
     final currentAverage = averageDailyCountForRange(
       productId: productId,
       start: now.subtract(const Duration(days: 6)),
@@ -905,7 +906,7 @@ class MyTrackingProvider extends ChangeNotifier {
   }
 
   double projectedMonthlyCost({String? productId}) {
-    final now = DateTime.now();
+    final now = appNow();
     final monthStart = DateTime(now.year, now.month, 1);
     final entries = entriesForRange(
       productId: productId,
@@ -923,7 +924,7 @@ class MyTrackingProvider extends ChangeNotifier {
   }
 
   int projectedMonthlyUnits({String? productId}) {
-    final now = DateTime.now();
+    final now = appNow();
     final monthStart = DateTime(now.year, now.month, 1);
     final entries = entriesForRange(
       productId: productId,
@@ -1044,7 +1045,7 @@ class MyTrackingProvider extends ChangeNotifier {
 
     final data = AppBackupData(
       backupVersion: AppBackupCsv.backupVersion,
-      exportedAt: DateTime.now().toUtc(),
+      exportedAt: appNow().toUtc(),
       activeProductId: _normalizeActiveProductId(_activeProductId),
       themePreferenceName: _themePreference.name,
       onboardingDone: prefs.getBool(_keyOnboardingDone) ?? false,
@@ -1106,7 +1107,7 @@ class MyTrackingProvider extends ChangeNotifier {
 
   Future<void> _persistWidgetSnapshots() async {
     final prefs = await SharedPreferences.getInstance();
-    final now = DateTime.now();
+    final now = appNow();
     final fallbackSnapshot = <String, dynamic>{
       'activeProductId': '',
       'dayKeyLocal': _dayKeyFor(now),
@@ -1376,7 +1377,7 @@ class MyTrackingProvider extends ChangeNotifier {
   // Aggregazioni e persistenza
 
   int _countTodayForProduct(String productId) {
-    final now = DateTime.now();
+    final now = appNow();
     return _entries.where((e) {
       if (e.productId != productId) return false;
       final t = e.timestamp.toLocal();

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/my_tracking_provider.dart';
+import '../utils/app_clock.dart';
 import '../utils/app_formatters.dart';
 import '../widgets/action_button.dart';
 import '../widgets/stats_card.dart';
@@ -9,6 +10,7 @@ import 'history_screen.dart';
 import 'achievements_screen.dart';
 import '../theme/app_fonts.dart';
 import '../theme/app_dimens.dart';
+import '../theme/app_decorations.dart';
 import '../theme/theme_context.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -169,6 +171,7 @@ class HomeScreen extends StatelessWidget {
               },
             ),
           ),
+          _WeekStrip(provider: provider),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Row(
@@ -646,6 +649,133 @@ class _HomeInsightBadge extends StatelessWidget {
               fontSize: 12,
               fontWeight: FontWeight.w700,
               color: color,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _WeekStrip extends StatelessWidget {
+  final MyTrackingProvider provider;
+  const _WeekStrip({required this.provider});
+
+  static const _weekdays = ['L', 'M', 'M', 'G', 'V', 'S', 'D'];
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final accent = context.accent;
+    final now = appNow();
+    final today = DateTime(now.year, now.month, now.day);
+    final days = [
+      for (var i = 6; i >= 0; i--) today.subtract(Duration(days: i)),
+    ];
+    final counts = List<int>.filled(7, 0);
+    for (final e in provider.entriesForProduct(provider.activeProduct.id)) {
+      final t = e.timestamp.toLocal();
+      final idx = days.indexWhere(
+        (d) => d.year == t.year && d.month == t.month && d.day == t.day,
+      );
+      if (idx >= 0) counts[idx]++;
+    }
+    if (counts.every((c) => c == 0)) return const SizedBox.shrink();
+    final limit = provider.config.dailyLimit;
+    final scale = [...counts, limit, 1].reduce((a, b) => a > b ? a : b);
+    final avg = counts.reduce((a, b) => a + b) / 7;
+    const barArea = 44.0;
+    final label = TextStyle(
+      fontFamily: AppFonts.sans,
+      fontSize: 9,
+      color: colors.textFaint,
+      fontWeight: FontWeight.w700,
+      letterSpacing: 0.5,
+    );
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(20, 0, 20, 10),
+      padding: const EdgeInsets.fromLTRB(14, 12, 14, 10),
+      decoration: AppDecorations.cardSubtle(colors),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text('ULTIMI 7 GIORNI', style: label),
+              const Spacer(),
+              Text(
+                'media ${formatDecimal(avg, decimals: 1)}/giorno',
+                style: TextStyle(
+                  fontFamily: AppFonts.sans,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: colors.textMuted,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.md),
+          SizedBox(
+            height: barArea + 18,
+            child: Stack(
+              children: [
+                if (limit > 0)
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 18 + barArea * limit / scale,
+                    child: Row(
+                      children: [
+                        for (var i = 0; i < 40; i++)
+                          Expanded(
+                            child: Container(
+                              height: 1,
+                              margin: const EdgeInsets.symmetric(horizontal: 2),
+                              color: context.stats.warning
+                                  .withValues(alpha: 0.6),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    for (var i = 0; i < 7; i++)
+                      Expanded(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Container(
+                              width: 18,
+                              height: counts[i] == 0
+                                  ? 4
+                                  : 6 + (barArea - 6) * counts[i] / scale,
+                              decoration: BoxDecoration(
+                                color: counts[i] == 0
+                                    ? colors.textFaint.withValues(alpha: 0.3)
+                                    : i == 6
+                                        ? accent
+                                        : limit > 0 && counts[i] > limit
+                                            ? context.stats.warning
+                                            : accent.withValues(alpha: 0.45),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              i == 6 ? 'OGGI' : _weekdays[days[i].weekday - 1],
+                              style: label.copyWith(
+                                color: i == 6 ? accent : colors.textFaint,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
+              ],
             ),
           ),
         ],
