@@ -12,22 +12,24 @@
     android:paddingBottom="18dp">
 
     <TextView
+        android:fontFamily="@font/dm_sans"
         android:id="@+id/widget_config_item_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:ellipsize="end"
         android:maxLines="2"
-        android:textColor="#FFFFFF"
+        android:textColor="@color/widget_text_primary"
         android:textSize="17sp"
         android:textStyle="bold" />
 
     <TextView
+        android:fontFamily="@font/dm_sans"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:text="Seleziona"
-        android:textColor="#55D7DA"
+        android:textColor="@color/widget_action"
         android:textSize="13sp"
         android:textStyle="bold" />
 </LinearLayout>

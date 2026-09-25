@@ -30,7 +30,7 @@
         <activity
             android:name=".widget.WidgetConfigureActivity"
             android:exported="false"
-            android:theme="@style/NormalTheme" />
+            android:theme="@style/WidgetConfigureTheme" />
 
         <meta-data
             android:name="flutterEmbedding"
