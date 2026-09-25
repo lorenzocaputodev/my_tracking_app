@@ -55,6 +55,46 @@ abstract final class AppTheme {
         iconTheme: IconThemeData(color: primary),
       ),
       progressIndicatorTheme: ProgressIndicatorThemeData(color: primary),
+      // Dialoghi, pannelli dal basso e pulsanti pieni con le superfici e il
+      // colore d'azione dell'app, non con i grigi e il primario di Material.
+      dialogTheme: DialogThemeData(
+        backgroundColor: isDark ? colors.surfaceElevated : colors.surface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadii.sheet),
+        ),
+        titleTextStyle: TextStyle(
+          fontFamily: AppFonts.sans,
+          fontSize: 20,
+          fontWeight: FontWeight.w800,
+          color: colors.textPrimary,
+        ),
+        contentTextStyle: TextStyle(
+          fontFamily: AppFonts.sans,
+          fontSize: 14,
+          height: 1.4,
+          color: colors.textBody,
+        ),
+      ),
+      bottomSheetTheme: BottomSheetThemeData(
+        backgroundColor: colors.scaffold,
+        modalBackgroundColor: colors.scaffold,
+        dragHandleColor: colors.textFaint,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(AppRadii.sheet),
+          ),
+        ),
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          backgroundColor: colors.action,
+          foregroundColor: colors.onAction,
+          textStyle: const TextStyle(
+            fontFamily: AppFonts.sans,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+      ),
       // Il default Material e' chiaro anche nel tema scuro: qui l'avviso
       // resta una superficie dell'app, con l'azione nel colore d'azione.
       snackBarTheme: SnackBarThemeData(

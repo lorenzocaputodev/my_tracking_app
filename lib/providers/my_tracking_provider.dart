@@ -240,6 +240,27 @@ class MyTrackingProvider extends ChangeNotifier {
 
   double get dailyAverage => dailyAverageForProduct(_activeProductId);
 
+  /// Media giornaliera degli ultimi [days] giorni di calendario, oggi
+  /// compreso, contando anche i giorni senza registrazioni. Se il prodotto
+  /// e' tracciato da meno tempo usa solo i giorni trascorsi dalla prima
+  /// registrazione. E' la misura del piano di riduzione: partenza,
+  /// avanzamento e badge usano tutti questa.
+  double recentDailyAverage(String productId, {int days = 14}) {
+    final list = entriesForProduct(productId);
+    if (list.isEmpty) return 0;
+    final today = _dateOnly(appNow());
+    var start = today.subtract(Duration(days: days - 1));
+    final first = list
+        .map((e) => _dateOnly(e.timestamp))
+        .reduce((a, b) => a.isBefore(b) ? a : b);
+    if (first.isAfter(start)) start = first;
+    return averageDailyCountForRange(
+      productId: productId,
+      start: start,
+      end: today,
+    );
+  }
+
   int? peakHourForProduct(String productId) {
     final list = entriesForProduct(productId);
     if (list.isEmpty) return null;
@@ -764,8 +785,8 @@ class MyTrackingProvider extends ChangeNotifier {
     }
     _reductionPlans[boundProductId] = ReductionPlan(
       productId: boundProductId,
-      startAverage: dailyAverageForProduct(boundProductId) > 0
-          ? dailyAverageForProduct(boundProductId)
+      startAverage: recentDailyAverage(boundProductId) > 0
+          ? recentDailyAverage(boundProductId)
           : 1.0,
       targetPerDay: targetPerDay,
       totalWeeks: totalWeeks,
@@ -832,7 +853,11 @@ class MyTrackingProvider extends ChangeNotifier {
       )) {
         continue;
       }
-      final currentAverage = dailyAverageForProduct(plan.productId);
+      // Serve almeno una settimana di piano, altrimenti gli ultimi 7 giorni
+      // sono quelli di prima e il confronto non dice nulla.
+      if (appNow().difference(plan.startDate).inDays < 7) continue;
+      final currentAverage =
+          recentDailyAverage(plan.productId, days: 7);
       final planReduction =
           (plan.startAverage - currentAverage) / plan.startAverage;
       if (planReduction > reduction) reduction = planReduction;

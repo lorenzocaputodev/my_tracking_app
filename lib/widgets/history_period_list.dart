@@ -5,6 +5,7 @@ import '../providers/my_tracking_provider.dart';
 import '../theme/app_decorations.dart';
 import '../theme/app_dimens.dart';
 import '../theme/app_fonts.dart';
+import '../theme/app_motion.dart';
 import '../theme/app_text_styles.dart';
 import '../theme/theme_context.dart';
 import '../utils/app_clock.dart';
@@ -13,12 +14,32 @@ import '../utils/history_grouping.dart';
 import 'pill_selector.dart';
 
 const _months = [
-  'Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio',
-  'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre',
+  'Gennaio',
+  'Febbraio',
+  'Marzo',
+  'Aprile',
+  'Maggio',
+  'Giugno',
+  'Luglio',
+  'Agosto',
+  'Settembre',
+  'Ottobre',
+  'Novembre',
+  'Dicembre',
 ];
 const _monthsShort = [
-  'gen', 'feb', 'mar', 'apr', 'mag', 'giu',
-  'lug', 'ago', 'set', 'ott', 'nov', 'dic',
+  'gen',
+  'feb',
+  'mar',
+  'apr',
+  'mag',
+  'giu',
+  'lug',
+  'ago',
+  'set',
+  'ott',
+  'nov',
+  'dic',
 ];
 const _weekdays = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'];
 
@@ -119,7 +140,8 @@ class _HistoryPeriodListState extends State<HistoryPeriodList> {
         }
         for (var i = 0; i < periods.length; i++) {
           final p = periods[i];
-          final avg = p.dailyAverage(today: today, trackingStart: trackingStart);
+          final avg =
+              p.dailyAverage(today: today, trackingStart: trackingStart);
           double? delta;
           final prev = i + 1 < periods.length ? periods[i + 1] : null;
           if (prev != null && prev.end == p.start) {
@@ -200,51 +222,75 @@ class _HistoryPeriodListState extends State<HistoryPeriodList> {
             ),
           ],
         ),
-        if (_drillLabel != null) ...[
-          const SizedBox(height: AppSpacing.md),
-          InkWell(
-            onTap: () => _setGrouping(
-              _grouping == HistoryGrouping.days
-                  ? HistoryGrouping.weeks
-                  : HistoryGrouping.months,
-            ),
-            borderRadius: BorderRadius.circular(AppRadii.pill),
-            child: Container(
-              padding: const EdgeInsets.fromLTRB(12, 6, 8, 6),
-              decoration: BoxDecoration(
-                color: accent.withValues(alpha: AppAlphas.accentMuted),
-                borderRadius: BorderRadius.circular(AppRadii.pill),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    _drillLabel!,
-                    style: TextStyle(
-                      fontFamily: AppFonts.sans,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 12,
-                      color: accent,
+        AnimatedSize(
+          duration: AppMotion.medium,
+          curve: AppMotion.curve,
+          alignment: Alignment.topLeft,
+          child: _drillLabel == null
+              ? const SizedBox(width: double.infinity)
+              : Padding(
+                  padding: const EdgeInsets.only(top: AppSpacing.md),
+                  child: InkWell(
+                    onTap: () => _setGrouping(
+                      _grouping == HistoryGrouping.days
+                          ? HistoryGrouping.weeks
+                          : HistoryGrouping.months,
+                    ),
+                    borderRadius: BorderRadius.circular(AppRadii.pill),
+                    child: Container(
+                      padding: const EdgeInsets.fromLTRB(12, 6, 8, 6),
+                      decoration: BoxDecoration(
+                        color: accent.withValues(alpha: AppAlphas.accentMuted),
+                        borderRadius: BorderRadius.circular(AppRadii.pill),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            _drillLabel!,
+                            style: TextStyle(
+                              fontFamily: AppFonts.sans,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 12,
+                              color: accent,
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Icon(Icons.close_rounded, size: 16, color: accent),
+                        ],
+                      ),
                     ),
                   ),
-                  const SizedBox(width: 6),
-                  Icon(Icons.close_rounded, size: 16, color: accent),
+                ),
+        ),
+        const SizedBox(height: AppSpacing.md),
+        // Cambiando vista o periodo l'elenco sfuma nel nuovo e la card
+        // si ridimensiona, invece di sostituirsi di colpo.
+        AnimatedSize(
+          duration: AppMotion.medium,
+          curve: AppMotion.curve,
+          alignment: Alignment.topCenter,
+          child: AnimatedSwitcher(
+            duration: AppMotion.medium,
+            switchInCurve: AppMotion.curve,
+            switchOutCurve: AppMotion.curve,
+            layoutBuilder: (current, previous) => Stack(
+              alignment: Alignment.topCenter,
+              children: [...previous, if (current != null) current],
+            ),
+            child: Container(
+              key: ValueKey('${_grouping.name}-${_drill?.start}'),
+              clipBehavior: Clip.antiAlias,
+              decoration: AppDecorations.cardSubtle(colors),
+              child: Column(
+                children: [
+                  for (var i = 0; i < rows.length; i++) ...[
+                    if (i > 0) Divider(height: 1, color: colors.subtleBorder),
+                    rows[i],
+                  ],
                 ],
               ),
             ),
-          ),
-        ],
-        const SizedBox(height: AppSpacing.md),
-        Container(
-          clipBehavior: Clip.antiAlias,
-          decoration: AppDecorations.cardSubtle(colors),
-          child: Column(
-            children: [
-              for (var i = 0; i < rows.length; i++) ...[
-                if (i > 0) Divider(height: 1, color: colors.subtleBorder),
-                rows[i],
-              ],
-            ],
           ),
         ),
       ],
@@ -306,23 +352,33 @@ class _SummaryRow extends StatelessWidget {
                   ),
                 ),
                 if (trailing != null) ...[trailing!, const SizedBox(width: 8)],
-                Icon(
-                  switch (expanded) {
-                    true => Icons.expand_less_rounded,
-                    false => Icons.expand_more_rounded,
-                    null => Icons.chevron_right_rounded,
-                  },
-                  color: colors.textFaint,
-                ),
+                if (expanded == null)
+                  Icon(Icons.chevron_right_rounded, color: colors.textFaint)
+                else
+                  AnimatedRotation(
+                    turns: expanded! ? 0.5 : 0,
+                    duration: AppMotion.fast,
+                    curve: AppMotion.curve,
+                    child: Icon(
+                      Icons.expand_more_rounded,
+                      color: colors.textFaint,
+                    ),
+                  ),
               ],
             ),
           ),
         ),
-        if (children.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: Column(children: children),
-          ),
+        AnimatedSize(
+          duration: AppMotion.medium,
+          curve: AppMotion.curve,
+          alignment: Alignment.topCenter,
+          child: children.isEmpty
+              ? const SizedBox(width: double.infinity)
+              : Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Column(children: children),
+                ),
+        ),
       ],
     );
   }

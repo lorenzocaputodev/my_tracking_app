@@ -7,13 +7,15 @@ import '../providers/my_tracking_provider.dart';
 import '../utils/app_clock.dart';
 import '../utils/app_formatters.dart';
 import '../widgets/history_period_list.dart';
-import '../widgets/tracking_input_decoration.dart';
+import '../widgets/option_sheet.dart';
+import '../widgets/select_field.dart';
 import '../widgets/week_bars.dart';
 import '../theme/app_fonts.dart';
 import '../theme/app_decorations.dart';
 import '../theme/theme_context.dart';
 import '../theme/app_dimens.dart';
 import '../theme/app_text_styles.dart';
+import '../theme/app_icons.dart';
 
 enum _HistoryProductFilter { all, specific }
 
@@ -304,7 +306,6 @@ class _HistoryFiltersCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final turquoise = theme.colorScheme.primary;
-    final isDark = theme.brightness == Brightness.dark;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -312,43 +313,28 @@ class _HistoryFiltersCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'FILTRI',
-            style: TextStyle(fontFamily: AppFonts.sans,
-              fontSize: 11,
-              fontWeight: FontWeight.w800,
-              color: turquoise,
-              letterSpacing: 1.2,
-            ),
-          ),
+          Text('FILTRI', style: AppTextStyles.sectionLabel(turquoise)),
           const SizedBox(height: 14),
-          DropdownButtonFormField<String>(
-            initialValue: productValue,
-            borderRadius: BorderRadius.circular(14),
-            decoration: trackingInputDecoration(
-              hint: 'Prodotto',
-              icon: Icons.inventory_2_rounded,
-              isDark: isDark,
-              accentColor: turquoise,
-              label: 'Prodotto',
-            ),
-            items: [
-              const DropdownMenuItem(
-                value: '__all__',
-                child: Text('Tutti i prodotti'),
+          SelectField<String>(
+            icon: AppIcons.product,
+            sheetTitle: 'Prodotto',
+            value: productValue,
+            onChanged: onProductChanged,
+            options: [
+              const SheetOption(
+                '__all__',
+                'Tutti i prodotti',
+                icon: AppIcons.product,
               ),
-              ...provider.activeProducts.map(
-                (product) => DropdownMenuItem(
-                  value: product.id,
-                  child: Text(product.name, overflow: TextOverflow.ellipsis),
+              for (final product in provider.activeProducts)
+                SheetOption(
+                  product.id,
+                  product.name,
+                  icon: product.tracksInventory
+                      ? AppIcons.stock
+                      : AppIcons.noStock,
                 ),
-              ),
             ],
-            onChanged: (value) {
-              if (value != null) {
-                onProductChanged(value);
-              }
-            },
           ),
           const SizedBox(height: 14),
           Wrap(
@@ -580,7 +566,7 @@ class _StatsPanelState extends State<_StatsPanel> {
                       child: _StatItem(
                         label: 'Totale periodo',
                         value: '${widget.entries.length} unit\u00E0',
-                        icon: Icons.inventory_2_rounded,
+                        icon: AppIcons.total,
                         color: stats.volume,
                       ),
                     ),

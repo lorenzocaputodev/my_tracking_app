@@ -8,6 +8,7 @@ import 'package:my_tracking_app/models/smoke_entry.dart';
 import 'package:my_tracking_app/models/tracked_product.dart';
 import 'package:my_tracking_app/providers/my_tracking_provider.dart';
 import 'package:my_tracking_app/utils/app_backup_csv.dart';
+import 'package:my_tracking_app/utils/app_clock.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 const _plansKey = 'reduction_plans_v2';
@@ -436,5 +437,57 @@ p1,12,7,8,2026-04-01T00:00:00.000Z
       expect(decoded.reductionPlans.first.productId, 'p1');
       expect(decoded.reductionPlans.first.targetPerDay, 7);
     });
+  });
+
+  test('i badge di riduzione misurano gli ultimi giorni, non tutta la '
+      'cronologia', () async {
+    var now = DateTime(2026, 9, 1, 20);
+    appNow = () => now;
+    addTearDown(() => appNow = DateTime.now);
+
+    // Due settimane a 10 al giorno, poi il piano.
+    String entry(String id, DateTime t) => jsonEncode(<String, dynamic>{
+          'id': id,
+          'timestamp': t.toIso8601String(),
+          'costDeducted': 0.25,
+          'minutesLost': 11,
+          'productId': 'p1',
+        });
+    final before = [
+      for (var d = 0; d < 14; d++)
+        for (var i = 0; i < 10; i++)
+          entry('b$d-$i', DateTime(2026, 8, 19 + d, 9 + i)),
+    ];
+    SharedPreferences.setMockInitialValues(<String, Object>{
+      // Senza scorta, altrimenti dopo 20 registrazioni la confezione finisce.
+      'tracked_products_v1': jsonEncode([
+        {..._product(id: 'p1', name: 'P'), 'tracksInventory': false},
+      ]),
+      'active_product_id': 'p1',
+      'smoke_entries': before,
+    });
+    final provider = MyTrackingProvider();
+    await provider.init();
+
+    await provider.setReductionPlan(targetPerDay: 5, totalWeeks: 4);
+    expect(provider.reductionPlanForProduct('p1')!.startAverage, 10);
+
+    // Una settimana dopo a 5 al giorno: la media di tutta la cronologia
+    // sarebbe ancora ~8,6, quella degli ultimi 7 giorni e' 5.
+    now = DateTime(2026, 9, 8, 20);
+    for (var d = 0; d < 7; d++) {
+      now = DateTime(2026, 9, 2 + d, 12);
+      for (var i = 0; i < 5; i++) {
+        await provider.logEntry();
+      }
+    }
+    now = DateTime(2026, 9, 8, 20);
+    await provider.logEntry();
+    await provider.deleteEntry(provider.todayEntries.first.id);
+
+    final unlocked =
+        provider.unlockedAchievements.map((a) => a.id).toSet();
+    expect(unlocked, contains(AchievementId.reduction50pct));
+    provider.dispose();
   });
 }

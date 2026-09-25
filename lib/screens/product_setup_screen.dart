@@ -6,7 +6,9 @@ import '../models/tracked_product.dart';
 import '../providers/my_tracking_provider.dart';
 import '../utils/minutes_presets.dart';
 import '../widgets/product_configuration_form.dart';
+import '../widgets/reminder_settings.dart';
 import '../widgets/save_bar.dart';
+import '../widgets/settings_rows.dart';
 import 'home_screen.dart';
 
 class ProductSetupScreen extends StatefulWidget {
@@ -154,8 +156,6 @@ class _ProductSetupScreenState extends State<ProductSetupScreen> {
               title: 'Cosa vuoi tracciare?',
               subtitle:
                   'Puoi modificare tutto nelle impostazioni in qualsiasi momento.',
-              widgetMessage: '',
-              submitLabel: '',
               nameController: _nameCtrl,
               packCostController: _packCostCtrl,
               piecesController: _piecesCtrl,
@@ -170,15 +170,11 @@ class _ProductSetupScreenState extends State<ProductSetupScreen> {
               minutesCustomMode: _minutesCustomMode,
               onMinutesPresetSelected: _onMinutesPresetSelected,
               onChanged: () => setState(() {}),
-              // Promemoria e widget si configurano dalle impostazioni.
-              notificationsSupported: false,
-              showNotificationsSection: false,
-              showWidgetHomeSection: false,
-              onSubmit: null,
-              submitEnabled: false,
-              isSubmitting: _isSaving,
-              submitPlacement: FormSubmitPlacement.none,
             ),
+            // Il promemoria si propone subito: e' la stessa riga delle
+            // impostazioni e si salva appena lo attivi.
+            const SettingsSectionLabel('PROMEMORIA', inset: 0),
+            SettingsGroup(children: reminderRows(context)),
           ],
         ),
       ),
