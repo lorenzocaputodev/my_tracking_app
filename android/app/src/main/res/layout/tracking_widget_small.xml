@@ -14,6 +14,7 @@
         android:orientation="horizontal">
 
         <TextView
+            android:fontFamily="@font/dm_sans"
             android:id="@+id/widget_product_name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -22,7 +23,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:text="Nome prodotto"
-            android:textColor="#FFFFFF"
+            android:textColor="@color/widget_text_primary"
             android:textSize="14sp"
             android:textStyle="bold"
             android:autoSizeTextType="uniform"
@@ -30,6 +31,7 @@
             android:autoSizeMaxTextSize="16sp" />
 
         <TextView
+            android:fontFamily="@font/dm_sans"
             android:id="@+id/widget_count"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -41,7 +43,7 @@
             android:paddingHorizontal="8dp"
             android:paddingVertical="4dp"
             android:text="0"
-            android:textColor="#A5EFFF"
+            android:textColor="@color/widget_count"
             android:textSize="16sp"
             android:textStyle="bold"
             android:autoSizeTextType="uniform"
@@ -50,6 +52,7 @@
     </LinearLayout>
 
     <TextView
+        android:fontFamily="@font/dm_sans"
         android:id="@+id/widget_increment"
         android:layout_width="match_parent"
         android:layout_height="40dp"
@@ -58,7 +61,7 @@
         android:gravity="center"
         android:includeFontPadding="false"
         android:text="Aggiungi +"
-        android:textColor="#031416"
+        android:textColor="@color/widget_on_action"
         android:textSize="16sp"
         android:textStyle="bold"
         android:maxLines="1"
@@ -67,30 +70,35 @@
         android:autoSizeMaxTextSize="17sp" />
 
     <TextView
+        android:fontFamily="@font/dm_sans"
         android:id="@+id/widget_count_label"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:visibility="gone" />
 
     <TextView
+        android:fontFamily="@font/dm_sans"
         android:id="@+id/widget_hint"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:visibility="gone" />
 
     <TextView
+        android:fontFamily="@font/dm_sans"
         android:id="@+id/widget_cost_today_value"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:visibility="gone" />
 
     <TextView
+        android:fontFamily="@font/dm_sans"
         android:id="@+id/widget_minutes_today_value"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:visibility="gone" />
 
     <TextView
+        android:fontFamily="@font/dm_sans"
         android:id="@+id/widget_total_cost_value"
         android:layout_width="0dp"
         android:layout_height="0dp"

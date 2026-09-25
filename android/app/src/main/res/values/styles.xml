@@ -7,4 +7,11 @@
     <style name="NormalTheme" parent="@android:style/Theme.Light.NoTitleBar">
         <item name="android:windowBackground">?android:colorBackground</item>
     </style>
+
+    <!-- Sempre scuro, come il widget che configura. -->
+    <style name="WidgetConfigureTheme" parent="@android:style/Theme.Black.NoTitleBar">
+        <item name="android:windowBackground">@color/widget_scaffold</item>
+        <item name="android:statusBarColor">@color/widget_scaffold</item>
+        <item name="android:navigationBarColor">@color/widget_scaffold</item>
+    </style>
 </resources>

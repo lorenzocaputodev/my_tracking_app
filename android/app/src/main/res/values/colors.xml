@@ -1,4 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="launch_background_color">#07141A</color>
+
+    <!--
+        Widget Home e schermata di configurazione: replica del tema scuro
+        dell'app. Ogni valore deve coincidere con il token Dart indicato;
+        test/theme/widget_colors_test.dart lo verifica.
+    -->
+    <!-- AppColors.dark.scaffold -->
+    <color name="widget_scaffold">#FF0A0A0A</color>
+    <!-- AppColors.dark.surface -->
+    <color name="widget_surface">#FF161B1B</color>
+    <!-- AppColors.dark.surfaceInset -->
+    <color name="widget_surface_inset">#FF121717</color>
+    <!-- AppColors.dark.cardBorder -->
+    <color name="widget_border">#0DFFFFFF</color>
+    <!-- AppColors.dark.textPrimary -->
+    <color name="widget_text_primary">#FFFFFFFF</color>
+    <!-- AppColors.dark.textMuted -->
+    <color name="widget_text_muted">#FF9E9E9E</color>
+    <!-- AppColors.dark.textFaint -->
+    <color name="widget_text_faint">#62FFFFFF</color>
+    <!-- AppColors.dark.action -->
+    <color name="widget_action">#FF00CED1</color>
+    <!-- AppColors.dark.onAction -->
+    <color name="widget_on_action">#DD000000</color>
+    <!-- AppStatColors.dark.count -->
+    <color name="widget_count">#FF00CED1</color>
 </resources>

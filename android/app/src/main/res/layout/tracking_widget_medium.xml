@@ -15,6 +15,7 @@
         android:orientation="vertical">
 
         <TextView
+            android:fontFamily="@font/dm_sans"
             android:id="@+id/widget_product_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -26,11 +27,12 @@
             android:includeFontPadding="false"
             android:maxLines="1"
             android:text="Nome prodotto"
-            android:textColor="#FFFFFF"
+            android:textColor="@color/widget_text_primary"
             android:textSize="18sp"
             android:textStyle="bold" />
 
         <TextView
+            android:fontFamily="@font/dm_sans"
             android:id="@+id/widget_count"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -40,11 +42,12 @@
             android:layout_marginTop="6dp"
             android:includeFontPadding="false"
             android:text="0"
-            android:textColor="#A5EFFF"
+            android:textColor="@color/widget_count"
             android:textSize="32sp"
             android:textStyle="bold" />
 
         <TextView
+            android:fontFamily="@font/dm_sans"
             android:id="@+id/widget_count_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -53,10 +56,11 @@
             android:autoSizeTextType="uniform"
             android:includeFontPadding="false"
             android:text="Totale usato oggi"
-            android:textColor="#A9B6B6"
+            android:textColor="@color/widget_text_muted"
             android:textSize="11sp" />
 
         <TextView
+            android:fontFamily="@font/dm_sans"
             android:id="@+id/widget_hint"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -66,11 +70,12 @@
             android:includeFontPadding="false"
             android:maxLines="1"
             android:text="Residuo 0/0 &#8226; Costo unit."
-            android:textColor="#A9B6B6"
+            android:textColor="@color/widget_text_muted"
             android:textSize="11sp" />
     </LinearLayout>
 
     <TextView
+        android:fontFamily="@font/dm_sans"
         android:id="@+id/widget_increment"
         android:layout_width="match_parent"
         android:layout_height="42dp"
@@ -83,23 +88,26 @@
         android:includeFontPadding="false"
         android:maxLines="1"
         android:text="Aggiungi +"
-        android:textColor="#031416"
+        android:textColor="@color/widget_on_action"
         android:textSize="16sp"
         android:textStyle="bold" />
 
     <TextView
+        android:fontFamily="@font/dm_sans"
         android:id="@+id/widget_cost_today_value"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:visibility="gone" />
 
     <TextView
+        android:fontFamily="@font/dm_sans"
         android:id="@+id/widget_minutes_today_value"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:visibility="gone" />
 
     <TextView
+        android:fontFamily="@font/dm_sans"
         android:id="@+id/widget_total_cost_value"
         android:layout_width="0dp"
         android:layout_height="0dp"
