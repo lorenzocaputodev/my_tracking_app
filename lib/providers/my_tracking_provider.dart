@@ -34,6 +34,29 @@ class HomeInsight {
   const HomeInsight({required this.type, required this.message});
 }
 
+class BackupImportOutcome {
+  final int products;
+  final int entries;
+  final int unlockedAchievements;
+  final int reductionPlans;
+
+  const BackupImportOutcome({
+    required this.products,
+    required this.entries,
+    required this.unlockedAchievements,
+    required this.reductionPlans,
+  });
+}
+
+class BackupRestoreException implements Exception {
+  final String message;
+
+  const BackupRestoreException(this.message);
+
+  @override
+  String toString() => message;
+}
+
 class ReductionPlanProgress {
   final ReductionPlan plan;
   final double recentAverage;
@@ -1106,9 +1129,21 @@ class MyTrackingProvider extends ChangeNotifier {
     return AppBackupCsv.encode(data);
   }
 
-  Future<void> importFullBackupCsv(String csv) async {
-    final data = AppBackupCsv.decode(csv);
+  AppBackupData readBackupCsv(String csv) => AppBackupCsv.decode(csv);
+
+  Future<BackupImportOutcome> importFullBackupCsv(String csv) async {
+    return restoreBackup(AppBackupCsv.decode(csv));
+  }
+
+  Future<BackupImportOutcome> restoreBackup(AppBackupData data) async {
     await _restoreFullBackup(data);
+    return BackupImportOutcome(
+      products: _products.length,
+      entries: _entries.length,
+      unlockedAchievements:
+          _achievements.values.where((a) => a.isUnlocked).length,
+      reductionPlans: _reductionPlans.length,
+    );
   }
 
   Future<void> _restoreFullBackup(AppBackupData data) async {
@@ -1140,9 +1175,34 @@ class MyTrackingProvider extends ChangeNotifier {
       clearLegacyConfig: true,
     );
 
+    await _verifyPersistedState(prefs);
+
     notifyListeners();
     await syncWidgets();
     await _syncNotifications();
+  }
+
+  Future<void> _verifyPersistedState(SharedPreferences prefs) async {
+    await prefs.reload();
+
+    final storedEntries = prefs.getStringList(_keyEntries)?.length ?? 0;
+    if (storedEntries != _entries.length) {
+      throw BackupRestoreException(
+        'Salvate $storedEntries registrazioni su ${_entries.length}. '
+        'I dati non sono stati ripristinati: riprova.',
+      );
+    }
+
+    final storedProductsJson = prefs.getString(_keyProducts);
+    final storedProducts = storedProductsJson == null
+        ? 0
+        : (jsonDecode(storedProductsJson) as List<dynamic>).length;
+    if (storedProducts != _products.length) {
+      throw BackupRestoreException(
+        'Salvati $storedProducts prodotti su ${_products.length}. '
+        'I dati non sono stati ripristinati: riprova.',
+      );
+    }
   }
 
   Future<void> syncWidgets() async {
