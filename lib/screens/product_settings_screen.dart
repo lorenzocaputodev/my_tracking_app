@@ -270,7 +270,6 @@ class _ProductSettingsScreenState extends State<ProductSettingsScreen> {
             : null,
         body: Form(
           key: _formKey,
-          // Dopo il primo errore il messaggio sparisce appena il campo e' giusto.
           autovalidateMode: AutovalidateMode.onUserInteraction,
           child: ListView(
             padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
@@ -307,6 +306,8 @@ class _ProductSettingsScreenState extends State<ProductSettingsScreen> {
     );
   }
 }
+
+// Scorta
 
 class _StockCard extends StatelessWidget {
   final TrackedProduct product;

@@ -95,8 +95,6 @@ class ProductConfigurationForm extends StatelessWidget {
         _sectionLabel('MODALIT\u00C0 PRODOTTO', accentColor),
         const SizedBox(height: 10),
         _TrackingModeSection(
-          isDark: isDark,
-          accentColor: accentColor,
           tracksInventory: tracksInventory,
           onChanged: onTracksInventoryChanged,
         ),
@@ -263,14 +261,10 @@ class ProductConfigurationForm extends StatelessWidget {
 }
 
 class _TrackingModeSection extends StatelessWidget {
-  final bool isDark;
-  final Color accentColor;
   final bool tracksInventory;
   final ValueChanged<bool> onChanged;
 
   const _TrackingModeSection({
-    required this.isDark,
-    required this.accentColor,
     required this.tracksInventory,
     required this.onChanged,
   });

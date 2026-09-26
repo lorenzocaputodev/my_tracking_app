@@ -283,6 +283,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 }
 
+// Filtri
+
 class _HistoryFiltersCard extends StatelessWidget {
   final MyTrackingProvider provider;
   final String productValue;
@@ -391,6 +393,8 @@ class _HistoryFiltersCard extends StatelessWidget {
     );
   }
 }
+
+// Statistiche
 
 class _StatsPanel extends StatefulWidget {
   final MyTrackingProvider provider;
@@ -1203,6 +1207,8 @@ class _DayHighlight extends StatelessWidget {
   }
 }
 
+// Grafici
+
 double _niceYInterval(double maxY) {
   if (maxY <= 4) return 1;
   if (maxY <= 10) return 2;
@@ -1438,6 +1444,8 @@ class _MonthlyChart extends StatelessWidget {
     );
   }
 }
+
+// Utilità
 
 String _periodPresetLabel(_HistoryPeriodPreset preset) {
   return switch (preset) {

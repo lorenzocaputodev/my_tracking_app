@@ -382,7 +382,6 @@ class MyTrackingProvider extends ChangeNotifier {
   MapEntry<DateTime, int>? get worstDay => worstDayForProduct(_activeProductId);
   List<MapEntry<DateTime, int>> dailyCountsLastDays(int n) =>
       dailyCountsLastDaysForProduct(_activeProductId, n);
-  int get currentStreak => currentStreakForProduct(_activeProductId);
   int get underLimitStreak => underLimitStreakForProduct(_activeProductId);
 
   HomeInsight? get homeInsight {
@@ -430,15 +429,6 @@ class MyTrackingProvider extends ChangeNotifier {
       type: HomeInsightType.comparedToYesterday,
       message: message,
     );
-  }
-
-  Map<String, int> hourProductCounts(int hour) {
-    final m = <String, int>{};
-    for (final e in _entries) {
-      if (e.timestamp.toLocal().hour != hour) continue;
-      m[e.productId] = (m[e.productId] ?? 0) + 1;
-    }
-    return m;
   }
 
   String? productNameById(String id) {
@@ -670,8 +660,6 @@ class MyTrackingProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> deleteProduct(String id) => deleteArchivedProduct(id);
-
   // Voci cronologia
 
   /// Registra un utilizzo e restituisce la voce creata, oppure null se il
@@ -758,11 +746,6 @@ class MyTrackingProvider extends ChangeNotifier {
     _evaluateAchievements();
     notifyListeners();
     await _persist();
-  }
-
-  Future<void> undoLast() async {
-    if (todayEntries.isEmpty) return;
-    await deleteEntry(todayEntries.first.id);
   }
 
   Future<void> clearHistory() async {
@@ -947,10 +930,6 @@ class MyTrackingProvider extends ChangeNotifier {
 
   int countOnDayForProduct(String productId, DateTime day) {
     return _countOnForProduct(productId, _dateOnly(day));
-  }
-
-  int countOnDay(DateTime day, {String? productId}) {
-    return entriesForRange(productId: productId, start: day, end: day).length;
   }
 
   WeeklyTrend weeklyTrend({String? productId}) {

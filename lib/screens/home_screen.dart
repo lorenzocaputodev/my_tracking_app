@@ -407,6 +407,8 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
+// Componenti della home
+
 class _DailyLimitBanner extends StatelessWidget {
   final int count;
   final int limit;
@@ -506,8 +508,7 @@ class _OpenPackButton extends StatelessWidget {
 }
 
 /// Prodotto in uso e scorta, in un'unica pillola. Con piu' prodotti si
-/// tocca per cambiarlo: sostituisce il vecchio menu a tendina, che occupava
-/// mezza schermata.
+/// tocca per cambiarlo.
 class _ProductChip extends StatelessWidget {
   final MyTrackingProvider provider;
   const _ProductChip({required this.provider});

@@ -70,6 +70,8 @@ class AchievementsScreen extends StatelessWidget {
   }
 }
 
+// Avanzamento e piano di riduzione
+
 class _ProgressBanner extends StatelessWidget {
   final int unlocked;
   final int total;
@@ -397,6 +399,8 @@ class _ReductionCard extends StatelessWidget {
   }
 }
 
+// Badge
+
 class _BadgeGrid extends StatelessWidget {
   final List<Achievement> achievements;
   final Color color;
@@ -596,6 +600,8 @@ class _BadgeCard extends StatelessWidget {
   }
 }
 
+// Pannello del piano di riduzione
+
 void _showPlanSheet(
   BuildContext context,
   MyTrackingProvider provider,
@@ -626,7 +632,6 @@ void _showPlanSheet(
             MediaQuery.of(ctx).viewInsets.bottom + 32,
           ),
           decoration: BoxDecoration(
-            // Stesso fondo e stessa maniglia degli altri pannelli dal basso.
             color: context.colors.scaffold,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           ),
@@ -753,6 +758,8 @@ void _showPlanSheet(
     ),
   );
 }
+
+// Componenti comuni
 
 class _SectionTitle extends StatelessWidget {
   final String label;

@@ -15,7 +15,6 @@ const _families = <String, List<String>>{
   ],
   'Nunito': [
     'assets/fonts/Nunito-Bold.ttf',
-    'assets/fonts/Nunito-Black.ttf',
   ],
 };
 

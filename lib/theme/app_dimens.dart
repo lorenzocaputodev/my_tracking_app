@@ -19,11 +19,6 @@ abstract final class AppSpacing {
 }
 
 abstract final class AppAlphas {
-  static const double statFillDark = 0.08;
-  static const double statFillLight = 0.10;
-  static const double statBorderDark = 0.08;
-  static const double statBorderLight = 0.16;
-  static const double statIcon = 0.7;
   static const double tintPanel = 0.05;
   static const double tintBorder = 0.10;
   static const double accentMuted = 0.12;

@@ -50,7 +50,6 @@ flutter:
 
   assets:
     - assets/icon/logo_app.png
-    - assets/images/banner.png
 
   fonts:
     - family: DM Sans
@@ -71,5 +70,3 @@ flutter:
       fonts:
         - asset: assets/fonts/Nunito-Bold.ttf
           weight: 700
-        - asset: assets/fonts/Nunito-Black.ttf
-          weight: 900

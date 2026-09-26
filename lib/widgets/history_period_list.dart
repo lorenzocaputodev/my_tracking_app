@@ -13,6 +13,8 @@ import '../utils/history_grouping.dart';
 import 'pill_selector.dart';
 import 'tappable_card.dart';
 
+// Etichette di date e periodi
+
 const _months = [
   'Gennaio',
   'Febbraio',
@@ -70,6 +72,8 @@ String _monthLabel(DateTime d) => '${_months[d.month - 1]} ${d.year}';
 
 String _hhmm(DateTime t) =>
     '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
+
+// Elenco
 
 /// Elenco della cronologia raggruppato per giorni, settimane o mesi.
 /// Toccando un mese si vedono le sue settimane, toccando una settimana i
@@ -264,8 +268,6 @@ class _HistoryPeriodListState extends State<HistoryPeriodList> {
                 ),
         ),
         const SizedBox(height: AppSpacing.md),
-        // Cambiando vista o periodo l'elenco sfuma nel nuovo e la card
-        // si ridimensiona, invece di sostituirsi di colpo.
         AnimatedSize(
           duration: AppMotion.medium,
           curve: AppMotion.curve,
@@ -295,6 +297,8 @@ class _HistoryPeriodListState extends State<HistoryPeriodList> {
     );
   }
 }
+
+// Righe
 
 class _SummaryRow extends StatelessWidget {
   final String title;

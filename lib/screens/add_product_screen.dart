@@ -130,7 +130,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
       ),
       body: Form(
         key: _formKey,
-        // Dopo il primo errore il messaggio sparisce appena il campo e' giusto.
         autovalidateMode: AutovalidateMode.onUserInteraction,
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
