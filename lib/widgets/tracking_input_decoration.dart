@@ -1,51 +1,35 @@
 import 'package:flutter/material.dart';
+
+import '../theme/app_colors.dart';
+import '../theme/app_dimens.dart';
 import '../theme/app_fonts.dart';
+import '../theme/app_stat_colors.dart';
 
 InputDecoration trackingInputDecoration({
   required String hint,
   required IconData icon,
   required bool isDark,
   required Color accentColor,
-  String? label,
-  Color? fillColorOverride,
-  Color? enabledBorderColor,
 }) {
-  final mutedColor = isDark ? Colors.grey : const Color(0xFF5B7072);
+  final colors = isDark ? AppColors.dark : AppColors.light;
+  final danger = (isDark ? AppStatColors.dark : AppStatColors.light).danger;
+
+  OutlineInputBorder border(BorderSide side) => OutlineInputBorder(
+        borderRadius: BorderRadius.circular(AppRadii.field),
+        borderSide: side,
+      );
+
   return InputDecoration(
-    labelText: label,
     hintText: hint,
-    hintStyle: TextStyle(fontFamily: AppFonts.sans, color: mutedColor),
-    labelStyle: TextStyle(fontFamily: AppFonts.sans, color: mutedColor),
-    prefixIcon: Icon(icon, size: 20, color: mutedColor),
+    hintStyle: TextStyle(fontFamily: AppFonts.sans, color: colors.textMuted),
+    prefixIcon: Icon(icon, size: 20, color: colors.textMuted),
     filled: true,
-    fillColor: fillColorOverride ??
-        (isDark
-            ? Colors.white.withValues(alpha: 0.06)
-            : const Color(0xFFE8F0F0)),
+    fillColor: colors.inputFill,
     contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
-    border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(14),
-      borderSide: enabledBorderColor == null
-          ? BorderSide.none
-          : BorderSide(color: enabledBorderColor),
-    ),
-    enabledBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(14),
-      borderSide: enabledBorderColor == null
-          ? BorderSide.none
-          : BorderSide(color: enabledBorderColor),
-    ),
-    focusedBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(14),
-      borderSide: BorderSide(color: accentColor, width: 1.5),
-    ),
-    errorBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(14),
-      borderSide: const BorderSide(color: Colors.redAccent, width: 1),
-    ),
-    focusedErrorBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(14),
-      borderSide: const BorderSide(color: Colors.redAccent, width: 1.5),
-    ),
+    border: border(BorderSide.none),
+    enabledBorder: border(BorderSide.none),
+    focusedBorder: border(BorderSide(color: accentColor, width: 1.5)),
+    errorBorder: border(BorderSide(color: danger)),
+    focusedErrorBorder: border(BorderSide(color: danger, width: 1.5)),
   );
 }

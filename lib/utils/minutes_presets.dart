@@ -22,5 +22,3 @@ MinutesPreset? presetForMinutes(int minutes) {
   }
   return null;
 }
-
-bool isPresetMinutesValue(int minutes) => presetForMinutes(minutes) != null;

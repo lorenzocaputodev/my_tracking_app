@@ -7,7 +7,6 @@ class ActionButton extends StatefulWidget {
   final double size;
   final VoidCallback onTap;
   final String actionLabel;
-  final String? productName;
   final VoidCallback? onLongPress;
 
   const ActionButton({
@@ -15,7 +14,6 @@ class ActionButton extends StatefulWidget {
     required this.size,
     required this.onTap,
     required this.actionLabel,
-    this.productName,
     this.onLongPress,
   });
 
@@ -74,9 +72,6 @@ class _ActionButtonState extends State<ActionButton>
     final isDark = context.isDark;
     final textColor = colors.onAction;
     final labelColor = textColor.withValues(alpha: 0.78);
-    final sub = widget.productName?.trim();
-    final showProduct = sub != null && sub.isNotEmpty;
-    final iconFrac = showProduct ? 0.28 : 0.32;
     final gradientColors = isDark
         ? [turquoise, turquoise.withBlue(150)]
         : [
@@ -137,38 +132,18 @@ class _ActionButtonState extends State<ActionButton>
                 Icon(
                   Icons.bolt_rounded,
                   color: textColor,
-                  size: widget.size * iconFrac,
+                  size: widget.size * 0.32,
                 ),
-                SizedBox(height: showProduct ? 2 : 6),
+                const SizedBox(height: 6),
                 Text(
                   widget.actionLabel.toUpperCase(),
                   style: TextStyle(fontFamily: AppFonts.display,
-                    fontSize: widget.size * (showProduct ? 0.075 : 0.09),
+                    fontSize: widget.size * 0.09,
                     fontWeight: FontWeight.w700,
                     color: labelColor,
                     letterSpacing: 1.5,
                   ),
                 ),
-                if (showProduct) ...[
-                  const SizedBox(height: 1),
-                  SizedBox(
-                    width: widget.size * 0.72,
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Text(
-                        sub.toUpperCase(),
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontFamily: AppFonts.display,
-                          fontSize: widget.size * 0.16,
-                          fontWeight: FontWeight.w900,
-                          color: textColor,
-                          letterSpacing: -0.5,
-                          height: 1.0,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
               ],
             ),
           ),

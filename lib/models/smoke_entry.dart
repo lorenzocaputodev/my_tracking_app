@@ -13,9 +13,6 @@ class SmokeEntry {
     this.productId = 'default',
   });
 
-  DateTime get dateOnly =>
-      DateTime(timestamp.year, timestamp.month, timestamp.day);
-
   SmokeEntry copyWith({
     String? id,
     DateTime? timestamp,

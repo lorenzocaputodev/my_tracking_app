@@ -145,7 +145,6 @@ class _ProductSetupScreenState extends State<ProductSetupScreen> {
       ),
       body: Form(
         key: _formKey,
-        // Dopo il primo errore il messaggio sparisce appena il campo e' giusto.
         autovalidateMode: AutovalidateMode.onUserInteraction,
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
@@ -171,8 +170,6 @@ class _ProductSetupScreenState extends State<ProductSetupScreen> {
               onMinutesPresetSelected: _onMinutesPresetSelected,
               onChanged: () => setState(() {}),
             ),
-            // Il promemoria si propone subito: e' la stessa riga delle
-            // impostazioni e si salva appena lo attivi.
             const SettingsSectionLabel('PROMEMORIA', inset: 0),
             SettingsGroup(children: reminderRows(context)),
           ],

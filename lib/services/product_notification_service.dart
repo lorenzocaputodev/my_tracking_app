@@ -61,9 +61,6 @@ class ProductNotificationService {
   static bool get isSupported =>
       !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
 
-  static AppReminderSettings defaultGlobalReminderSettings() =>
-      AppReminderSettings.defaults;
-
   static Future<void> ensureInitialized() async {
     if (!isSupported || _mainInitialized) return;
 

@@ -55,8 +55,6 @@ abstract final class AppTheme {
         iconTheme: IconThemeData(color: primary),
       ),
       progressIndicatorTheme: ProgressIndicatorThemeData(color: primary),
-      // Dialoghi, pannelli dal basso e pulsanti pieni con le superfici e il
-      // colore d'azione dell'app, non con i grigi e il primario di Material.
       dialogTheme: DialogThemeData(
         backgroundColor: isDark ? colors.surfaceElevated : colors.surface,
         shape: RoundedRectangleBorder(

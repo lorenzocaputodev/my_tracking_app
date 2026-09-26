@@ -43,18 +43,4 @@ abstract final class AppDecorations {
       border: Border.all(color: accent.withValues(alpha: AppAlphas.tintBorder)),
     );
   }
-
-  static BoxDecoration statTile(Color accent, {required bool isDark}) {
-    return BoxDecoration(
-      color: accent.withValues(
-        alpha: isDark ? AppAlphas.statFillDark : AppAlphas.statFillLight,
-      ),
-      borderRadius: BorderRadius.circular(AppRadii.chip),
-      border: Border.all(
-        color: accent.withValues(
-          alpha: isDark ? AppAlphas.statBorderDark : AppAlphas.statBorderLight,
-        ),
-      ),
-    );
-  }
 }

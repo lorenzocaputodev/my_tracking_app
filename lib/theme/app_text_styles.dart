@@ -11,26 +11,8 @@ abstract final class AppTextStyles {
         color: color,
       );
 
-  static TextStyle cardTitle(Color color) => TextStyle(
-        fontFamily: AppFonts.sans,
-        fontSize: 14,
-        fontWeight: FontWeight.w800,
-        color: color,
-      );
 
-  static TextStyle statValue(Color color) => TextStyle(
-        fontFamily: AppFonts.sans,
-        fontSize: 15,
-        fontWeight: FontWeight.w800,
-        color: color,
-      );
 
-  static TextStyle statLabel(Color color) => TextStyle(
-        fontFamily: AppFonts.sans,
-        fontSize: 10,
-        fontWeight: FontWeight.w600,
-        color: color,
-      );
 
   static TextStyle microCaps(Color color) => TextStyle(
         fontFamily: AppFonts.sans,

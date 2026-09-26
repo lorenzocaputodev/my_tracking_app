@@ -62,14 +62,4 @@ class PackConfig {
         tracksInventory: json['tracksInventory'] as bool? ?? true,
         directUnitCost: (json['directUnitCost'] as num?)?.toDouble(),
       );
-
-  static const PackConfig defaultConfig = PackConfig(
-    name: '',
-    totalCost: 6.00,
-    pieces: 20,
-    minutesLost: 11,
-    dailyLimit: 0,
-    tracksInventory: true,
-    directUnitCost: null,
-  );
 }
