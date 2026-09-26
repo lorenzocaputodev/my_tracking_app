@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-import '../theme/app_decorations.dart';
 import '../theme/app_dimens.dart';
 import '../theme/app_fonts.dart';
 import '../theme/app_text_styles.dart';
 import '../theme/theme_context.dart';
+import 'tappable_card.dart';
 
 class SettingsSectionLabel extends StatelessWidget {
   final String text;
@@ -40,9 +40,7 @@ class SettingsGroup extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    return Container(
-      clipBehavior: Clip.antiAlias,
-      decoration: AppDecorations.cardSubtle(colors),
+    return TappableCard(
       child: Column(
         children: [
           for (var i = 0; i < children.length; i++) ...[
