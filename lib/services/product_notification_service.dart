@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
 
 import '../models/app_reminder_settings.dart';
+import '../theme/app_theme.dart';
 
 @pragma('vm:entry-point')
 void productNotificationCallbackDispatcher() {
@@ -52,6 +53,11 @@ class ProductNotificationService {
   static bool _mainInitialized = false;
   static bool _backgroundInitialized = false;
 
+  /// Sagoma bianca del logo su fondo trasparente: Android colora da se' le
+  /// icone della barra di stato e con un'immagine a colori mostrerebbe un
+  /// disco bianco pieno.
+  static const _statusBarIcon = '@drawable/ic_stat_logo';
+
   static bool get isSupported =>
       !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
 
@@ -62,7 +68,7 @@ class ProductNotificationService {
     if (!isSupported || _mainInitialized) return;
 
     const initializationSettings = InitializationSettings(
-      android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+      android: AndroidInitializationSettings(_statusBarIcon),
     );
 
     try {
@@ -77,7 +83,7 @@ class ProductNotificationService {
     if (_backgroundInitialized) return;
 
     const initializationSettings = InitializationSettings(
-      android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+      android: AndroidInitializationSettings(_statusBarIcon),
     );
 
     try {
@@ -189,6 +195,8 @@ class ProductNotificationService {
             channelDescription: reminderChannelDescription,
             importance: Importance.high,
             priority: Priority.high,
+            icon: _statusBarIcon,
+            color: AppTheme.darkPrimary,
           ),
         ),
       );

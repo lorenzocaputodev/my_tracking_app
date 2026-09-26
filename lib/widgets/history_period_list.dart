@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../models/smoke_entry.dart';
 import '../providers/my_tracking_provider.dart';
-import '../theme/app_decorations.dart';
 import '../theme/app_dimens.dart';
 import '../theme/app_fonts.dart';
 import '../theme/app_motion.dart';
@@ -12,6 +11,7 @@ import '../utils/app_clock.dart';
 import '../utils/app_formatters.dart';
 import '../utils/history_grouping.dart';
 import 'pill_selector.dart';
+import 'tappable_card.dart';
 
 const _months = [
   'Gennaio',
@@ -278,10 +278,8 @@ class _HistoryPeriodListState extends State<HistoryPeriodList> {
               alignment: Alignment.topCenter,
               children: [...previous, if (current != null) current],
             ),
-            child: Container(
+            child: TappableCard(
               key: ValueKey('${_grouping.name}-${_drill?.start}'),
-              clipBehavior: Clip.antiAlias,
-              decoration: AppDecorations.cardSubtle(colors),
               child: Column(
                 children: [
                   for (var i = 0; i < rows.length; i++) ...[
