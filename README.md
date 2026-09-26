@@ -6,17 +6,18 @@
 
 ## ✨ Funzionalità principali
 
-- 📦 Tracking multi-prodotto con prodotto attivo selezionabile
-- 📊 Dashboard con conteggio giornaliero, residuo confezione, costo unitario e spesa totale
-- 📈 Cronologia con grafici a 7 giorni e trend a 30 giorni
+- 📦 Tracking multi-prodotto, con selettore compatto del prodotto in uso
+- 📊 Home con conteggio giornaliero, scorta, costi e ultimi 7 giorni
+- 📈 Cronologia raggruppata per giorni, settimane e mesi, con grafici e statistiche
+- ↩️ Annulla dopo ogni registrazione e ogni cancellazione
 - 🏆 Obiettivi e badge sbloccabili
 - 📉 Piano di riduzione **indipendente per ogni prodotto**
+- ⚙️ Impostazioni con una pagina per ogni prodotto, anche quando non è in uso
 - 🗄️ Archiviazione dei prodotti con storico conservato
-- 📄 Import ed export CSV
-- ⚙️ Configurazione del prodotto attivo con preset e valore personalizzato per i minuti di vita persi
+- 📄 Backup ed export in CSV
 - 📲 Widget Home Android responsive con layout **small**, **medium** e **large**
-- 🔔 Promemoria periodici globali a intervallo
-- 🎨 Tema **dark / light / system**
+- 🔔 Promemoria periodici, proposti già alla prima configurazione
+- 🎨 Tema **scuro / chiaro / sistema**
 - 🔒 Dati salvati localmente sul dispositivo
 
 ---
@@ -48,7 +49,7 @@ Le notifiche sono gestite su Android tramite:
 
 ## 🔒 Setup locale
 
-Prerequisiti, con le versioni su cui la build e' verificata:
+Prerequisiti, con le versioni su cui la build è verificata:
 
 - Flutter **3.47.5** stable (Dart 3.13.4)
 - Android SDK con platform **android-36**, build-tools 36.0.0 e NDK 28.2.13676358
@@ -60,7 +61,7 @@ La catena di build usa Gradle 8.14.5, AGP 8.13.2 e Kotlin 2.2.21, volutamente
 entro la linea 8.x di AGP.
 
 `android/gradle.properties` dimensiona il daemon Gradle a 2 GB di heap: su
-macchine con poca RAM valori piu' alti fanno terminare il daemon a meta' build.
+macchine con poca RAM valori più alti fanno terminare il daemon a metà build.
 
 ---
 
@@ -70,8 +71,8 @@ Se vuoi compilare il progetto localmente:
 
 ### 1. Clona la repository
 ```bash
-    git clone https://github.com/lorenzocaputodev/my_tracking_app.git
-    cd my_tracking_app
+git clone https://github.com/lorenzocaputodev/my_tracking_app.git
+cd my_tracking_app
 ```
 
 ### 2. Installa le dipendenze
@@ -81,7 +82,7 @@ flutter pub get
 
 ### 3. Genera le icone ufficiali
 ```bash
-flutter pub run flutter_launcher_icons
+dart run flutter_launcher_icons
 ```
 
 ### 4. Avvia l’app
@@ -100,18 +101,6 @@ flutter run
 - `lib/theme/` → token di design, temi e decorazioni
 - `lib/utils/` → utility, bridge e formattazione
 - `android/app/src/main/kotlin/com/example/my_tracking_app/widget/` → implementazione nativa del widget Android
-
----
-
-## 📌 Stato del progetto
-
-Il progetto è attualmente funzionante, ma prima di una pubblicazione Android realmente definitiva restano da configurare questi punti:
-
-- `applicationId` Android ancora placeholder in `android/app/build.gradle.kts`
-- signing release ancora agganciato alla **debug key** in `android/app/build.gradle.kts`
-- AdMob App ID ancora di **test** in `android/app/src/main/AndroidManifest.xml`
-
-Questi valori non sono stati modificati per evitare di inserire configurazioni parziali o non definitive.
 
 ---
 
