@@ -8,6 +8,8 @@
 
 Vuoi solo installarla? Scarica l’APK dall’**[ultima versione pubblicata](https://github.com/lorenzocaputodev/my_tracking_app/releases/latest)** e aprilo dal telefono: Android ti chiederà di consentire l’installazione di app scaricate dal browser.
 
+> **Avevi una versione precedente alla 1.4.0?** Dalla 1.4.0 l’app ha un nuovo identificativo, quindi Android la installa come app nuova. Per portare i tuoi dati: nella vecchia app vai in Impostazioni → **Esporta backup**, installa la nuova, usa **Importa backup** e poi disinstalla la vecchia.
+
 ## 📸 Schermate
 
 <p align="center">

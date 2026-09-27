@@ -1,7 +1,7 @@
 name: my_tracking_app
 description: App Flutter per Android per tracciare l'uso quotidiano di uno o più prodotti, con statistiche, obiettivi e widget.
 publish_to: 'none'
-version: 1.3.1+5
+version: 1.4.0+6
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
