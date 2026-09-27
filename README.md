@@ -10,9 +10,14 @@ Vuoi solo installarla? Scarica l’APK dall’**[ultima versione pubblicata](htt
 
 ## 📸 Schermate
 
-| Home | Obiettivi e badge | Impostazioni | Cronologia |
-|:---:|:---:|:---:|:---:|
-| <img src="assets/screenshots/app_home.webp" alt="Home" width="200"> | <img src="assets/screenshots/app_goals.webp" alt="Obiettivi e badge" width="200"> | <img src="assets/screenshots/app_settings.webp" alt="Impostazioni" width="200"> | <img src="assets/screenshots/app_history.webp" alt="Cronologia" width="200"> |
+<p align="center">
+  <img src="assets/screenshots/app_home.webp" alt="Home" width="23%">
+  <img src="assets/screenshots/app_goals.webp" alt="Obiettivi e badge" width="23%">
+  <img src="assets/screenshots/app_settings.webp" alt="Impostazioni" width="23%">
+  <img src="assets/screenshots/app_history.webp" alt="Cronologia" width="23%">
+</p>
+
+<p align="center"><sub>Home · Obiettivi e badge · Impostazioni · Cronologia</sub></p>
 
 ---
 
