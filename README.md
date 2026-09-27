@@ -4,9 +4,21 @@
 
 > Applicazione Flutter per tracciare l’utilizzo quotidiano di uno o più prodotti, monitorare costi e tempo perso stimato, gestire il residuo della confezione e avere un accesso rapido da widget Android.
 
+## 📲 Scarica l’app
+
+Vuoi solo installarla? Scarica l’APK dall’**[ultima versione pubblicata](https://github.com/lorenzocaputodev/my_tracking_app/releases/latest)** e aprilo dal telefono: Android ti chiederà di consentire l’installazione di app scaricate dal browser.
+
+## 📸 Schermate
+
+| Home | Obiettivi e badge | Impostazioni | Cronologia |
+|:---:|:---:|:---:|:---:|
+| <img src="assets/screenshots/app_home.webp" alt="Home" width="200"> | <img src="assets/screenshots/app_goals.webp" alt="Obiettivi e badge" width="200"> | <img src="assets/screenshots/app_settings.webp" alt="Impostazioni" width="200"> | <img src="assets/screenshots/app_history.webp" alt="Cronologia" width="200"> |
+
+---
+
 ## ✨ Funzionalità principali
 
-- 📦 Tracking multi-prodotto, con selettore compatto del prodotto in uso
+- 📦 Più prodotti da seguire, con un selettore rapido per passare dall’uno all’altro
 - 📊 Home con conteggio giornaliero, scorta, costi e ultimi 7 giorni
 - 📈 Cronologia raggruppata per giorni, settimane e mesi, con grafici e statistiche
 - ↩️ Annulla dopo ogni registrazione e ogni cancellazione
@@ -14,8 +26,8 @@
 - 📉 Piano di riduzione **indipendente per ogni prodotto**
 - ⚙️ Impostazioni con una pagina per ogni prodotto, anche quando non è in uso
 - 🗄️ Archiviazione dei prodotti con storico conservato
-- 📄 Backup ed export in CSV
-- 📲 Widget Home Android responsive con layout **small**, **medium** e **large**
+- 📄 Backup ed esportazione in CSV
+- 📲 Widget Android per la schermata Home in tre dimensioni: **piccola**, **media** e **grande**
 - 🔔 Promemoria periodici, proposti già alla prima configurazione
 - 🎨 Tema **scuro / chiaro / sistema**
 - 🔒 Dati salvati localmente sul dispositivo
@@ -47,7 +59,7 @@ Le notifiche sono gestite su Android tramite:
 
 ---
 
-## 🔒 Setup locale
+## 🧰 Requisiti per compilare
 
 Prerequisiti, con le versioni su cui la build è verificata:
 
@@ -65,9 +77,9 @@ macchine con poca RAM valori più alti fanno terminare il daemon a metà build.
 
 ---
 
-## ⚡ Installazione rapida PC
+## ⚡ Compilare il progetto
 
-Se vuoi compilare il progetto localmente:
+Se vuoi compilare il progetto sul tuo PC:
 
 ### 1. Clona la repository
 ```bash
@@ -114,11 +126,12 @@ flutter run
 
 ## 👨‍💻 Sviluppo
 
-Durante sviluppo, debugging e rifinitura del progetto è stato utilizzato supporto AI come assistenza tecnica per troubleshooting, revisione della documentazione, verifica di problemi tecnici e supporto alla scrittura e pulizia del codice.
+Durante lo sviluppo, il debugging e la rifinitura del progetto è stato utilizzato supporto AI come assistenza tecnica per troubleshooting, revisione della documentazione, verifica di problemi tecnici e supporto alla scrittura e pulizia del codice.
 
 ---
 
 ## 👤 Autore
 
 **Lorenzo Caputo**  
-GitHub: [lorenzocaputodev](https://github.com/lorenzocaputodev)
+GitHub: [lorenzocaputodev](https://github.com/lorenzocaputodev)  
+Portfolio: [lorenzocaputo.is-a.dev](https://lorenzocaputo.is-a.dev/)
