@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 
 class WidgetBridge {
   static const MethodChannel _channel =
-      MethodChannel('com.example.my_tracking_app/widget');
+      MethodChannel('dev.lorenzocaputo.mytrackingapp/widget');
 
   static Future<void> updateWidgets() async {
     if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) return;

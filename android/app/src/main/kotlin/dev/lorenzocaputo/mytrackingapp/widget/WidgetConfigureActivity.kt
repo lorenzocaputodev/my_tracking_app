@@ -1,4 +1,4 @@
-package com.example.my_tracking_app.widget
+package dev.lorenzocaputo.mytrackingapp.widget
 
 import android.app.Activity
 import android.appwidget.AppWidgetManager
@@ -11,8 +11,8 @@ import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.TextView
 import android.widget.Toast
-import com.example.my_tracking_app.MainActivity
-import com.example.my_tracking_app.R
+import dev.lorenzocaputo.mytrackingapp.MainActivity
+import dev.lorenzocaputo.mytrackingapp.R
 import org.json.JSONArray
 
 class WidgetConfigureActivity : Activity() {

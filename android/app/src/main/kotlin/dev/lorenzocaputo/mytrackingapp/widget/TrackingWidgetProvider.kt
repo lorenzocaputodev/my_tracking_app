@@ -1,4 +1,4 @@
-package com.example.my_tracking_app.widget
+package dev.lorenzocaputo.mytrackingapp.widget
 
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
@@ -9,8 +9,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.RemoteViews
-import com.example.my_tracking_app.MainActivity
-import com.example.my_tracking_app.R
+import dev.lorenzocaputo.mytrackingapp.MainActivity
+import dev.lorenzocaputo.mytrackingapp.R
 import org.json.JSONArray
 import org.json.JSONObject
 import java.text.NumberFormat
@@ -359,7 +359,7 @@ class TrackingWidgetProvider : AppWidgetProvider() {
     }
 
     companion object {
-        const val ACTION_INCREMENT = "com.example.my_tracking_app.widget.ACTION_INCREMENT"
+        const val ACTION_INCREMENT = "dev.lorenzocaputo.mytrackingapp.widget.ACTION_INCREMENT"
         const val EXTRA_PRODUCT_ID = "extra_product_id"
 
         fun updateAllWidgets(context: Context) {

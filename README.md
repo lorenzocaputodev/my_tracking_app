@@ -117,7 +117,7 @@ flutter run
 - `lib/widgets/` → componenti UI riutilizzabili
 - `lib/theme/` → token di design, temi e decorazioni
 - `lib/utils/` → utility, bridge e formattazione
-- `android/app/src/main/kotlin/com/example/my_tracking_app/widget/` → implementazione nativa del widget Android
+- `android/app/src/main/kotlin/dev/lorenzocaputo/mytrackingapp/widget/` → implementazione nativa del widget Android
 
 ---
 

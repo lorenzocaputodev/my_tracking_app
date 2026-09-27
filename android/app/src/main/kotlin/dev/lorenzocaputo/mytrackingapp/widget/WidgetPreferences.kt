@@ -1,4 +1,4 @@
-package com.example.my_tracking_app.widget
+package dev.lorenzocaputo.mytrackingapp.widget
 
 import android.content.Context
 import android.content.SharedPreferences

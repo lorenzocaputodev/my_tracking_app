@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.my_tracking_app"
+    namespace = "dev.lorenzocaputo.mytrackingapp"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -20,7 +20,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.my_tracking_app"
+        applicationId = "dev.lorenzocaputo.mytrackingapp"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode

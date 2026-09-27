@@ -4,7 +4,7 @@
     android:minHeight="72dp"
     android:updatePeriodMillis="0"
     android:initialLayout="@layout/tracking_widget_small"
-    android:configure="com.example.my_tracking_app.widget.WidgetConfigureActivity"
+    android:configure="dev.lorenzocaputo.mytrackingapp.widget.WidgetConfigureActivity"
     android:resizeMode="horizontal|vertical"
     android:widgetCategory="home_screen"
     android:description="@string/widget_description"
