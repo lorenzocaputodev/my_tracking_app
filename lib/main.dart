@@ -4,7 +4,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/services.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -31,18 +30,6 @@ Future<void> main() async {
   runApp(
     ChangeNotifierProvider.value(value: provider, child: const MyTrackingApp()),
   );
-}
-
-Future<void> _initializeMobileAdsIfSupported() async {
-  if (kIsWeb) return;
-  if (defaultTargetPlatform != TargetPlatform.android &&
-      defaultTargetPlatform != TargetPlatform.iOS) {
-    return;
-  }
-
-  try {
-    await MobileAds.instance.initialize();
-  } catch (_) {}
 }
 
 enum _BootstrapTarget { onboarding, setup, home }
@@ -134,10 +121,6 @@ class _AppBootstrapScreenState extends State<_AppBootstrapScreen> {
   void initState() {
     super.initState();
     _bootstrapFuture = _bootstrap();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      unawaited(_initializeMobileAdsIfSupported());
-    });
   }
 
   Future<_BootstrapTarget> _bootstrap() async {
