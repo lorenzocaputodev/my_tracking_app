@@ -2,7 +2,10 @@
 
 # 🚀 My Tracking App
 
-> Applicazione Flutter per tracciare l’utilizzo quotidiano di uno o più prodotti, monitorare costi e tempo perso stimato, gestire il residuo della confezione e avere un accesso rapido da widget Android.
+> **Conta le sigarette, riduci al tuo ritmo e scopri quanto risparmi.**
+
+- 🚬 Tieni sotto controllo sigarette, IQOS e svapo, o qualsiasi abitudine vuoi ridurre
+- 🔒 Senza account e senza pubblicità: i tuoi dati restano solo sul tuo telefono
 
 ## 📲 Scarica l’app
 
