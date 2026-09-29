@@ -2,6 +2,8 @@
 
 # 🚀 My Tracking App
 
+[![CI](https://github.com/lorenzocaputodev/my_tracking_app/actions/workflows/ci.yml/badge.svg)](https://github.com/lorenzocaputodev/my_tracking_app/actions/workflows/ci.yml) [![Release](https://img.shields.io/github/v/release/lorenzocaputodev/my_tracking_app)](https://github.com/lorenzocaputodev/my_tracking_app/releases/latest) [![License](https://img.shields.io/github/license/lorenzocaputodev/my_tracking_app)](LICENSE) ![Flutter](https://img.shields.io/badge/built%20with-Flutter-02569B)
+
 > **Conta le sigarette, riduci al tuo ritmo e scopri quanto risparmi.**
 
 - 🚬 Tieni sotto controllo sigarette, IQOS e svapo, o qualsiasi abitudine vuoi ridurre
