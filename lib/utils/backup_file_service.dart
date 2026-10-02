@@ -67,10 +67,8 @@ class BackupFileService {
     ],
   );
 
-  static bool get _isWindows =>
-      !kIsWeb && defaultTargetPlatform == TargetPlatform.windows;
-  static bool get _isAndroid =>
-      !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
+  static bool get _isWindows => !kIsWeb && Platform.isWindows;
+  static bool get _isAndroid => !kIsWeb && Platform.isAndroid;
 
   static bool get isSupported => _isWindows || _isAndroid;
 

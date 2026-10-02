@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
@@ -58,8 +59,7 @@ class ProductNotificationService {
   /// disco bianco pieno.
   static const _statusBarIcon = '@drawable/ic_stat_logo';
 
-  static bool get isSupported =>
-      !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
+  static bool get isSupported => !kIsWeb && Platform.isAndroid;
 
   static Future<void> ensureInitialized() async {
     if (!isSupported || _mainInitialized) return;
