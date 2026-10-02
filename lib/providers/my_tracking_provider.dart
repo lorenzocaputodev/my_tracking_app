@@ -884,11 +884,7 @@ class MyTrackingProvider extends ChangeNotifier {
   ReductionPlanProgress? reductionProgressForProduct(String productId) {
     final plan = reductionPlanForProduct(productId);
     if (plan == null) return null;
-    final recentAverage = averageDailyCountForRange(
-      productId: productId,
-      start: addDays(dateOnly(appNow()), -6),
-      end: appNow(),
-    );
+    final recentAverage = recentDailyAverage(productId, days: 7);
     final currentTarget = plan.currentWeekTarget;
     final delta = recentAverage - currentTarget;
     final status = delta <= -0.5
