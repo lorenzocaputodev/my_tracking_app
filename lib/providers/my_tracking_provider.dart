@@ -231,14 +231,11 @@ class MyTrackingProvider extends ChangeNotifier {
   }
 
   List<SmokeEntry> get todayEntries {
-    final now = appNow();
+    final today = dateOnly(appNow());
     return _entries
         .where(
           (e) =>
-              e.productId == _activeProductId &&
-              e.timestamp.year == now.year &&
-              e.timestamp.month == now.month &&
-              e.timestamp.day == now.day,
+              e.productId == _activeProductId && dateOnly(e.timestamp) == today,
         )
         .toList()
       ..sort((a, b) => b.timestamp.compareTo(a.timestamp));

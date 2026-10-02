@@ -54,6 +54,20 @@ void main() {
     });
   });
 
+  group('voci registrate dal widget', () {
+    test('una voce salvata in UTC dopo mezzanotte conta per oggi', () async {
+      final now = DateTime(2026, 10, 2, 0, 30);
+      appNow = () => now;
+      final provider = await _providerWith([now.toUtc()]);
+
+      expect(provider.dailyCount, 1);
+      expect(provider.todayEntries, hasLength(1));
+      expect(provider.dailyCost, 0.25);
+
+      provider.dispose();
+    });
+  });
+
   group('statistiche a cavallo dell\'ora legale', () {
     test('la serie non salta il giorno del cambio d\'ora', () async {
       appNow = () => DateTime(2026, 3, 30, 12);
