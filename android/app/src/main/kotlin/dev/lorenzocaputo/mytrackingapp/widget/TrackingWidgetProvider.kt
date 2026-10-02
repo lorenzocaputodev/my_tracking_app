@@ -1,5 +1,6 @@
 package dev.lorenzocaputo.mytrackingapp.widget
 
+import android.app.AlarmManager
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
@@ -14,6 +15,7 @@ import dev.lorenzocaputo.mytrackingapp.R
 import org.json.JSONArray
 import org.json.JSONObject
 import java.text.NumberFormat
+import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.util.Locale
@@ -22,10 +24,16 @@ import java.util.UUID
 class TrackingWidgetProvider : AppWidgetProvider() {
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
         appWidgetIds.forEach { updateWidget(context, appWidgetManager, it) }
+        scheduleMidnightRefresh(context)
     }
 
     override fun onEnabled(context: Context) {
         updateAllWidgets(context)
+    }
+
+    override fun onDisabled(context: Context) {
+        super.onDisabled(context)
+        context.getSystemService(AlarmManager::class.java)?.cancel(midnightRefreshIntent(context))
     }
 
     override fun onDeleted(context: Context, appWidgetIds: IntArray) {
@@ -44,9 +52,12 @@ class TrackingWidgetProvider : AppWidgetProvider() {
 
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
-        if (ACTION_INCREMENT == intent.action) {
-            val productId = intent.getStringExtra(EXTRA_PRODUCT_ID) ?: return
-            handleIncrement(context, productId)
+        when (intent.action) {
+            ACTION_INCREMENT -> {
+                val productId = intent.getStringExtra(EXTRA_PRODUCT_ID) ?: return
+                handleIncrement(context, productId)
+            }
+            ACTION_MIDNIGHT_REFRESH -> updateAllWidgets(context)
         }
     }
 
@@ -141,6 +152,8 @@ class TrackingWidgetProvider : AppWidgetProvider() {
             return
         }
 
+        val isToday = snapshot.optString("dayKeyLocal") == LocalDate.now(ZoneId.systemDefault()).toString()
+
         bindCommonState(
             context = context,
             views = views,
@@ -150,9 +163,9 @@ class TrackingWidgetProvider : AppWidgetProvider() {
             remaining = snapshot.optInt("packRemaining", 0),
             pieces = snapshot.optInt("pieces", 1).coerceAtLeast(1),
             unitCost = snapshot.optDouble("unitCost", 0.0),
-            dailyCount = snapshot.optInt("dailyCount", 0),
-            dailyCost = snapshot.optDouble("dailyCost", 0.0),
-            dailyMinutes = snapshot.optInt("dailyMinutesLost", 0),
+            dailyCount = if (isToday) snapshot.optInt("dailyCount", 0) else 0,
+            dailyCost = if (isToday) snapshot.optDouble("dailyCost", 0.0) else 0.0,
+            dailyMinutes = if (isToday) snapshot.optInt("dailyMinutesLost", 0) else 0,
             totalSpent = snapshot.optDouble("totalSpentForActive", 0.0),
             size = size
         )
@@ -361,6 +374,7 @@ class TrackingWidgetProvider : AppWidgetProvider() {
     companion object {
         const val ACTION_INCREMENT = "dev.lorenzocaputo.mytrackingapp.widget.ACTION_INCREMENT"
         const val EXTRA_PRODUCT_ID = "extra_product_id"
+        const val ACTION_MIDNIGHT_REFRESH = "dev.lorenzocaputo.mytrackingapp.widget.ACTION_MIDNIGHT_REFRESH"
 
         fun updateAllWidgets(context: Context) {
             val manager = AppWidgetManager.getInstance(context)
@@ -368,6 +382,26 @@ class TrackingWidgetProvider : AppWidgetProvider() {
             ids.forEach { appWidgetId ->
                 TrackingWidgetProvider().updateWidget(context, manager, appWidgetId)
             }
+            if (ids.isNotEmpty()) scheduleMidnightRefresh(context)
+        }
+
+        private fun scheduleMidnightRefresh(context: Context) {
+            val zone = ZoneId.systemDefault()
+            val nextMidnight = LocalDate.now(zone).plusDays(1).atStartOfDay(zone).toInstant().toEpochMilli()
+            context.getSystemService(AlarmManager::class.java)
+                ?.set(AlarmManager.RTC, nextMidnight, midnightRefreshIntent(context))
+        }
+
+        private fun midnightRefreshIntent(context: Context): PendingIntent {
+            val intent = Intent(context, TrackingWidgetProvider::class.java).apply {
+                action = ACTION_MIDNIGHT_REFRESH
+            }
+            return PendingIntent.getBroadcast(
+                context,
+                0,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
         }
 
         fun updateSingleWidget(context: Context, appWidgetId: Int) {
