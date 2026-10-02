@@ -1142,6 +1142,16 @@ class MyTrackingProvider extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     await prefs.reload();
 
+    final previousProducts = _products;
+    final previousEntries = _entries;
+    final previousActiveProductId = _activeProductId;
+    final previousReminderSettings = _globalReminderSettings;
+    final previousAchievements = Map.of(_achievements);
+    final previousPlans = Map.of(_reductionPlans);
+    final previousTheme = _themePreference;
+    final previousOnboardingDone = prefs.getBool(_keyOnboardingDone) ?? false;
+    final previousSetupDone = prefs.getBool(_keyHasCompletedSetup) ?? false;
+
     _products = List<TrackedProduct>.from(data.products);
     _entries = List<SmokeEntry>.from(data.entries)
       ..sort((a, b) => a.timestamp.compareTo(b.timestamp));
@@ -1159,15 +1169,38 @@ class MyTrackingProvider extends ChangeNotifier {
         data.onboardingDone || _products.isNotEmpty || _entries.isNotEmpty;
     final hasCompletedSetup = data.hasCompletedSetup || _products.isNotEmpty;
 
-    await _persistCompleteState(
-      prefs,
-      onboardingDone: onboardingDone,
-      hasCompletedSetup: hasCompletedSetup,
-      clearWidgetTransientState: true,
-      clearLegacyConfig: true,
-    );
-
-    await _verifyPersistedState(prefs);
+    try {
+      await _persistCompleteState(
+        prefs,
+        onboardingDone: onboardingDone,
+        hasCompletedSetup: hasCompletedSetup,
+        clearWidgetTransientState: true,
+        clearLegacyConfig: true,
+      );
+      await _verifyPersistedState(prefs);
+    } catch (_) {
+      _products = previousProducts;
+      _entries = previousEntries;
+      _activeProductId = previousActiveProductId;
+      _globalReminderSettings = previousReminderSettings;
+      _achievements
+        ..clear()
+        ..addAll(previousAchievements);
+      _reductionPlans
+        ..clear()
+        ..addAll(previousPlans);
+      _themePreference = previousTheme;
+      try {
+        await _persistCompleteState(
+          prefs,
+          onboardingDone: previousOnboardingDone,
+          hasCompletedSetup: previousSetupDone,
+        );
+      } catch (_) {}
+      notifyListeners();
+      await syncWidgets();
+      rethrow;
+    }
 
     notifyListeners();
     await syncWidgets();
