@@ -144,6 +144,14 @@ class MyTrackingProvider extends ChangeNotifier {
     );
   }
 
+  Future<void> _queue = Future<void>.value();
+
+  Future<T> _serialized<T>(Future<T> Function() action) {
+    final result = _queue.then((_) => action());
+    _queue = result.then<void>((_) {}, onError: (Object _, StackTrace __) {});
+    return result;
+  }
+
   void setForeground(bool value) {
     if (_isForeground == value) return;
     _isForeground = value;
@@ -499,276 +507,276 @@ class MyTrackingProvider extends ChangeNotifier {
     return AppThemePreference.dark;
   }
 
-  Future<void> drainOnResume() async {
-    if (_isLoading) return;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.reload();
-    _hydrateFromPrefs(prefs);
-    final mergedPending = await _consumePendingWidgetEntries(prefs);
-    final migratedPlan = _needsReductionPlanRewrite(prefs);
-    final migratedGlobalReminder =
-        await _migrateLegacyGlobalReminderIfNeeded(prefs);
-    if (_evaluateAchievements(persist: false)) {
-      await _persistAchievements();
-    }
-    if (mergedPending) {
-      await _persistEntriesOnly(prefs);
-    }
-    if (migratedPlan) {
-      await _persistReductionPlansOnly(prefs);
-    }
-    if (migratedGlobalReminder) {
-      await _persistGlobalReminderOnly(prefs);
-    }
-    notifyListeners();
-    await syncWidgets();
-    await _syncNotifications();
-  }
+  Future<void> drainOnResume() => _serialized(() async {
+        if (_isLoading) return;
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.reload();
+        _hydrateFromPrefs(prefs);
+        final mergedPending = await _consumePendingWidgetEntries(prefs);
+        final migratedPlan = _needsReductionPlanRewrite(prefs);
+        final migratedGlobalReminder =
+            await _migrateLegacyGlobalReminderIfNeeded(prefs);
+        if (_evaluateAchievements(persist: false)) {
+          await _persistAchievements();
+        }
+        if (mergedPending) {
+          await _persistEntriesOnly(prefs);
+        }
+        if (migratedPlan) {
+          await _persistReductionPlansOnly(prefs);
+        }
+        if (migratedGlobalReminder) {
+          await _persistGlobalReminderOnly(prefs);
+        }
+        notifyListeners();
+        await syncWidgets();
+        await _syncNotifications();
+      });
 
   // Tema
 
-  Future<void> setThemePreference(AppThemePreference value) async {
-    _themePreference = value;
-    notifyListeners();
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_keyTheme, value.name);
-  }
+  Future<void> setThemePreference(AppThemePreference value) => _serialized(() async {
+        _themePreference = value;
+        notifyListeners();
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString(_keyTheme, value.name);
+      });
 
   // Prodotti
 
-  Future<void> setActiveProduct(String id) async {
-    if (!_products.any((p) => p.id == id && !p.isArchived)) return;
-    _activeProductId = id;
-    notifyListeners();
-    await _persistActiveProductSelection();
-    await syncWidgets();
-  }
+  Future<void> setActiveProduct(String id) => _serialized(() async {
+        if (!_products.any((p) => p.id == id && !p.isArchived)) return;
+        _activeProductId = id;
+        notifyListeners();
+        await _persistActiveProductSelection();
+        await syncWidgets();
+      });
 
-  Future<void> addProduct(TrackedProduct product) async {
-    _products = [..._products, product];
-    _activeProductId = product.id;
-    notifyListeners();
-    await _persistProducts();
-  }
+  Future<void> addProduct(TrackedProduct product) => _serialized(() async {
+        _products = [..._products, product];
+        _activeProductId = product.id;
+        notifyListeners();
+        await _persistProducts();
+      });
 
   Future<void> updateGlobalReminderSettings(
-      AppReminderSettings settings) async {
-    _globalReminderSettings = settings;
-    notifyListeners();
-    final prefs = await SharedPreferences.getInstance();
-    await _persistGlobalReminderOnly(prefs);
-    await _syncNotifications();
-  }
+      AppReminderSettings settings) => _serialized(() async {
+        _globalReminderSettings = settings;
+        notifyListeners();
+        final prefs = await SharedPreferences.getInstance();
+        await _persistGlobalReminderOnly(prefs);
+        await _syncNotifications();
+      });
 
-  Future<void> updateProductConfig(PackConfig cfg, {String? productId}) async {
-    final pid = productId ?? _activeProductId;
-    final idx = _products.indexWhere((p) => p.id == pid);
-    if (idx == -1) return;
-    final cur = _products[idx];
-    var next = cur.copyWith(
-      name: cfg.name,
-      totalCost: cfg.totalCost,
-      pieces: cfg.pieces,
-      minutesLost: cfg.minutesLost,
-      dailyLimit: cfg.dailyLimit,
-      tracksInventory: cfg.tracksInventory,
-      directUnitCost: cfg.directUnitCost,
-    );
-    if (next.tracksInventory && next.packRemaining > next.pieces) {
-      next = next.copyWith(packRemaining: next.pieces);
-    }
-    if (!cur.tracksInventory &&
-        next.tracksInventory &&
-        next.packRemaining <= 0 &&
-        next.pieces > 0) {
-      next = next.copyWith(packRemaining: next.pieces);
-    }
-    _products = List<TrackedProduct>.from(_products)..[idx] = next;
-    notifyListeners();
-    await _persistProducts();
-  }
+  Future<void> updateProductConfig(PackConfig cfg, {String? productId}) => _serialized(() async {
+        final pid = productId ?? _activeProductId;
+        final idx = _products.indexWhere((p) => p.id == pid);
+        if (idx == -1) return;
+        final cur = _products[idx];
+        var next = cur.copyWith(
+          name: cfg.name,
+          totalCost: cfg.totalCost,
+          pieces: cfg.pieces,
+          minutesLost: cfg.minutesLost,
+          dailyLimit: cfg.dailyLimit,
+          tracksInventory: cfg.tracksInventory,
+          directUnitCost: cfg.directUnitCost,
+        );
+        if (next.tracksInventory && next.packRemaining > next.pieces) {
+          next = next.copyWith(packRemaining: next.pieces);
+        }
+        if (!cur.tracksInventory &&
+            next.tracksInventory &&
+            next.packRemaining <= 0 &&
+            next.pieces > 0) {
+          next = next.copyWith(packRemaining: next.pieces);
+        }
+        _products = List<TrackedProduct>.from(_products)..[idx] = next;
+        notifyListeners();
+        await _persistProducts();
+      });
 
   Future<void> correctPackRemaining(
     int packRemaining, {
     String? productId,
-  }) async {
-    final pid = productId ?? _activeProductId;
-    final idx = _products.indexWhere((p) => p.id == pid);
-    if (idx == -1) {
-      throw StateError('Prodotto non trovato.');
-    }
+  }) => _serialized(() async {
+        final pid = productId ?? _activeProductId;
+        final idx = _products.indexWhere((p) => p.id == pid);
+        if (idx == -1) {
+          throw StateError('Prodotto non trovato.');
+        }
 
-    final product = _products[idx];
-    if (!product.tracksInventory) {
-      throw StateError('La correzione della scorta non è disponibile.');
-    }
-    if (packRemaining < 0 || packRemaining > product.pieces) {
-      throw RangeError.range(
-        packRemaining,
-        0,
-        product.pieces,
-        'packRemaining',
-      );
-    }
+        final product = _products[idx];
+        if (!product.tracksInventory) {
+          throw StateError('La correzione della scorta non è disponibile.');
+        }
+        if (packRemaining < 0 || packRemaining > product.pieces) {
+          throw RangeError.range(
+            packRemaining,
+            0,
+            product.pieces,
+            'packRemaining',
+          );
+        }
 
-    _products = List<TrackedProduct>.from(_products)
-      ..[idx] = product.copyWith(packRemaining: packRemaining);
-    notifyListeners();
-    await _persistProducts();
-  }
+        _products = List<TrackedProduct>.from(_products)
+          ..[idx] = product.copyWith(packRemaining: packRemaining);
+        notifyListeners();
+        await _persistProducts();
+      });
 
-  Future<bool> archiveProduct(String id) async {
-    final idx = _products.indexWhere((p) => p.id == id);
-    if (idx == -1) return false;
-    final product = _products[idx];
-    if (product.isArchived || activeProducts.length <= 1) return false;
+  Future<bool> archiveProduct(String id) => _serialized(() async {
+        final idx = _products.indexWhere((p) => p.id == id);
+        if (idx == -1) return false;
+        final product = _products[idx];
+        if (product.isArchived || activeProducts.length <= 1) return false;
 
-    _products = List<TrackedProduct>.from(_products)
-      ..[idx] = product.copyWith(isArchived: true);
+        _products = List<TrackedProduct>.from(_products)
+          ..[idx] = product.copyWith(isArchived: true);
 
-    if (_activeProductId == id) {
-      _activeProductId = _normalizeActiveProductId(_activeProductId);
-    }
+        if (_activeProductId == id) {
+          _activeProductId = _normalizeActiveProductId(_activeProductId);
+        }
 
-    notifyListeners();
-    await _persistProducts();
-    return true;
-  }
+        notifyListeners();
+        await _persistProducts();
+        return true;
+      });
 
-  Future<void> restoreProduct(String id) async {
-    final idx = _products.indexWhere((p) => p.id == id);
-    if (idx == -1) return;
-    final product = _products[idx];
-    if (!product.isArchived) return;
+  Future<void> restoreProduct(String id) => _serialized(() async {
+        final idx = _products.indexWhere((p) => p.id == id);
+        if (idx == -1) return;
+        final product = _products[idx];
+        if (!product.isArchived) return;
 
-    _products = List<TrackedProduct>.from(_products)
-      ..[idx] = product.copyWith(isArchived: false);
+        _products = List<TrackedProduct>.from(_products)
+          ..[idx] = product.copyWith(isArchived: false);
 
-    if (_activeProductId.isEmpty || _isArchivedProductId(_activeProductId)) {
-      _activeProductId = id;
-    }
+        if (_activeProductId.isEmpty || _isArchivedProductId(_activeProductId)) {
+          _activeProductId = id;
+        }
 
-    notifyListeners();
-    await _persistProducts();
-  }
+        notifyListeners();
+        await _persistProducts();
+      });
 
-  Future<void> deleteArchivedProduct(String id) async {
-    final product = _products.cast<TrackedProduct?>().firstWhere(
-          (item) => item?.id == id,
-          orElse: () => null,
-        );
-    if (product == null || !product.isArchived) {
-      return;
-    }
-    _entries = _entries.where((e) => e.productId != id).toList();
-    final nextProducts = _products.where((p) => p.id != id).toList();
-    _products = nextProducts;
+  Future<void> deleteArchivedProduct(String id) => _serialized(() async {
+        final product = _products.cast<TrackedProduct?>().firstWhere(
+              (item) => item?.id == id,
+              orElse: () => null,
+            );
+        if (product == null || !product.isArchived) {
+          return;
+        }
+        _entries = _entries.where((e) => e.productId != id).toList();
+        final nextProducts = _products.where((p) => p.id != id).toList();
+        _products = nextProducts;
 
-    if (_activeProductId == id) {
-      _activeProductId = _normalizeActiveProductId(_activeProductId);
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(_keyActiveProduct, _activeProductId);
-    }
+        if (_activeProductId == id) {
+          _activeProductId = _normalizeActiveProductId(_activeProductId);
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString(_keyActiveProduct, _activeProductId);
+        }
 
-    _reductionPlans.remove(id);
+        _reductionPlans.remove(id);
 
-    await _persist();
-    notifyListeners();
-  }
+        await _persist();
+        notifyListeners();
+      });
 
   // Voci cronologia
 
   /// Registra un utilizzo e restituisce la voce creata, oppure null se il
   /// prodotto non esiste, e' archiviato o ha la scorta a zero.
-  Future<SmokeEntry?> logEntry({String? productId}) async {
-    final pid = productId ?? _activeProductId;
-    final pIdx = _products.indexWhere((p) => p.id == pid);
-    if (pIdx == -1) return null;
-    final p = _products[pIdx];
-    if (p.isArchived) return null;
-    if (p.tracksInventory && p.packRemaining <= 0) return null;
+  Future<SmokeEntry?> logEntry({String? productId}) => _serialized(() async {
+        final pid = productId ?? _activeProductId;
+        final pIdx = _products.indexWhere((p) => p.id == pid);
+        if (pIdx == -1) return null;
+        final p = _products[pIdx];
+        if (p.isArchived) return null;
+        if (p.tracksInventory && p.packRemaining <= 0) return null;
 
-    final entry = SmokeEntry(
-      id: const Uuid().v4(),
-      timestamp: appNow(),
-      costDeducted: p.unitCost,
-      minutesLost: p.minutesLost,
-      productId: pid,
-    );
-    _entries.add(entry);
-    if (p.tracksInventory) {
-      _products[pIdx] = p.copyWith(packRemaining: p.packRemaining - 1);
-    }
-    _evaluateAchievements();
-    notifyListeners();
-    await _persist();
-    return entry;
-  }
+        final entry = SmokeEntry(
+          id: const Uuid().v4(),
+          timestamp: appNow(),
+          costDeducted: p.unitCost,
+          minutesLost: p.minutesLost,
+          productId: pid,
+        );
+        _entries.add(entry);
+        if (p.tracksInventory) {
+          _products[pIdx] = p.copyWith(packRemaining: p.packRemaining - 1);
+        }
+        _evaluateAchievements();
+        notifyListeners();
+        await _persist();
+        return entry;
+      });
 
-  Future<void> openNewPack({String? productId}) async {
-    final pid = productId ?? _activeProductId;
-    final idx = _products.indexWhere((p) => p.id == pid);
-    if (idx == -1) return;
-    final p = _products[idx];
-    if (p.isArchived || !p.tracksInventory) return;
-    _products = List<TrackedProduct>.from(_products)
-      ..[idx] = p.copyWith(packRemaining: p.pieces);
-    notifyListeners();
-    await _persistProducts();
-  }
+  Future<void> openNewPack({String? productId}) => _serialized(() async {
+        final pid = productId ?? _activeProductId;
+        final idx = _products.indexWhere((p) => p.id == pid);
+        if (idx == -1) return;
+        final p = _products[idx];
+        if (p.isArchived || !p.tracksInventory) return;
+        _products = List<TrackedProduct>.from(_products)
+          ..[idx] = p.copyWith(packRemaining: p.pieces);
+        notifyListeners();
+        await _persistProducts();
+      });
 
   /// Toglie una voce e, se il prodotto usa la scorta, le restituisce
   /// un'unita'. Restituisce cio' che serve a [restoreEntry] per annullare.
   Future<({SmokeEntry entry, bool stockReturned})?> deleteEntry(
     String id,
-  ) async {
-    final idx = _entries.indexWhere((e) => e.id == id);
-    if (idx == -1) return null;
-    final entry = _entries[idx];
-    var stockReturned = false;
-    final pIdx = _products.indexWhere((p) => p.id == entry.productId);
-    if (pIdx != -1) {
-      final pr = _products[pIdx];
-      if (pr.tracksInventory && pr.packRemaining < pr.pieces) {
-        _products = List<TrackedProduct>.from(_products)
-          ..[pIdx] = pr.copyWith(packRemaining: pr.packRemaining + 1);
-        stockReturned = true;
-      }
-    }
-    _entries.removeAt(idx);
-    _evaluateAchievements();
-    notifyListeners();
-    await _persist();
-    return (entry: entry, stockReturned: stockReturned);
-  }
+  ) => _serialized(() async {
+        final idx = _entries.indexWhere((e) => e.id == id);
+        if (idx == -1) return null;
+        final entry = _entries[idx];
+        var stockReturned = false;
+        final pIdx = _products.indexWhere((p) => p.id == entry.productId);
+        if (pIdx != -1) {
+          final pr = _products[pIdx];
+          if (pr.tracksInventory && pr.packRemaining < pr.pieces) {
+            _products = List<TrackedProduct>.from(_products)
+              ..[pIdx] = pr.copyWith(packRemaining: pr.packRemaining + 1);
+            stockReturned = true;
+          }
+        }
+        _entries.removeAt(idx);
+        _evaluateAchievements();
+        notifyListeners();
+        await _persist();
+        return (entry: entry, stockReturned: stockReturned);
+      });
 
   /// Annulla [deleteEntry]: rimette la voce al suo posto nella cronologia e
   /// riprende l'unita' eventualmente restituita alla scorta.
   Future<void> restoreEntry(
     ({SmokeEntry entry, bool stockReturned}) deleted,
-  ) async {
-    final entry = deleted.entry;
-    if (_entries.any((e) => e.id == entry.id)) return;
-    final at = _entries.indexWhere((e) => e.timestamp.isAfter(entry.timestamp));
-    _entries.insert(at == -1 ? _entries.length : at, entry);
-    if (deleted.stockReturned) {
-      final pIdx = _products.indexWhere((p) => p.id == entry.productId);
-      if (pIdx != -1 && _products[pIdx].packRemaining > 0) {
-        final pr = _products[pIdx];
-        _products = List<TrackedProduct>.from(_products)
-          ..[pIdx] = pr.copyWith(packRemaining: pr.packRemaining - 1);
-      }
-    }
-    _evaluateAchievements();
-    notifyListeners();
-    await _persist();
-  }
+  ) => _serialized(() async {
+        final entry = deleted.entry;
+        if (_entries.any((e) => e.id == entry.id)) return;
+        final at = _entries.indexWhere((e) => e.timestamp.isAfter(entry.timestamp));
+        _entries.insert(at == -1 ? _entries.length : at, entry);
+        if (deleted.stockReturned) {
+          final pIdx = _products.indexWhere((p) => p.id == entry.productId);
+          if (pIdx != -1 && _products[pIdx].packRemaining > 0) {
+            final pr = _products[pIdx];
+            _products = List<TrackedProduct>.from(_products)
+              ..[pIdx] = pr.copyWith(packRemaining: pr.packRemaining - 1);
+          }
+        }
+        _evaluateAchievements();
+        notifyListeners();
+        await _persist();
+      });
 
-  Future<void> clearHistory() async {
-    _entries.clear();
-    notifyListeners();
-    await _persist();
-  }
+  Future<void> clearHistory() => _serialized(() async {
+        _entries.clear();
+        notifyListeners();
+        await _persist();
+      });
 
   // Piano di riduzione
 
@@ -776,33 +784,33 @@ class MyTrackingProvider extends ChangeNotifier {
     String? productId,
     required double targetPerDay,
     required int totalWeeks,
-  }) async {
-    final boundProductId = productId ?? _activeProductId;
-    if (boundProductId.isEmpty ||
-        !_products.any((p) => p.id == boundProductId)) {
-      return;
-    }
-    _reductionPlans[boundProductId] = ReductionPlan(
-      productId: boundProductId,
-      startAverage: recentDailyAverage(boundProductId) > 0
-          ? recentDailyAverage(boundProductId)
-          : 1.0,
-      targetPerDay: targetPerDay,
-      totalWeeks: totalWeeks,
-      startDate: appNow(),
-    );
-    final prefs = await SharedPreferences.getInstance();
-    await _persistReductionPlansOnly(prefs);
-    notifyListeners();
-  }
+  }) => _serialized(() async {
+        final boundProductId = productId ?? _activeProductId;
+        if (boundProductId.isEmpty ||
+            !_products.any((p) => p.id == boundProductId)) {
+          return;
+        }
+        _reductionPlans[boundProductId] = ReductionPlan(
+          productId: boundProductId,
+          startAverage: recentDailyAverage(boundProductId) > 0
+              ? recentDailyAverage(boundProductId)
+              : 1.0,
+          targetPerDay: targetPerDay,
+          totalWeeks: totalWeeks,
+          startDate: appNow(),
+        );
+        final prefs = await SharedPreferences.getInstance();
+        await _persistReductionPlansOnly(prefs);
+        notifyListeners();
+      });
 
-  Future<void> deleteReductionPlan({String? productId}) async {
-    final targetId = productId ?? _activeProductId;
-    if (_reductionPlans.remove(targetId) == null) return;
-    final prefs = await SharedPreferences.getInstance();
-    await _persistReductionPlansOnly(prefs);
-    notifyListeners();
-  }
+  Future<void> deleteReductionPlan({String? productId}) => _serialized(() async {
+        final targetId = productId ?? _activeProductId;
+        if (_reductionPlans.remove(targetId) == null) return;
+        final prefs = await SharedPreferences.getInstance();
+        await _persistReductionPlansOnly(prefs);
+        notifyListeners();
+      });
 
   // Achievement
 
@@ -1119,16 +1127,16 @@ class MyTrackingProvider extends ChangeNotifier {
     return restoreBackup(AppBackupCsv.decode(csv));
   }
 
-  Future<BackupImportOutcome> restoreBackup(AppBackupData data) async {
-    await _restoreFullBackup(data);
-    return BackupImportOutcome(
-      products: _products.length,
-      entries: _entries.length,
-      unlockedAchievements:
-          _achievements.values.where((a) => a.isUnlocked).length,
-      reductionPlans: _reductionPlans.length,
-    );
-  }
+  Future<BackupImportOutcome> restoreBackup(AppBackupData data) => _serialized(() async {
+        await _restoreFullBackup(data);
+        return BackupImportOutcome(
+          products: _products.length,
+          entries: _entries.length,
+          unlockedAchievements:
+              _achievements.values.where((a) => a.isUnlocked).length,
+          reductionPlans: _reductionPlans.length,
+        );
+      });
 
   Future<void> _restoreFullBackup(AppBackupData data) async {
     final prefs = await SharedPreferences.getInstance();
