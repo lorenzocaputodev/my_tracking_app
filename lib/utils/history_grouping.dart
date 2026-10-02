@@ -1,4 +1,5 @@
 import '../models/smoke_entry.dart';
+import 'calendar_days.dart';
 
 enum HistoryGrouping { days, weeks, months }
 
@@ -42,9 +43,9 @@ class HistoryPeriod {
     required DateTime trackingStart,
   }) {
     final from = _day(trackingStart).isAfter(start) ? _day(trackingStart) : start;
-    final tomorrow = _day(today).add(const Duration(days: 1));
+    final tomorrow = addDays(today, 1);
     final to = tomorrow.isBefore(end) ? tomorrow : end;
-    final days = _daysBetween(from, to);
+    final days = daysBetween(from, to);
     return days <= 0 ? 0 : count / days;
   }
 }
@@ -89,8 +90,3 @@ DateTime periodEnd(DateTime start, HistoryGrouping grouping) {
 }
 
 DateTime _day(DateTime t) => DateTime(t.year, t.month, t.day);
-
-int _daysBetween(DateTime from, DateTime to) =>
-    DateTime.utc(to.year, to.month, to.day)
-        .difference(DateTime.utc(from.year, from.month, from.day))
-        .inDays;

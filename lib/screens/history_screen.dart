@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../models/smoke_entry.dart';
 import '../providers/my_tracking_provider.dart';
 import '../utils/app_clock.dart';
+import '../utils/calendar_days.dart';
 import '../utils/app_formatters.dart';
 import '../widgets/history_period_list.dart';
 import '../widgets/option_sheet.dart';
@@ -52,23 +53,22 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   DateTimeRange _selectedRange(MyTrackingProvider provider) {
-    final now = appNow();
-    final today = DateTime(now.year, now.month, now.day);
+    final today = dateOnly(appNow());
 
     return switch (_periodPreset) {
       _HistoryPeriodPreset.today => DateTimeRange(start: today, end: today),
       _HistoryPeriodPreset.sevenDays => DateTimeRange(
-          start: today.subtract(const Duration(days: 6)),
+          start: addDays(today, -6),
           end: today,
         ),
       _HistoryPeriodPreset.thirtyDays => DateTimeRange(
-          start: today.subtract(const Duration(days: 29)),
+          start: addDays(today, -29),
           end: today,
         ),
       _HistoryPeriodPreset.all => _allAvailableRange(provider),
       _HistoryPeriodPreset.custom => _customRange ??
           DateTimeRange(
-            start: today.subtract(const Duration(days: 29)),
+            start: addDays(today, -29),
             end: today,
           ),
     };
@@ -93,7 +93,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   DateTimeRange _allAvailableRange(MyTrackingProvider provider) {
-    final today = _dateOnly(appNow());
+    final today = dateOnly(appNow());
     final effectiveProductId = _effectiveProductId(provider);
     final sourceEntries = effectiveProductId == null
         ? provider.visibleEntries
@@ -102,9 +102,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
       return DateTimeRange(start: today, end: today);
     }
 
-    var earliest = _dateOnly(sourceEntries.first.timestamp);
+    var earliest = dateOnly(sourceEntries.first.timestamp);
     for (final entry in sourceEntries.skip(1)) {
-      final day = _dateOnly(entry.timestamp);
+      final day = dateOnly(entry.timestamp);
       if (day.isBefore(earliest)) {
         earliest = day;
       }
@@ -116,7 +116,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   Future<void> _pickCustomRange() async {
     final now = appNow();
     final initialRange = _customRange ??
-        DateTimeRange(start: now.subtract(const Duration(days: 29)), end: now);
+        DateTimeRange(start: addDays(dateOnly(now), -29), end: now);
     final picked = await showDateRangePicker(
       context: context,
       locale: const Locale('it'),
@@ -129,8 +129,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
     if (!mounted || picked == null) return;
     setState(() {
       _customRange = DateTimeRange(
-        start: _dateOnly(picked.start),
-        end: _dateOnly(picked.end),
+        start: dateOnly(picked.start),
+        end: dateOnly(picked.end),
       );
       _periodPreset = _HistoryPeriodPreset.custom;
     });
@@ -441,8 +441,7 @@ class _StatsPanelState extends State<_StatsPanel> {
       (sum, entry) => sum + entry.costDeducted,
     );
     final dayCount =
-        widget.selectedRange.end.difference(widget.selectedRange.start).inDays +
-            1;
+        daysBetween(widget.selectedRange.start, widget.selectedRange.end) + 1;
     final periodAverage = widget.provider.averageDailyCountForRange(
       productId: widget.selectedProductId,
       start: widget.selectedRange.start,
@@ -450,7 +449,7 @@ class _StatsPanelState extends State<_StatsPanel> {
     );
     final thirtyDayAverage = widget.provider.averageDailyCountForRange(
       productId: widget.selectedProductId,
-      start: appNow().subtract(const Duration(days: 29)),
+      start: addDays(dateOnly(appNow()), -29),
       end: appNow(),
     );
     final trend = widget.provider.weeklyTrend(
@@ -470,7 +469,7 @@ class _StatsPanelState extends State<_StatsPanel> {
       productId: widget.selectedProductId,
     );
     final trackedDays = widget.entries
-        .map((entry) => _dateOnly(entry.timestamp))
+        .map((entry) => dateOnly(entry.timestamp))
         .toSet()
         .length;
     final thinData = trackedDays < _minDaysForProjections;
@@ -1262,14 +1261,14 @@ class _MonthlyChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final turquoise = Theme.of(context).colorScheme.primary;
-    final today = _dateOnly(appNow());
+    final today = dateOnly(appNow());
     final days = List.generate(30, (index) {
-      return today.subtract(Duration(days: 29 - index));
+      return addDays(today, -(29 - index));
     });
 
     final countPerDay = {for (final day in days) day: 0};
     for (final entry in entries) {
-      final day = _dateOnly(entry.timestamp);
+      final day = dateOnly(entry.timestamp);
       if (countPerDay.containsKey(day)) {
         countPerDay[day] = countPerDay[day]! + 1;
       }
@@ -1457,7 +1456,3 @@ String _periodPresetLabel(_HistoryPeriodPreset preset) {
   };
 }
 
-DateTime _dateOnly(DateTime value) {
-  final local = value.toLocal();
-  return DateTime(local.year, local.month, local.day);
-}

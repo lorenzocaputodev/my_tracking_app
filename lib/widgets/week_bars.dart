@@ -7,6 +7,7 @@ import '../theme/app_text_styles.dart';
 import '../theme/theme_context.dart';
 import '../utils/app_clock.dart';
 import '../utils/app_formatters.dart';
+import '../utils/calendar_days.dart';
 
 const _weekdays = ['LUN', 'MAR', 'MER', 'GIO', 'VEN', 'SAB', 'DOM'];
 
@@ -41,9 +42,7 @@ class WeekBars extends StatelessWidget {
     final counts = List<int>.filled(7, 0);
     for (final e in entries) {
       final t = e.timestamp.toLocal();
-      final days = DateTime.utc(today.year, today.month, today.day)
-          .difference(DateTime.utc(t.year, t.month, t.day))
-          .inDays;
+      final days = daysBetween(t, today);
       if (days >= 0 && days < 7) counts[6 - days]++;
     }
     return counts;
@@ -144,10 +143,8 @@ class WeekBars extends StatelessWidget {
                                 Text(
                                   i == 6
                                       ? 'OGGI'
-                                      : _weekdays[now
-                                              .subtract(Duration(days: 6 - i))
-                                              .weekday -
-                                          1],
+                                      : _weekdays[
+                                          addDays(now, -(6 - i)).weekday - 1],
                                   style: i == 6
                                       ? small.copyWith(color: accent)
                                       : small,

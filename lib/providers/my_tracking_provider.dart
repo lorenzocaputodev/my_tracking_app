@@ -13,6 +13,7 @@ import '../models/tracked_product.dart';
 import '../services/product_notification_service.dart';
 import '../utils/app_backup_csv.dart';
 import '../utils/app_clock.dart';
+import '../utils/calendar_days.dart';
 import '../utils/widget_bridge.dart';
 
 enum AppThemePreference { dark, light, system }
@@ -271,10 +272,10 @@ class MyTrackingProvider extends ChangeNotifier {
   double recentDailyAverage(String productId, {int days = 14}) {
     final list = entriesForProduct(productId);
     if (list.isEmpty) return 0;
-    final today = _dateOnly(appNow());
-    var start = today.subtract(Duration(days: days - 1));
+    final today = dateOnly(appNow());
+    var start = addDays(today, -(days - 1));
     final first = list
-        .map((e) => _dateOnly(e.timestamp))
+        .map((e) => dateOnly(e.timestamp))
         .reduce((a, b) => a.isBefore(b) ? a : b);
     if (first.isAfter(start)) start = first;
     return averageDailyCountForRange(
@@ -317,11 +318,10 @@ class MyTrackingProvider extends ChangeNotifier {
     String productId,
     int n,
   ) {
-    final today = appNow();
+    final today = dateOnly(appNow());
     final list = entriesForProduct(productId);
     return List.generate(n, (i) {
-      final d = today.subtract(Duration(days: n - 1 - i));
-      final day = DateTime(d.year, d.month, d.day);
+      final day = addDays(today, -(n - 1 - i));
       final count = list.where((e) {
         final t = e.timestamp.toLocal();
         return t.year == day.year && t.month == day.month && t.day == day.day;
@@ -337,11 +337,11 @@ class MyTrackingProvider extends ChangeNotifier {
     int streak = 0;
     DateTime day = DateTime(now.year, now.month, now.day);
     if (!_hasEntriesOnForProduct(productId, day)) {
-      day = day.subtract(const Duration(days: 1));
+      day = addDays(day, -1);
     }
     while (_hasEntriesOnForProduct(productId, day)) {
       streak++;
-      day = day.subtract(const Duration(days: 1));
+      day = addDays(day, -1);
     }
     return streak;
   }
@@ -368,17 +368,13 @@ class MyTrackingProvider extends ChangeNotifier {
     if (first == null) return 0;
     final limit = p.dailyLimit;
     int streak = 0;
-    var day = DateTime(
-      appNow().year,
-      appNow().month,
-      appNow().day,
-    );
+    var day = dateOnly(appNow());
     while (true) {
       if (day.isBefore(first)) break;
       final c = _countOnForProduct(productId, day);
       if (c >= limit) break;
       streak++;
-      day = day.subtract(const Duration(days: 1));
+      day = addDays(day, -1);
     }
     return streak;
   }
@@ -438,7 +434,7 @@ class MyTrackingProvider extends ChangeNotifier {
 
     final yesterday = countOnDayForProduct(
       _activeProductId,
-      appNow().subtract(const Duration(days: 1)),
+      addDays(dateOnly(appNow()), -1),
     );
     if (dailyCount == 0 && yesterday == 0) return null;
 
@@ -893,7 +889,7 @@ class MyTrackingProvider extends ChangeNotifier {
     if (plan == null) return null;
     final recentAverage = averageDailyCountForRange(
       productId: productId,
-      start: appNow().subtract(const Duration(days: 6)),
+      start: addDays(dateOnly(appNow()), -6),
       end: appNow(),
     );
     final currentTarget = plan.currentWeekTarget;
@@ -916,8 +912,8 @@ class MyTrackingProvider extends ChangeNotifier {
     DateTime? start,
     DateTime? end,
   }) {
-    final startDay = start != null ? _dateOnly(start) : null;
-    final endDay = end != null ? _dateOnly(end) : null;
+    final startDay = start != null ? dateOnly(start) : null;
+    final endDay = end != null ? dateOnly(end) : null;
     final visibleProductIds =
         activeProducts.map((product) => product.id).toSet();
 
@@ -927,7 +923,7 @@ class MyTrackingProvider extends ChangeNotifier {
       } else if (!visibleProductIds.contains(entry.productId)) {
         return false;
       }
-      final entryDay = _dateOnly(entry.timestamp);
+      final entryDay = dateOnly(entry.timestamp);
       if (startDay != null && entryDay.isBefore(startDay)) return false;
       if (endDay != null && entryDay.isAfter(endDay)) return false;
       return true;
@@ -939,9 +935,9 @@ class MyTrackingProvider extends ChangeNotifier {
     required DateTime start,
     required DateTime end,
   }) {
-    final startDay = _dateOnly(start);
-    final endDay = _dateOnly(end);
-    final dayCount = endDay.difference(startDay).inDays + 1;
+    final startDay = dateOnly(start);
+    final endDay = dateOnly(end);
+    final dayCount = daysBetween(startDay, endDay) + 1;
     if (dayCount <= 0) return 0;
     return entriesForRange(
           productId: productId,
@@ -952,20 +948,20 @@ class MyTrackingProvider extends ChangeNotifier {
   }
 
   int countOnDayForProduct(String productId, DateTime day) {
-    return _countOnForProduct(productId, _dateOnly(day));
+    return _countOnForProduct(productId, dateOnly(day));
   }
 
   WeeklyTrend weeklyTrend({String? productId}) {
-    final now = appNow();
+    final today = dateOnly(appNow());
     final currentAverage = averageDailyCountForRange(
       productId: productId,
-      start: now.subtract(const Duration(days: 6)),
-      end: now,
+      start: addDays(today, -6),
+      end: today,
     );
     final previousAverage = averageDailyCountForRange(
       productId: productId,
-      start: now.subtract(const Duration(days: 13)),
-      end: now.subtract(const Duration(days: 7)),
+      start: addDays(today, -13),
+      end: addDays(today, -7),
     );
     return WeeklyTrend(
       currentAverage: currentAverage,
@@ -1026,7 +1022,7 @@ class MyTrackingProvider extends ChangeNotifier {
     if (entries.isEmpty) return null;
     final counts = <DateTime, int>{};
     for (final entry in entries) {
-      final day = _dateOnly(entry.timestamp);
+      final day = dateOnly(entry.timestamp);
       counts[day] = (counts[day] ?? 0) + 1;
     }
     return counts.entries.reduce((a, b) => a.value >= b.value ? a : b);
@@ -1036,7 +1032,7 @@ class MyTrackingProvider extends ChangeNotifier {
     if (entries.isEmpty) return null;
     final counts = <DateTime, int>{};
     for (final entry in entries) {
-      final day = _dateOnly(entry.timestamp);
+      final day = dateOnly(entry.timestamp);
       counts[day] = (counts[day] ?? 0) + 1;
     }
     return counts.entries.reduce((a, b) => a.value <= b.value ? a : b);
@@ -1048,11 +1044,6 @@ class MyTrackingProvider extends ChangeNotifier {
       counts[entry.timestamp.toLocal().hour]++;
     }
     return counts;
-  }
-
-  DateTime _dateOnly(DateTime value) {
-    final local = value.toLocal();
-    return DateTime(local.year, local.month, local.day);
   }
 
   Map<String, ReductionPlan> _normalizeReductionPlans(

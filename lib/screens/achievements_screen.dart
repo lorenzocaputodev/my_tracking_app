@@ -7,7 +7,9 @@ import '../theme/app_fonts.dart';
 import '../theme/app_text_styles.dart';
 import '../theme/app_decorations.dart';
 import '../theme/theme_context.dart';
+import '../utils/app_clock.dart';
 import '../utils/app_formatters.dart';
+import '../utils/calendar_days.dart';
 
 class AchievementsScreen extends StatelessWidget {
   const AchievementsScreen({super.key});
@@ -169,8 +171,8 @@ class _ReductionCard extends StatelessWidget {
     final recentAverage = progress?.recentAverage ??
         provider.averageDailyCountForRange(
           productId: plan.productId,
-          start: DateTime.now().subtract(const Duration(days: 6)),
-          end: DateTime.now(),
+          start: addDays(dateOnly(appNow()), -6),
+          end: appNow(),
         );
     final status = progress?.status;
     final (statusLabel, statusColor) = switch (status) {
