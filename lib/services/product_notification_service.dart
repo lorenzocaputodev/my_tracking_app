@@ -158,8 +158,14 @@ class ProductNotificationService {
 
     final fingerprint = 'on:${settings.intervalMinutes}';
     final storedFingerprint = prefs.getString(_globalReminderFingerprintKey);
-    final nextAtMs = prefs.getInt(_globalReminderNextAtKey);
+    var nextAtMs = prefs.getInt(_globalReminderNextAtKey);
     final nowMs = DateTime.now().millisecondsSinceEpoch;
+    if (storedFingerprint == fingerprint &&
+        nextAtMs != null &&
+        nextAtMs <= nowMs) {
+      await prefs.reload();
+      nextAtMs = prefs.getInt(_globalReminderNextAtKey);
+    }
     final needsSchedule = storedFingerprint != fingerprint ||
         nextAtMs == null ||
         nextAtMs <= nowMs;
