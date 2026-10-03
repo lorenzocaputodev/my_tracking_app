@@ -269,12 +269,16 @@ class MyTrackingProvider extends ChangeNotifier {
     final first = _firstDayForProduct(productId);
     if (first == null) return 0;
     final today = dateOnly(appNow());
-    var start = addDays(today, -(days - 1));
+    if (!first.isBefore(today)) {
+      return _countOnForProduct(productId, today).toDouble();
+    }
+    final end = addDays(today, -1);
+    var start = addDays(end, -(days - 1));
     if (first.isAfter(start)) start = first;
     return averageDailyCountForRange(
       productId: productId,
       start: start,
-      end: today,
+      end: end,
     );
   }
 

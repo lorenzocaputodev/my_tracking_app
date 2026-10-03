@@ -477,7 +477,7 @@ p1,12,7,8,2026-04-01T00:00:00.000Z
         await provider.logEntry();
       }
     }
-    now = DateTime(2026, 9, 8, 20);
+    now = DateTime(2026, 9, 9, 9);
     await provider.logEntry();
     await provider.deleteEntry(provider.todayEntries.first.id);
 
@@ -508,6 +508,40 @@ p1,12,7,8,2026-04-01T00:00:00.000Z
         for (var d = 0; d < 2; d++)
           for (var i = 0; i < 10; i++)
             entry('e$d-$i', DateTime(2026, 10, 1 + d, 8 + i)),
+      ],
+    });
+    final provider = MyTrackingProvider();
+    await provider.init();
+
+    await provider.setReductionPlan(targetPerDay: 5, totalWeeks: 4);
+    final progress = provider.reductionProgressForProduct('p1')!;
+
+    expect(progress.recentAverage, 10);
+    expect(progress.status, ReductionPlanStatus.onTrack);
+    provider.dispose();
+  });
+
+  test('al mattino il piano non risulta avanti solo perche oggi e iniziato',
+      () async {
+    appNow = () => DateTime(2026, 10, 2, 8);
+    addTearDown(() => appNow = DateTime.now);
+
+    String entry(String id, DateTime t) => jsonEncode(<String, dynamic>{
+          'id': id,
+          'timestamp': t.toIso8601String(),
+          'costDeducted': 0.25,
+          'minutesLost': 11,
+          'productId': 'p1',
+        });
+    SharedPreferences.setMockInitialValues(<String, Object>{
+      'tracked_products_v1': jsonEncode([
+        {..._product(id: 'p1', name: 'P'), 'tracksInventory': false},
+      ]),
+      'active_product_id': 'p1',
+      'smoke_entries': [
+        for (var d = 0; d < 14; d++)
+          for (var i = 0; i < 10; i++)
+            entry('e$d-$i', DateTime(2026, 9, 18 + d, 8 + i)),
       ],
     });
     final provider = MyTrackingProvider();
