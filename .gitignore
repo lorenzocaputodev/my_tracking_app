@@ -64,7 +64,6 @@ key.properties
 *.keystore
 
 # Local backup archives
-codex_*.zip
 my_tracking_app_*.zip
 
 # Local release diagnostics
