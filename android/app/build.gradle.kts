@@ -7,7 +7,7 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
-// Firma: android/key.properties resta fuori da git. Senza, la release usa la chiave di debug.
+// --- Firma ---
 val keystorePropertiesFile = rootProject.file("key.properties")
 val keystoreProperties = Properties()
 if (keystorePropertiesFile.exists()) {
