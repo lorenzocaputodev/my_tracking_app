@@ -216,4 +216,52 @@ productId,startAverage,targetPerDay,totalWeeks,startDate
     expect(decoded.products, hasLength(1));
     expect(decoded.products.first.name, 'Prodotto 1');
   });
+
+  group('backup scritti da altre versioni o modificati a mano', () {
+    AppBackupData sample({String name = 'Prodotto 1'}) => AppBackupData(
+          backupVersion: AppBackupCsv.backupVersion,
+          exportedAt: DateTime.parse('2026-10-01T08:30:00.000Z'),
+          activeProductId: 'p1',
+          themePreferenceName: 'dark',
+          onboardingDone: true,
+          hasCompletedSetup: true,
+          globalReminderSettings: AppReminderSettings.defaults,
+          products: <TrackedProduct>[
+            TrackedProduct(id: 'p1', name: name, totalCost: 5, pieces: 20),
+          ],
+          entries: const <SmokeEntry>[],
+          achievements: <Achievement>[
+            Achievement.definition(AchievementId.firstEntry).unlock(),
+          ],
+          reductionPlans: const <ReductionPlan>[],
+        );
+
+    test('un nome su due righe torna uguale', () {
+      final csv = AppBackupCsv.encode(sample(name: 'Riga 1\nRiga 2'));
+      expect(AppBackupCsv.decode(csv).products.single.name, 'Riga 1\nRiga 2');
+    });
+
+    test('un intervallo del promemoria fuori misura viene limitato', () {
+      final csv = AppBackupCsv.encode(sample()).replaceFirst(
+            'enabled,intervalMinutes\nfalse,120', 'enabled,intervalMinutes\ntrue,0',
+          );
+      final reminder = AppBackupCsv.decode(csv).globalReminderSettings;
+      expect(reminder.enabled, isTrue);
+      expect(reminder.intervalMinutes, 30);
+    });
+
+    test('un badge sconosciuto viene saltato', () {
+      final csv = AppBackupCsv.encode(sample()).replaceFirst(
+            'id,isUnlocked,unlockedAt\n', 'id,isUnlocked,unlockedAt\nbadgeFuturo,true,2026-10-01T08:00:00.000Z\n',
+          );
+      final decoded = AppBackupCsv.decode(csv);
+      expect(decoded.products, hasLength(1));
+      expect(
+        decoded.achievements
+            .firstWhere((a) => a.id == AchievementId.firstEntry)
+            .isUnlocked,
+        isTrue,
+      );
+    });
+  });
 }

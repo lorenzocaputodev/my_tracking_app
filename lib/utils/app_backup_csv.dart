@@ -185,7 +185,7 @@ class AppBackupCsv {
   }
 
   static AppBackupData decode(String raw) {
-    final lines = const LineSplitter().convert(_normalize(raw));
+    final lines = _splitRecords(_normalize(raw));
     final nonEmptyLines =
         lines.where((line) => line.trim().isNotEmpty).toList(growable: false);
     if (nonEmptyLines.isEmpty) {
@@ -300,6 +300,25 @@ class AppBackupCsv {
 
     out.add(buffer.toString());
     return out;
+  }
+
+  static List<String> _splitRecords(String raw) {
+    final records = <String>[];
+    final buffer = StringBuffer();
+    var inQuotes = false;
+    for (var i = 0; i < raw.length; i++) {
+      final char = raw[i];
+      if (char == '"') inQuotes = !inQuotes;
+      if (!inQuotes && (char == '\n' || char == '\r')) {
+        if (char == '\r' && i + 1 < raw.length && raw[i + 1] == '\n') i++;
+        records.add(buffer.toString());
+        buffer.clear();
+      } else {
+        buffer.write(char);
+      }
+    }
+    records.add(buffer.toString());
+    return records;
   }
 
   static String _normalize(String raw) => raw.replaceFirst('\uFEFF', '').trim();
@@ -447,7 +466,8 @@ class AppBackupCsv {
       if (row.length < 3) {
         throw const FormatException('Riga achievement incompleta.');
       }
-      final id = AchievementId.values.byName(row[0].trim());
+      final id = AchievementId.values.asNameMap()[row[0].trim()];
+      if (id == null) continue;
       final unlocked = _parseBool(row[1]);
       final unlockedAt = row[2].trim().isEmpty
           ? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true)
@@ -533,10 +553,10 @@ class AppBackupCsv {
       );
       if (sectionRows.length >= 2 && sectionRows[1].isNotEmpty) {
         final row = sectionRows[1];
-        return AppReminderSettings(
-          enabled: row.isNotEmpty ? _parseBool(row[0]) : false,
-          intervalMinutes: row.length > 1 ? int.tryParse(row[1]) ?? 120 : 120,
-        );
+        return AppReminderSettings.fromJson(<String, dynamic>{
+          'enabled': row.isNotEmpty && _parseBool(row[0]),
+          'intervalMinutes': row.length > 1 ? int.tryParse(row[1]) : null,
+        });
       }
       return AppReminderSettings.defaults;
     }
