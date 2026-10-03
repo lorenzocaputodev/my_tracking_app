@@ -535,7 +535,8 @@ class MyTrackingProvider extends ChangeNotifier {
 
   // Tema
 
-  Future<void> setThemePreference(AppThemePreference value) => _serialized(() async {
+  Future<void> setThemePreference(AppThemePreference value) =>
+      _serialized(() async {
         _themePreference = value;
         notifyListeners();
         final prefs = await SharedPreferences.getInstance();
@@ -568,7 +569,8 @@ class MyTrackingProvider extends ChangeNotifier {
         await _syncNotifications();
       });
 
-  Future<void> updateProductConfig(PackConfig cfg, {String? productId}) => _serialized(() async {
+  Future<void> updateProductConfig(PackConfig cfg, {String? productId}) =>
+      _serialized(() async {
         final pid = productId ?? _activeProductId;
         final idx = _products.indexWhere((p) => p.id == pid);
         if (idx == -1) return;
@@ -652,7 +654,8 @@ class MyTrackingProvider extends ChangeNotifier {
         _products = List<TrackedProduct>.from(_products)
           ..[idx] = product.copyWith(isArchived: false);
 
-        if (_activeProductId.isEmpty || _isArchivedProductId(_activeProductId)) {
+        if (_activeProductId.isEmpty ||
+            _isArchivedProductId(_activeProductId)) {
           _activeProductId = id;
         }
 
@@ -757,7 +760,8 @@ class MyTrackingProvider extends ChangeNotifier {
   ) => _serialized(() async {
         final entry = deleted.entry;
         if (_entries.any((e) => e.id == entry.id)) return;
-        final at = _entries.indexWhere((e) => e.timestamp.isAfter(entry.timestamp));
+        final at =
+            _entries.indexWhere((e) => e.timestamp.isAfter(entry.timestamp));
         _entries.insert(at == -1 ? _entries.length : at, entry);
         if (deleted.stockReturned) {
           final pIdx = _products.indexWhere((p) => p.id == entry.productId);
@@ -804,7 +808,8 @@ class MyTrackingProvider extends ChangeNotifier {
         notifyListeners();
       });
 
-  Future<void> deleteReductionPlan({String? productId}) => _serialized(() async {
+  Future<void> deleteReductionPlan({String? productId}) =>
+      _serialized(() async {
         final targetId = productId ?? _activeProductId;
         if (_reductionPlans.remove(targetId) == null) return;
         final prefs = await SharedPreferences.getInstance();
@@ -1127,7 +1132,8 @@ class MyTrackingProvider extends ChangeNotifier {
     return restoreBackup(AppBackupCsv.decode(csv));
   }
 
-  Future<BackupImportOutcome> restoreBackup(AppBackupData data) => _serialized(() async {
+  Future<BackupImportOutcome> restoreBackup(AppBackupData data) =>
+      _serialized(() async {
         await _restoreFullBackup(data);
         return BackupImportOutcome(
           products: _products.length,
