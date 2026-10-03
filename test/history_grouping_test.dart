@@ -12,7 +12,6 @@ SmokeEntry _at(DateTime t) => SmokeEntry(
 
 void main() {
   test('una settimana a cavallo di due mesi resta una sola settimana', () {
-    // Lunedi' 31 agosto - domenica 6 settembre 2026.
     final periods = groupHistory([
       _at(DateTime(2026, 8, 31, 9)),
       _at(DateTime(2026, 9, 6, 22)),
@@ -46,7 +45,6 @@ void main() {
       _at(DateTime(2026, 9, 20, 9)),
     ], HistoryGrouping.months).single;
 
-    // Tracciamento iniziato il 11, oggi e' il 20: 10 giorni, 3 voci.
     expect(
       month.dailyAverage(
         today: DateTime(2026, 9, 20, 18),
@@ -54,7 +52,6 @@ void main() {
       ),
       closeTo(0.3, 1e-9),
     );
-    // Mese chiuso, tracciamento iniziato prima: tutti i 30 giorni.
     expect(
       month.dailyAverage(
         today: DateTime(2026, 11, 1),

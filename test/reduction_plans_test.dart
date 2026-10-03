@@ -445,7 +445,6 @@ p1,12,7,8,2026-04-01T00:00:00.000Z
     appNow = () => now;
     addTearDown(() => appNow = DateTime.now);
 
-    // Due settimane a 10 al giorno, poi il piano.
     String entry(String id, DateTime t) => jsonEncode(<String, dynamic>{
           'id': id,
           'timestamp': t.toIso8601String(),
@@ -459,7 +458,6 @@ p1,12,7,8,2026-04-01T00:00:00.000Z
           entry('b$d-$i', DateTime(2026, 8, 19 + d, 9 + i)),
     ];
     SharedPreferences.setMockInitialValues(<String, Object>{
-      // Senza scorta, altrimenti dopo 20 registrazioni la confezione finisce.
       'tracked_products_v1': jsonEncode([
         {..._product(id: 'p1', name: 'P'), 'tracksInventory': false},
       ]),
@@ -472,8 +470,6 @@ p1,12,7,8,2026-04-01T00:00:00.000Z
     await provider.setReductionPlan(targetPerDay: 5, totalWeeks: 4);
     expect(provider.reductionPlanForProduct('p1')!.startAverage, 10);
 
-    // Una settimana dopo a 5 al giorno: la media di tutta la cronologia
-    // sarebbe ancora ~8,6, quella degli ultimi 7 giorni e' 5.
     now = DateTime(2026, 9, 8, 20);
     for (var d = 0; d < 7; d++) {
       now = DateTime(2026, 9, 2 + d, 12);

@@ -15,7 +15,7 @@ import 'screens/onboarding_screen.dart';
 import 'screens/product_setup_screen.dart';
 import 'theme/app_theme.dart';
 
-// Avvio
+// --- Avvio ---
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,7 +34,7 @@ Future<void> main() async {
 
 enum _BootstrapTarget { onboarding, setup, home }
 
-// App
+// --- App ---
 
 class MyTrackingApp extends StatefulWidget {
   const MyTrackingApp({super.key});
@@ -105,7 +105,7 @@ class _MyTrackingAppState extends State<MyTrackingApp>
 
 }
 
-// Schermata di caricamento
+// --- Schermata di caricamento ---
 
 class _AppBootstrapScreen extends StatefulWidget {
   const _AppBootstrapScreen();

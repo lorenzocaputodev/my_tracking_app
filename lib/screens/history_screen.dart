@@ -240,8 +240,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 decoration: AppDecorations.card(context.colors),
                 child: WeekBars(
                   entries: chartEntries,
-                  // Il limite e' di un prodotto: con tutti i prodotti non
-                  // avrebbe senso.
                   dailyLimit: effectiveProductId == null
                       ? 0
                       : provider.products
@@ -283,7 +281,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 }
 
-// Filtri
+// --- Filtri ---
 
 class _HistoryFiltersCard extends StatelessWidget {
   final MyTrackingProvider provider;
@@ -394,7 +392,7 @@ class _HistoryFiltersCard extends StatelessWidget {
   }
 }
 
-// Statistiche
+// --- Statistiche ---
 
 class _StatsPanel extends StatefulWidget {
   final MyTrackingProvider provider;
@@ -1206,7 +1204,7 @@ class _DayHighlight extends StatelessWidget {
   }
 }
 
-// Grafici
+// --- Grafici ---
 
 double _niceYInterval(double maxY) {
   if (maxY <= 4) return 1;
@@ -1338,7 +1336,6 @@ class _MonthlyChart extends StatelessWidget {
                           reservedSize: _yAxisReservedSize(maxY),
                           interval: yInterval,
                           getTitlesWidget: (value, meta) {
-                            // Lo zero finirebbe sopra la prima data dell'asse x.
                             if (value == meta.min) {
                               return const SizedBox.shrink();
                             }
@@ -1444,7 +1441,7 @@ class _MonthlyChart extends StatelessWidget {
   }
 }
 
-// Utilità
+// --- Utilità ---
 
 String _periodPresetLabel(_HistoryPeriodPreset preset) {
   return switch (preset) {

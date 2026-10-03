@@ -3,12 +3,9 @@ import 'calendar_days.dart';
 
 enum HistoryGrouping { days, weeks, months }
 
-/// Un periodo della cronologia (giorno, settimana o mese) con le sue voci,
-/// dalla piu' recente alla piu' vecchia.
 class HistoryPeriod {
   final DateTime start;
 
-  /// Primo giorno escluso: il periodo copre `[start, end)`.
   final DateTime end;
   final List<SmokeEntry> entries;
 
@@ -26,7 +23,6 @@ class HistoryPeriod {
 
   bool contains(DateTime t) => !t.isBefore(start) && t.isBefore(end);
 
-  /// Conteggi per giorno della settimana, da lunedi' a domenica.
   List<int> get perWeekday {
     final counts = List<int>.filled(7, 0);
     for (final e in entries) {
@@ -35,9 +31,6 @@ class HistoryPeriod {
     return counts;
   }
 
-  /// Media giornaliera sui giorni di calendario effettivamente coperti:
-  /// dal primo giorno tracciato (se cade dentro il periodo) fino a oggi (se
-  /// il periodo e' in corso). I giorni senza registrazioni contano come zero.
   double dailyAverage({
     required DateTime today,
     required DateTime trackingStart,
@@ -79,8 +72,6 @@ DateTime periodStart(DateTime timestamp, HistoryGrouping grouping) {
   };
 }
 
-/// Costruito sui campi di data e non sommando una Duration, cosi' il cambio
-/// dell'ora legale non sposta il confine.
 DateTime periodEnd(DateTime start, HistoryGrouping grouping) {
   return switch (grouping) {
     HistoryGrouping.days => DateTime(start.year, start.month, start.day + 1),

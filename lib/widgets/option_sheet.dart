@@ -10,7 +10,6 @@ class SheetOption<T> {
   final String? subtitle;
   final IconData? icon;
 
-  /// Testo nel campo chiuso, se diverso da [label].
   final String? fieldLabel;
 
   const SheetOption(
@@ -22,9 +21,6 @@ class SheetOption<T> {
   });
 }
 
-/// Scelta da un elenco, dal basso, con le stesse righe delle impostazioni.
-/// Unico modo di scegliere fra opzioni nell'app: prodotto in uso, filtro
-/// della cronologia, frequenza del promemoria, minuti di vita persi.
 Future<T?> showOptionSheet<T>(
   BuildContext context, {
   required String title,

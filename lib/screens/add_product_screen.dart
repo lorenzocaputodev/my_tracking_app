@@ -22,7 +22,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
   final _minutesCtrl = TextEditingController(text: '11');
   final _formKey = GlobalKey<FormState>();
 
-  // Stessi valori iniziali della configurazione al primo avvio.
   int _dailyGoal = 10;
   bool _isSaving = false;
   bool _tracksInventory = true;

@@ -15,8 +15,6 @@ import '../widgets/option_sheet.dart';
 import '../widgets/product_configuration_form.dart';
 import '../widgets/save_bar.dart';
 
-/// Scorta e parametri di un prodotto, anche se non e' quello in uso.
-/// "Salva" compare in una barra fissa solo quando c'e' qualcosa da salvare.
 class ProductSettingsScreen extends StatefulWidget {
   final String productId;
 
@@ -61,8 +59,6 @@ class _ProductSettingsScreenState extends State<ProductSettingsScreen> {
       .cast<TrackedProduct?>()
       .firstWhere((p) => p?.id == widget.productId, orElse: () => null);
 
-  /// Stato del modulo in una stringa: se differisce da quello caricato ci
-  /// sono modifiche da salvare.
   String _snapshot() => [
         _nameCtrl.text.trim(),
         _packCostCtrl.text.trim(),
@@ -307,7 +303,7 @@ class _ProductSettingsScreenState extends State<ProductSettingsScreen> {
   }
 }
 
-// Scorta
+// --- Scorta ---
 
 class _StockCard extends StatelessWidget {
   final TrackedProduct product;

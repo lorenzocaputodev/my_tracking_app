@@ -9,8 +9,6 @@ import 'tappable_card.dart';
 class SettingsSectionLabel extends StatelessWidget {
   final String text;
 
-  /// Rientro a sinistra: 4 sopra una card, 0 in un modulo, dove le altre
-  /// etichette partono dal bordo.
   final double inset;
 
   const SettingsSectionLabel(this.text, {super.key, this.inset = 4});
@@ -24,11 +22,9 @@ class SettingsSectionLabel extends StatelessWidget {
   }
 }
 
-/// Card che raccoglie piu' righe, separate da un filo.
 class SettingsGroup extends StatelessWidget {
   final List<Widget> children;
 
-  /// Il filo parte dal testo: 56 con l'icona a sinistra, 16 senza.
   final double dividerIndent;
 
   const SettingsGroup({
@@ -63,7 +59,6 @@ class SettingsRow extends StatelessWidget {
   final String title;
   final String? subtitle;
 
-  /// Senza trailing la riga mostra una freccia se e' toccabile.
   final Widget? trailing;
   final VoidCallback? onTap;
   final Color? color;

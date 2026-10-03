@@ -3,9 +3,6 @@ import 'package:flutter/material.dart';
 import '../theme/app_fonts.dart';
 import '../theme/theme_context.dart';
 
-/// Barra fissa in fondo ai moduli. Con [message] e [onCancel] mostra
-/// "Modifiche non salvate · Annulla · Salva"; senza, solo il pulsante a
-/// tutta larghezza.
 class SaveBar extends StatelessWidget {
   final String saveLabel;
   final VoidCallback? onSave;

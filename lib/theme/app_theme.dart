@@ -93,8 +93,6 @@ abstract final class AppTheme {
           ),
         ),
       ),
-      // Il default Material e' chiaro anche nel tema scuro: qui l'avviso
-      // resta una superficie dell'app, con l'azione nel colore d'azione.
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
         backgroundColor: isDark ? colors.surfaceElevated : colors.textPrimary,

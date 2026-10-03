@@ -11,9 +11,6 @@ abstract final class AppTextStyles {
         color: color,
       );
 
-
-
-
   static TextStyle microCaps(Color color) => TextStyle(
         fontFamily: AppFonts.sans,
         fontSize: 9,

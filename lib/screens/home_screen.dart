@@ -222,11 +222,6 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  /// Adatta la parte centrale della home allo spazio che resta sopra le
-  /// card. Con posto a sufficienza tutto resta com'e' (spazi di 40 e 30);
-  /// quando manca (piu' prodotti, banner del limite) riduce prima gli spazi,
-  /// poi toglie la riga del costo, poi rimpicciolisce il contatore, e solo
-  /// alla fine toglie il suggerimento. "HO USATO" non cambia mai dimensione.
   ({
     double above,
     double below,
@@ -245,7 +240,6 @@ class HomeScreen extends StatelessWidget {
     var showCost = true;
     var counterSize = 92.0;
 
-    // Contatore con OGGI, riga ULTIMA, pulsante, e le parti facoltative.
     double content() =>
         (counterSize + 16) * t +
         8 +
@@ -253,7 +247,6 @@ class HomeScreen extends StatelessWidget {
         buttonSize +
         (showInsight ? 10 + 36 * t : 0) +
         (showCost ? 16 * t : 0);
-    // Le altezze del testo sono stime: 8 di margine per non toccare la card.
     double needed() => content() + minAbove + (showCost ? minBelow : 0) + 8;
 
     if (needed() > available) showCost = false;
@@ -272,9 +265,6 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  /// Dopo ogni tocco, per qualche secondo, si puo' annullare: rimedia al
-  /// tocco di troppo senza impedire di registrarne piu' di fila, come fa chi
-  /// segna tutto a fine giornata.
   void _showUndoLogged(
     BuildContext context,
     MyTrackingProvider provider,
@@ -286,8 +276,6 @@ class HomeScreen extends StatelessWidget {
         SnackBar(
           content: Text('Registrato · ${provider.dailyCount} oggi'),
           duration: const Duration(seconds: 3),
-          // Con un'azione Flutter lo lascerebbe a schermo finche' non lo si
-          // chiude: qui deve sparire da solo.
           persist: false,
           action: SnackBarAction(
             label: 'Annulla',
@@ -407,7 +395,7 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-// Componenti della home
+// --- Componenti della home ---
 
 class _DailyLimitBanner extends StatelessWidget {
   final int count;
@@ -507,8 +495,6 @@ class _OpenPackButton extends StatelessWidget {
   }
 }
 
-/// Prodotto in uso e scorta, in un'unica pillola. Con piu' prodotti si
-/// tocca per cambiarlo.
 class _ProductChip extends StatelessWidget {
   final MyTrackingProvider provider;
   const _ProductChip({required this.provider});

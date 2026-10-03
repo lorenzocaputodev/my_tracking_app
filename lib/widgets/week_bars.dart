@@ -11,12 +11,6 @@ import '../utils/calendar_days.dart';
 
 const _weekdays = ['LUN', 'MAR', 'MER', 'GIO', 'VEN', 'SAB', 'DOM'];
 
-/// Registrazioni degli ultimi sette giorni, oggi compreso: una barra per
-/// giorno con il totale sopra. Con un limite giornaliero mostra la linea
-/// del limite e colora in ambra i giorni che l'hanno superato.
-///
-/// Usa i totali giornalieri e non gli orari, che non sono affidabili per
-/// chi registra tutto insieme a fine giornata.
 class WeekBars extends StatelessWidget {
   final List<SmokeEntry> entries;
   final int dailyLimit;
@@ -29,12 +23,8 @@ class WeekBars extends StatelessWidget {
     this.barHeight = 40,
   });
 
-  /// Margine sopra la barra piu' alta, perche' la linea del limite resti
-  /// visibile anche quando il limite e' il massimo.
   static const _headroom = 6.0;
 
-  /// Totale e nome del giorno, sotto le barre: cosi' la linea del limite
-  /// non attraversa mai del testo.
   static const _labelsHeight = 34.0;
 
   static List<int> countsFor(List<SmokeEntry> entries, DateTime now) {
@@ -92,8 +82,6 @@ class WeekBars extends StatelessWidget {
                 Positioned(
                   left: 0,
                   right: 0,
-                  // Stessa formula dell'altezza delle barre: una barra pari
-                  // al limite arriva esattamente alla linea.
                   bottom: _labelsHeight + 6 + (barHeight - 6) * dailyLimit / scale,
                   child: Row(
                     children: [

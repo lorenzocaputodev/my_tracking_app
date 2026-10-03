@@ -13,7 +13,7 @@ import '../utils/history_grouping.dart';
 import 'pill_selector.dart';
 import 'tappable_card.dart';
 
-// Etichette di date e periodi
+// --- Etichette di date e periodi ---
 
 const _months = [
   'Gennaio',
@@ -45,8 +45,6 @@ const _monthsShort = [
 ];
 const _weekdays = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'];
 
-/// Intervallo della settimana, ristretto al filtro del periodo: con "7
-/// giorni" la settimana iniziata prima mostra solo i giorni inclusi.
 String _weekLabel(HistoryPeriod p, DateTimeRange? range) {
   var first = p.start;
   var last = DateTime(p.end.year, p.end.month, p.end.day - 1);
@@ -73,17 +71,12 @@ String _monthLabel(DateTime d) => '${_months[d.month - 1]} ${d.year}';
 String _hhmm(DateTime t) =>
     '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
 
-// Elenco
+// --- Elenco ---
 
-/// Elenco della cronologia raggruppato per giorni, settimane o mesi.
-/// Toccando un mese si vedono le sue settimane, toccando una settimana i
-/// suoi giorni; toccando un giorno si aprono le singole registrazioni.
 class HistoryPeriodList extends StatefulWidget {
   final List<SmokeEntry> entries;
   final MyTrackingProvider provider;
 
-  /// Periodo del filtro, giorni inclusi: le etichette e le medie non lo
-  /// oltrepassano.
   final DateTimeRange? range;
 
   const HistoryPeriodList({
@@ -126,7 +119,6 @@ class _HistoryPeriodListState extends State<HistoryPeriodList> {
             .toList();
     final periods = groupHistory(entries, _grouping);
     final range = widget.range;
-    // Con prodotti diversi le quantita' non si sommano come "unita'".
     final unit = widget.entries.map((e) => e.productId).toSet().length > 1
         ? 'registrazioni'
         : 'unità';
@@ -298,7 +290,7 @@ class _HistoryPeriodListState extends State<HistoryPeriodList> {
   }
 }
 
-// Righe
+// --- Righe ---
 
 class _SummaryRow extends StatelessWidget {
   final String title;
@@ -403,7 +395,6 @@ class _EntryRow extends StatelessWidget {
       key: Key(entry.id),
       direction: DismissDirection.endToStart,
       onDismissed: (_) async {
-        // Il messenger va preso prima dell'attesa: la riga sparisce.
         final messenger = ScaffoldMessenger.of(context);
         final deleted = await provider.deleteEntry(entry.id);
         if (deleted == null) return;
@@ -413,8 +404,6 @@ class _EntryRow extends StatelessWidget {
             SnackBar(
               content: const Text('Registrazione rimossa'),
               duration: const Duration(seconds: 4),
-              // Con un'azione Flutter lo lascerebbe a schermo finche' non lo
-              // si chiude: qui deve sparire da solo.
               persist: false,
               action: SnackBarAction(
                 label: 'Annulla',

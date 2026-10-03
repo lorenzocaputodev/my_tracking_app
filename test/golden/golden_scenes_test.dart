@@ -29,7 +29,6 @@ String _products({bool tracksInventory = true}) => jsonEncode([
       },
     ]);
 
-/// Venerdi' a mezzogiorno: le scene non devono dipendere dal giorno reale.
 final _now = DateTime(2026, 9, 25, 12);
 
 String _entry(String id, DateTime timestamp) => jsonEncode(<String, dynamic>{
@@ -43,8 +42,6 @@ String _entry(String id, DateTime timestamp) => jsonEncode(<String, dynamic>{
 List<String> _entriesToday(int count) =>
     List.generate(count, (i) => _entry('e$i', _now));
 
-/// Sei giorni precedenti, registrati tutti alle 22 come fa chi segna a fine
-/// giornata; due sopra il limite di 10.
 List<String> _entriesPastWeek() {
   const perDay = [7, 9, 12, 6, 8, 11];
   return [

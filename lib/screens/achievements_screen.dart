@@ -72,7 +72,7 @@ class AchievementsScreen extends StatelessWidget {
   }
 }
 
-// Avanzamento e piano di riduzione
+// --- Avanzamento e piano di riduzione ---
 
 class _ProgressBanner extends StatelessWidget {
   final int unlocked;
@@ -401,7 +401,7 @@ class _ReductionCard extends StatelessWidget {
   }
 }
 
-// Badge
+// --- Badge ---
 
 class _BadgeGrid extends StatelessWidget {
   final List<Achievement> achievements;
@@ -602,7 +602,7 @@ class _BadgeCard extends StatelessWidget {
   }
 }
 
-// Pannello del piano di riduzione
+// --- Pannello del piano di riduzione ---
 
 void _showPlanSheet(
   BuildContext context,
@@ -761,7 +761,7 @@ void _showPlanSheet(
   );
 }
 
-// Componenti comuni
+// --- Componenti comuni ---
 
 class _SectionTitle extends StatelessWidget {
   final String label;

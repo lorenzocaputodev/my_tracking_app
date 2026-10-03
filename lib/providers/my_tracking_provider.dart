@@ -89,10 +89,10 @@ class WeeklyTrend {
   }
 }
 
-// Provider
+// --- Provider ---
 
 class MyTrackingProvider extends ChangeNotifier {
-  // Chiavi storage
+  // --- Chiavi storage ---
 
   static const _keyProducts = 'tracked_products_v1';
   static const _keyActiveProduct = 'active_product_id';
@@ -112,7 +112,7 @@ class MyTrackingProvider extends ChangeNotifier {
   static const _keyWidgetProductSnapshots = 'widget_product_snapshots_v2';
   static const _keyWidgetPendingEntries = 'widget_pending_entries_v1';
 
-  // Stato
+  // --- Stato ---
   List<TrackedProduct> _products = [];
   String _activeProductId = '';
   List<SmokeEntry> _entries = [];
@@ -163,7 +163,7 @@ class MyTrackingProvider extends ChangeNotifier {
     }
   }
 
-  // Getter prodotto attivo
+  // --- Getter prodotto attivo ---
 
   TrackedProduct get activeProduct {
     for (final p in _products) {
@@ -259,7 +259,7 @@ class MyTrackingProvider extends ChangeNotifier {
       ? activeProduct.dailyLimit - dailyCount
       : null;
 
-  // Statistiche per prodotto
+  // --- Statistiche per prodotto ---
 
   double dailyAverageForProduct(String productId) {
     final list = entriesForProduct(productId);
@@ -269,11 +269,6 @@ class MyTrackingProvider extends ChangeNotifier {
 
   double get dailyAverage => dailyAverageForProduct(_activeProductId);
 
-  /// Media giornaliera degli ultimi [days] giorni di calendario, oggi
-  /// compreso, contando anche i giorni senza registrazioni. Se il prodotto
-  /// e' tracciato da meno tempo usa solo i giorni trascorsi dalla prima
-  /// registrazione. E' la misura del piano di riduzione: partenza,
-  /// avanzamento e badge usano tutti questa.
   double recentDailyAverage(String productId, {int days = 14}) {
     final list = entriesForProduct(productId);
     if (list.isEmpty) return 0;
@@ -463,7 +458,7 @@ class MyTrackingProvider extends ChangeNotifier {
     }
   }
 
-  // Init
+  // --- Init ---
 
   Future<void> init() async {
     final prefs = await SharedPreferences.getInstance();
@@ -533,7 +528,7 @@ class MyTrackingProvider extends ChangeNotifier {
         await _syncNotifications();
       });
 
-  // Tema
+  // --- Tema ---
 
   Future<void> setThemePreference(AppThemePreference value) =>
       _serialized(() async {
@@ -543,7 +538,7 @@ class MyTrackingProvider extends ChangeNotifier {
         await prefs.setString(_keyTheme, value.name);
       });
 
-  // Prodotti
+  // --- Prodotti ---
 
   Future<void> setActiveProduct(String id) => _serialized(() async {
         if (!_products.any((p) => p.id == id && !p.isArchived)) return;
@@ -687,10 +682,8 @@ class MyTrackingProvider extends ChangeNotifier {
         notifyListeners();
       });
 
-  // Voci cronologia
+  // --- Voci cronologia ---
 
-  /// Registra un utilizzo e restituisce la voce creata, oppure null se il
-  /// prodotto non esiste, e' archiviato o ha la scorta a zero.
   Future<SmokeEntry?> logEntry({String? productId}) => _serialized(() async {
         final pid = productId ?? _activeProductId;
         final pIdx = _products.indexWhere((p) => p.id == pid);
@@ -728,8 +721,6 @@ class MyTrackingProvider extends ChangeNotifier {
         await _persistProducts();
       });
 
-  /// Toglie una voce e, se il prodotto usa la scorta, le restituisce
-  /// un'unita'. Restituisce cio' che serve a [restoreEntry] per annullare.
   Future<({SmokeEntry entry, bool stockReturned})?> deleteEntry(
     String id,
   ) => _serialized(() async {
@@ -753,8 +744,6 @@ class MyTrackingProvider extends ChangeNotifier {
         return (entry: entry, stockReturned: stockReturned);
       });
 
-  /// Annulla [deleteEntry]: rimette la voce al suo posto nella cronologia e
-  /// riprende l'unita' eventualmente restituita alla scorta.
   Future<void> restoreEntry(
     ({SmokeEntry entry, bool stockReturned}) deleted,
   ) => _serialized(() async {
@@ -782,7 +771,7 @@ class MyTrackingProvider extends ChangeNotifier {
         await _persist();
       });
 
-  // Piano di riduzione
+  // --- Piano di riduzione ---
 
   Future<void> setReductionPlan({
     String? productId,
@@ -817,7 +806,7 @@ class MyTrackingProvider extends ChangeNotifier {
         notifyListeners();
       });
 
-  // Achievement
+  // --- Achievement ---
 
   bool _evaluateAchievements({bool persist = true}) {
     bool changed = false;
@@ -865,8 +854,6 @@ class MyTrackingProvider extends ChangeNotifier {
       )) {
         continue;
       }
-      // Serve almeno una settimana di piano, altrimenti gli ultimi 7 giorni
-      // sono quelli di prima e il confronto non dice nulla.
       if (appNow().difference(plan.startDate).inDays < 7) continue;
       final currentAverage =
           recentDailyAverage(plan.productId, days: 7);
@@ -1102,7 +1089,7 @@ class MyTrackingProvider extends ChangeNotifier {
     await prefs.remove(_keyGlobalDailySummarySettingsLegacy);
   }
 
-  // Export e import
+  // --- Export e import ---
 
   Future<String> exportFullBackupCsv() async {
     final prefs = await SharedPreferences.getInstance();
@@ -1510,7 +1497,7 @@ class MyTrackingProvider extends ChangeNotifier {
       ..addAll(_normalizeReductionPlans(loadedPlans));
   }
 
-  // Aggregazioni e persistenza
+  // --- Aggregazioni e persistenza ---
 
   int _countTodayForProduct(String productId) {
     final now = appNow();

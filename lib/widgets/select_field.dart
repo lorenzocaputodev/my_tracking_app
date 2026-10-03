@@ -5,8 +5,6 @@ import '../theme/app_fonts.dart';
 import '../theme/theme_context.dart';
 import 'option_sheet.dart';
 
-/// Campo di scelta con l'aspetto dei campi di testo: al tocco apre
-/// [showOptionSheet] invece del menu a tendina Material.
 class SelectField<T> extends StatelessWidget {
   final IconData icon;
   final String sheetTitle;

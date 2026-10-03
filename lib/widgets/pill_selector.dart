@@ -5,15 +5,11 @@ import '../theme/app_fonts.dart';
 import '../theme/app_motion.dart';
 import '../theme/theme_context.dart';
 
-/// Selettore a pillole, per poche opzioni brevi. La scelta usa il colore
-/// d'azione dell'app, lo stesso di "HO USATO" e di "Salva", leggibile in
-/// entrambi i temi.
 class PillSelector<T> extends StatelessWidget {
   final Map<T, String> options;
   final T value;
   final ValueChanged<T> onChanged;
 
-  /// Occupa tutta la larghezza, dividendola in parti uguali.
   final bool expand;
 
   const PillSelector({

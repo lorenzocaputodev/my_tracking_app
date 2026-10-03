@@ -31,9 +31,6 @@ String _intervalLabel(int minutes) => reminderIntervalOptions
     )
     .label;
 
-/// Righe "Promemoria" e "Frequenza", da mettere in un [SettingsGroup]. Le
-/// usano sia la configurazione iniziale sia le impostazioni, e si salvano
-/// subito: non c'e' un pulsante da premere.
 List<Widget> reminderRows(BuildContext context) {
   final provider = context.watch<MyTrackingProvider>();
   final reminders = provider.globalReminderSettings;

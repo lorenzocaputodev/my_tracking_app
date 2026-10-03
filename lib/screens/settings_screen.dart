@@ -15,8 +15,6 @@ import 'archived_products_screen.dart';
 import 'product_settings_screen.dart';
 import '../theme/app_icons.dart';
 
-/// Impostazioni generali: prodotti, preferenze dell'app e dati. I parametri
-/// di un prodotto stanno nella sua pagina, [ProductSettingsScreen].
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
@@ -36,8 +34,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
         MaterialPageRoute(builder: (_) => screen),
       );
 
-  /// Un prodotto nuovo diventa quello in uso: lo diciamo, altrimenti la
-  /// home cambierebbe senza spiegazione.
   Future<void> _addProduct() async {
     final added = await Navigator.of(context).push<bool>(
       MaterialPageRoute(builder: (_) => const AddProductScreen()),
@@ -47,7 +43,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _showFeedback('$name aggiunto e in uso');
   }
 
-  // Backup
+  // --- Backup ---
 
   String _backupFileName() {
     final now = DateTime.now();
@@ -140,9 +136,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  /// Un backup senza cronologia sostituisce comunque i dati attuali: senza
-  /// questa conferma l'utente non ha modo di accorgersi di aver scelto il
-  /// file sbagliato.
   Future<bool> _confirmEmptyHistory() async {
     final ok = await showDialog<bool>(
       context: context,

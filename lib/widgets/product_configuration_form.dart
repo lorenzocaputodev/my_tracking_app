@@ -9,7 +9,6 @@ import '../theme/app_text_styles.dart';
 import '../theme/theme_context.dart';
 import 'pill_selector.dart';
 
-
 class ProductConfigurationForm extends StatelessWidget {
   final bool isDark;
   final Color accentColor;

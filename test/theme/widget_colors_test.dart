@@ -6,8 +6,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:my_tracking_app/theme/app_colors.dart';
 import 'package:my_tracking_app/theme/app_stat_colors.dart';
 
-/// Il widget Android e' nativo e non legge le ThemeExtension: replica i token
-/// del tema scuro in `values/colors.xml`. Questa e' la corrispondenza.
 final Map<String, Color> _widgetTokens = {
   'widget_scaffold': AppColors.dark.scaffold,
   'widget_surface': AppColors.dark.surface,

@@ -54,9 +54,6 @@ class ProductNotificationService {
   static bool _mainInitialized = false;
   static bool _backgroundInitialized = false;
 
-  /// Sagoma bianca del logo su fondo trasparente: Android colora da se' le
-  /// icone della barra di stato e con un'immagine a colori mostrerebbe un
-  /// disco bianco pieno.
   static const _statusBarIcon = '@drawable/ic_stat_logo';
 
   static bool get isSupported => !kIsWeb && Platform.isAndroid;

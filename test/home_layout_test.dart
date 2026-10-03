@@ -39,9 +39,6 @@ void main() {
   setUpAll(() => appNow = () => _now);
   tearDownAll(() => appNow = DateTime.now);
 
-  // Il caso piu' affollato: due prodotti (selettore in alto), scorta,
-  // limite superato (banner), suggerimento e card dei 7 giorni, sullo
-  // schermo del Motorola Edge 50 Fusion con barre di sistema.
   testWidgets('HO USATO resta intero sopra la card dei 7 giorni', (
     tester,
   ) async {
@@ -86,7 +83,6 @@ void main() {
           .ancestor(of: find.byType(WeekBars), matching: find.byType(Container))
           .first,
     );
-    // La card ha 8 di margine sopra: il bordo visibile e' a week.top + 8.
     expect(
       week.top + 8 - button.bottom,
       greaterThanOrEqualTo(8),
