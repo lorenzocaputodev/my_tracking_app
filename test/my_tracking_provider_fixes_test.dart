@@ -189,12 +189,10 @@ void main() {
 
       expect(provider.activeProduct.id, first.id);
       expect(provider.totalCost, closeTo(1.0, 1e-9));
-      expect(provider.totalTimeLost, const Duration(minutes: 5));
 
       await provider.setActiveProduct(second.id);
 
       expect(provider.totalCost, closeTo(4.0, 1e-9));
-      expect(provider.totalTimeLost, const Duration(minutes: 14));
 
       provider.dispose();
     });

@@ -217,10 +217,6 @@ class MyTrackingProvider extends ChangeNotifier {
       todayEntries.fold(0, (sum, entry) => sum + entry.minutesLost);
   double get totalCost => entriesForProduct(_activeProductId)
       .fold(0.0, (sum, e) => sum + e.costDeducted);
-  Duration get totalTimeLost => Duration(
-        minutes: entriesForProduct(_activeProductId)
-            .fold(0, (sum, e) => sum + e.minutesLost),
-      );
 
   String get timeSinceLastEntry {
     final sorted = entriesForProduct(_activeProductId)
@@ -261,22 +257,19 @@ class MyTrackingProvider extends ChangeNotifier {
 
   // --- Statistiche per prodotto ---
 
-  double dailyAverageForProduct(String productId) {
+  DateTime? _firstDayForProduct(String productId) {
     final list = entriesForProduct(productId);
-    if (list.isEmpty) return 0;
-    return list.length / _distinctDays(list).length;
-  }
-
-  double get dailyAverage => dailyAverageForProduct(_activeProductId);
-
-  double recentDailyAverage(String productId, {int days = 14}) {
-    final list = entriesForProduct(productId);
-    if (list.isEmpty) return 0;
-    final today = dateOnly(appNow());
-    var start = addDays(today, -(days - 1));
-    final first = list
+    if (list.isEmpty) return null;
+    return list
         .map((e) => dateOnly(e.timestamp))
         .reduce((a, b) => a.isBefore(b) ? a : b);
+  }
+
+  double recentDailyAverage(String productId, {int days = 14}) {
+    final first = _firstDayForProduct(productId);
+    if (first == null) return 0;
+    final today = dateOnly(appNow());
+    var start = addDays(today, -(days - 1));
     if (first.isAfter(start)) start = first;
     return averageDailyCountForRange(
       productId: productId,
@@ -285,74 +278,19 @@ class MyTrackingProvider extends ChangeNotifier {
     );
   }
 
-  int? peakHourForProduct(String productId) {
-    final list = entriesForProduct(productId);
-    if (list.isEmpty) return null;
-    final counts = List.filled(24, 0);
-    for (final e in list) {
-      counts[e.timestamp.toLocal().hour]++;
-    }
-    int maxVal = 0, maxIdx = 0;
-    for (int i = 0; i < 24; i++) {
-      if (counts[i] > maxVal) {
-        maxVal = counts[i];
-        maxIdx = i;
-      }
-    }
-    return maxVal > 0 ? maxIdx : null;
-  }
-
-  MapEntry<DateTime, int>? worstDayForProduct(String productId) {
-    final list = entriesForProduct(productId);
-    if (list.isEmpty) return null;
-    final counts = <DateTime, int>{};
-    for (final e in list) {
-      final t = e.timestamp.toLocal();
-      final day = DateTime(t.year, t.month, t.day);
-      counts[day] = (counts[day] ?? 0) + 1;
-    }
-    return counts.entries.reduce((a, b) => a.value >= b.value ? a : b);
-  }
-
-  List<MapEntry<DateTime, int>> dailyCountsLastDaysForProduct(
-    String productId,
-    int n,
-  ) {
-    final today = dateOnly(appNow());
-    final list = entriesForProduct(productId);
-    return List.generate(n, (i) {
-      final day = addDays(today, -(n - 1 - i));
-      final count = list.where((e) {
-        final t = e.timestamp.toLocal();
-        return t.year == day.year && t.month == day.month && t.day == day.day;
-      }).length;
-      return MapEntry(day, count);
-    });
-  }
-
   int currentStreakForProduct(String productId) {
     final list = entriesForProduct(productId);
     if (list.isEmpty) return 0;
-    final now = appNow();
     int streak = 0;
-    DateTime day = DateTime(now.year, now.month, now.day);
-    if (!_hasEntriesOnForProduct(productId, day)) {
+    var day = dateOnly(appNow());
+    if (_countOnForProduct(productId, day) == 0) {
       day = addDays(day, -1);
     }
-    while (_hasEntriesOnForProduct(productId, day)) {
+    while (_countOnForProduct(productId, day) > 0) {
       streak++;
       day = addDays(day, -1);
     }
     return streak;
-  }
-
-  DateTime? _firstEntryDateForProduct(String productId) {
-    final list = entriesForProduct(productId);
-    if (list.isEmpty) return null;
-    final sorted = [...list]
-      ..sort((a, b) => a.timestamp.compareTo(b.timestamp));
-    final t = sorted.first.timestamp.toLocal();
-    return DateTime(t.year, t.month, t.day);
   }
 
   int underLimitStreakForProduct(String productId) {
@@ -364,7 +302,7 @@ class MyTrackingProvider extends ChangeNotifier {
       }
     }
     if (p == null || p.dailyLimit <= 0) return 0;
-    final first = _firstEntryDateForProduct(productId);
+    final first = _firstDayForProduct(productId);
     if (first == null) return 0;
     final limit = p.dailyLimit;
     int streak = 0;
@@ -396,12 +334,6 @@ class MyTrackingProvider extends ChangeNotifier {
 
   List<ReductionPlan> get reductionPlans =>
       List.unmodifiable(_reductionPlans.values);
-
-  int? get peakHour => peakHourForProduct(_activeProductId);
-  MapEntry<DateTime, int>? get worstDay => worstDayForProduct(_activeProductId);
-  List<MapEntry<DateTime, int>> dailyCountsLastDays(int n) =>
-      dailyCountsLastDaysForProduct(_activeProductId, n);
-  int get underLimitStreak => underLimitStreakForProduct(_activeProductId);
 
   HomeInsight? get homeInsight {
     final progress = reductionProgressForProduct(_activeProductId);
@@ -461,20 +393,26 @@ class MyTrackingProvider extends ChangeNotifier {
   // --- Init ---
 
   Future<void> init() async {
+    await _reloadFromPrefs();
+    _isLoading = false;
+    notifyListeners();
+    await syncWidgets();
+    await _syncNotifications();
+  }
+
+  Future<void> _reloadFromPrefs() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.reload();
     _hydrateFromPrefs(prefs);
     final mergedPending = await _consumePendingWidgetEntries(prefs);
     final migratedPlan = _needsReductionPlanRewrite(prefs);
     final migratedGlobalReminder =
-        await _migrateLegacyGlobalReminderIfNeeded(prefs);
+        !prefs.containsKey(_keyGlobalReminderSettings);
 
     var achievementsChanged = false;
     try {
       achievementsChanged = _evaluateAchievements(persist: false);
     } catch (_) {}
-
-    _activeProductId = _normalizeActiveProductId(_activeProductId);
 
     if (achievementsChanged) {
       await _persistAchievements();
@@ -488,11 +426,6 @@ class MyTrackingProvider extends ChangeNotifier {
     if (migratedGlobalReminder) {
       await _persistGlobalReminderOnly(prefs);
     }
-
-    _isLoading = false;
-    notifyListeners();
-    await syncWidgets();
-    await _syncNotifications();
   }
 
   static AppThemePreference _parseTheme(String name) {
@@ -504,25 +437,7 @@ class MyTrackingProvider extends ChangeNotifier {
 
   Future<void> drainOnResume() => _serialized(() async {
         if (_isLoading) return;
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.reload();
-        _hydrateFromPrefs(prefs);
-        final mergedPending = await _consumePendingWidgetEntries(prefs);
-        final migratedPlan = _needsReductionPlanRewrite(prefs);
-        final migratedGlobalReminder =
-            await _migrateLegacyGlobalReminderIfNeeded(prefs);
-        if (_evaluateAchievements(persist: false)) {
-          await _persistAchievements();
-        }
-        if (mergedPending) {
-          await _persistEntriesOnly(prefs);
-        }
-        if (migratedPlan) {
-          await _persistReductionPlansOnly(prefs);
-        }
-        if (migratedGlobalReminder) {
-          await _persistGlobalReminderOnly(prefs);
-        }
+        await _reloadFromPrefs();
         notifyListeners();
         await syncWidgets();
         await _syncNotifications();
@@ -1013,22 +928,25 @@ class MyTrackingProvider extends ChangeNotifier {
 
   MapEntry<DateTime, int>? worstDayForEntries(List<SmokeEntry> entries) {
     if (entries.isEmpty) return null;
-    final counts = <DateTime, int>{};
-    for (final entry in entries) {
-      final day = dateOnly(entry.timestamp);
-      counts[day] = (counts[day] ?? 0) + 1;
-    }
-    return counts.entries.reduce((a, b) => a.value >= b.value ? a : b);
+    return _countsPerDay(entries)
+        .entries
+        .reduce((a, b) => a.value >= b.value ? a : b);
   }
 
   MapEntry<DateTime, int>? bestDayForEntries(List<SmokeEntry> entries) {
     if (entries.isEmpty) return null;
+    return _countsPerDay(entries)
+        .entries
+        .reduce((a, b) => a.value <= b.value ? a : b);
+  }
+
+  Map<DateTime, int> _countsPerDay(List<SmokeEntry> entries) {
     final counts = <DateTime, int>{};
     for (final entry in entries) {
       final day = dateOnly(entry.timestamp);
       counts[day] = (counts[day] ?? 0) + 1;
     }
-    return counts.entries.reduce((a, b) => a.value <= b.value ? a : b);
+    return counts;
   }
 
   List<int> hourDistributionForEntries(List<SmokeEntry> entries) {
@@ -1062,12 +980,6 @@ class MyTrackingProvider extends ChangeNotifier {
   bool _needsReductionPlanRewrite(SharedPreferences prefs) {
     return prefs.containsKey(_keyReductionPlanLegacy) ||
         !prefs.containsKey(_keyReductionPlans);
-  }
-
-  Future<bool> _migrateLegacyGlobalReminderIfNeeded(
-    SharedPreferences prefs,
-  ) async {
-    return !prefs.containsKey(_keyGlobalReminderSettings);
   }
 
   Future<void> _persistReductionPlansOnly(SharedPreferences prefs) async {
@@ -1499,38 +1411,15 @@ class MyTrackingProvider extends ChangeNotifier {
 
   // --- Aggregazioni e persistenza ---
 
-  int _countTodayForProduct(String productId) {
-    final now = appNow();
-    return _entries.where((e) {
-      if (e.productId != productId) return false;
-      final t = e.timestamp.toLocal();
-      return t.year == now.year && t.month == now.month && t.day == now.day;
-    }).length;
-  }
+  int _countTodayForProduct(String productId) =>
+      _countOnForProduct(productId, dateOnly(appNow()));
 
-  int _countOnForProduct(String productId, DateTime day) {
-    return _entries.where((e) {
-      if (e.productId != productId) return false;
-      final t = e.timestamp.toLocal();
-      return t.year == day.year && t.month == day.month && t.day == day.day;
-    }).length;
-  }
+  int _countOnForProduct(String productId, DateTime day) => _entries
+      .where((e) => e.productId == productId && dateOnly(e.timestamp) == day)
+      .length;
 
-  bool _hasEntriesOnForProduct(String productId, DateTime day) =>
-      _entries.any((e) {
-        if (e.productId != productId) return false;
-        final t = e.timestamp.toLocal();
-        return t.year == day.year && t.month == day.month && t.day == day.day;
-      });
-
-  Set<DateTime> _distinctDays(List<SmokeEntry> entries) {
-    final days = <DateTime>{};
-    for (final e in entries) {
-      final t = e.timestamp.toLocal();
-      days.add(DateTime(t.year, t.month, t.day));
-    }
-    return days;
-  }
+  Set<DateTime> _distinctDays(List<SmokeEntry> entries) =>
+      entries.map((e) => dateOnly(e.timestamp)).toSet();
 
   String _normalizeActiveProductId(String candidate) {
     if (_products.any(
