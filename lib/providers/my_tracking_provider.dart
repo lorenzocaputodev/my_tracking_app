@@ -305,8 +305,10 @@ class MyTrackingProvider extends ChangeNotifier {
     final first = _firstDayForProduct(productId);
     if (first == null) return 0;
     final limit = p.dailyLimit;
+    final today = dateOnly(appNow());
+    if (_countOnForProduct(productId, today) >= limit) return 0;
     int streak = 0;
-    var day = dateOnly(appNow());
+    var day = addDays(today, -1);
     while (true) {
       if (day.isBefore(first)) break;
       final c = _countOnForProduct(productId, day);

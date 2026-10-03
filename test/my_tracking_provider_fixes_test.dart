@@ -210,6 +210,7 @@ void main() {
           _entry(id: 'e0', productId: 'p2', timestamp: _daysAgo(0)),
           _entry(id: 'e1', productId: 'p2', timestamp: _daysAgo(1)),
           _entry(id: 'e2', productId: 'p2', timestamp: _daysAgo(2)),
+          _entry(id: 'e3', productId: 'p2', timestamp: _daysAgo(3)),
         ],
       });
 

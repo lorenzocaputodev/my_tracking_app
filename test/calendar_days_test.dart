@@ -102,7 +102,7 @@ void main() {
     });
 
     test('il giorno sotto il limite dopo il cambio d\'ora conta', () async {
-      appNow = () => DateTime(2026, 3, 30, 12);
+      appNow = () => DateTime(2026, 3, 31, 12);
       final provider = await _providerWith([
         for (var i = 0; i < 5; i++) DateTime(2026, 3, 28, 10 + i),
         DateTime(2026, 3, 29, 12),
@@ -110,6 +110,33 @@ void main() {
       ]);
 
       expect(provider.underLimitStreakForProduct('p1'), 2);
+
+      provider.dispose();
+    });
+  });
+
+  group('giorni sotto il limite', () {
+    test('la giornata in corso non conta finche non e finita', () async {
+      appNow = () => DateTime(2026, 10, 2, 8);
+      final provider = await _providerWith([DateTime(2026, 10, 2, 7)]);
+
+      expect(provider.underLimitStreakForProduct('p1'), 0);
+      expect(
+        provider.unlockedAchievements.map((a) => a.id.name),
+        isNot(contains('underLimit1')),
+      );
+
+      provider.dispose();
+    });
+
+    test('oltre il limite gia oggi la serie si azzera', () async {
+      appNow = () => DateTime(2026, 10, 2, 20);
+      final provider = await _providerWith([
+        DateTime(2026, 10, 1, 12),
+        for (var i = 0; i < 5; i++) DateTime(2026, 10, 2, 10 + i),
+      ]);
+
+      expect(provider.underLimitStreakForProduct('p1'), 0);
 
       provider.dispose();
     });
