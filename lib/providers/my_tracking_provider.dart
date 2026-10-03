@@ -283,14 +283,14 @@ class MyTrackingProvider extends ChangeNotifier {
   }
 
   int currentStreakForProduct(String productId) {
-    final list = entriesForProduct(productId);
-    if (list.isEmpty) return 0;
+    final counts = _countsPerDay(entriesForProduct(productId));
+    if (counts.isEmpty) return 0;
     int streak = 0;
     var day = dateOnly(appNow());
-    if (_countOnForProduct(productId, day) == 0) {
+    if (!counts.containsKey(day)) {
       day = addDays(day, -1);
     }
-    while (_countOnForProduct(productId, day) > 0) {
+    while (counts.containsKey(day)) {
       streak++;
       day = addDays(day, -1);
     }
@@ -306,17 +306,15 @@ class MyTrackingProvider extends ChangeNotifier {
       }
     }
     if (p == null || p.dailyLimit <= 0) return 0;
-    final first = _firstDayForProduct(productId);
-    if (first == null) return 0;
+    final counts = _countsPerDay(entriesForProduct(productId));
+    if (counts.isEmpty) return 0;
+    final first = counts.keys.reduce((a, b) => a.isBefore(b) ? a : b);
     final limit = p.dailyLimit;
     final today = dateOnly(appNow());
-    if (_countOnForProduct(productId, today) >= limit) return 0;
+    if ((counts[today] ?? 0) >= limit) return 0;
     int streak = 0;
     var day = addDays(today, -1);
-    while (true) {
-      if (day.isBefore(first)) break;
-      final c = _countOnForProduct(productId, day);
-      if (c >= limit) break;
+    while (!day.isBefore(first) && (counts[day] ?? 0) < limit) {
       streak++;
       day = addDays(day, -1);
     }
