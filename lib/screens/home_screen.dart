@@ -163,7 +163,11 @@ class HomeScreen extends StatelessWidget {
                               if (entry == null || !context.mounted) return;
                               if (provider.activeProduct.tracksInventory &&
                                   provider.packRemaining == 0) {
-                                _showPackFinishedAlert(context, provider);
+                                _showPackFinishedAlert(
+                                  context,
+                                  provider,
+                                  entry.id,
+                                );
                                 return;
                               }
                               _showUndoLogged(context, provider, entry.id);
@@ -371,20 +375,23 @@ class HomeScreen extends StatelessWidget {
   void _showPackFinishedAlert(
     BuildContext context,
     MyTrackingProvider provider,
+    String entryId,
   ) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('📦 ${provider.config.name} terminato!'),
-        backgroundColor: context.stats.warning,
-        duration: const Duration(seconds: 4),
-        persist: false,
-        action: SnackBarAction(
-          label: 'Reintegra',
-          textColor: Colors.black,
-          onPressed: () => provider.openNewPack(),
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text('📦 ${provider.config.name} terminato!'),
+          backgroundColor: context.stats.warning,
+          duration: const Duration(seconds: 4),
+          persist: false,
+          action: SnackBarAction(
+            label: 'Annulla',
+            textColor: Colors.black,
+            onPressed: () => provider.deleteEntry(entryId),
+          ),
         ),
-      ),
-    );
+      );
   }
 
   String _formatMinutes(int minutes) {
