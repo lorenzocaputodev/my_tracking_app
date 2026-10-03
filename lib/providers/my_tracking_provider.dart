@@ -493,6 +493,7 @@ class MyTrackingProvider extends ChangeNotifier {
           dailyLimit: cfg.dailyLimit,
           tracksInventory: cfg.tracksInventory,
           directUnitCost: cfg.directUnitCost,
+          clearDirectUnitCost: cfg.directUnitCost == null,
         );
         if (next.tracksInventory && next.packRemaining > next.pieces) {
           next = next.copyWith(packRemaining: next.pieces);
