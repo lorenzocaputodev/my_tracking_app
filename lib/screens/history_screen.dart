@@ -143,6 +143,25 @@ class _HistoryScreenState extends State<HistoryScreen> {
     await _pickCustomRange();
   }
 
+  void _selectProduct(String value) {
+    setState(() {
+      if (value == '__all__') {
+        _productFilter = _HistoryProductFilter.all;
+      } else {
+        _productFilter = _HistoryProductFilter.specific;
+        _selectedProductId = value;
+      }
+    });
+  }
+
+  Future<void> _selectPreset(_HistoryPeriodPreset preset) async {
+    if (preset == _HistoryPeriodPreset.custom) {
+      await _setCustomPeriod();
+      return;
+    }
+    setState(() => _periodPreset = preset);
+  }
+
   @override
   Widget build(BuildContext context) {
     final turquoise = Theme.of(context).colorScheme.primary;
@@ -165,35 +184,21 @@ class _HistoryScreenState extends State<HistoryScreen> {
           final chartEntries = effectiveProductId == null
               ? provider.visibleEntries.toList()
               : provider.entriesForProduct(effectiveProductId);
+          final filters = _HistoryFiltersCard(
+            provider: provider,
+            productValue: _productDropdownValue(provider),
+            periodPreset: _periodPreset,
+            customRange: _customRange,
+            onProductChanged: _selectProduct,
+            onPresetSelected: _selectPreset,
+            onCustomRangeTap: _pickCustomRange,
+          );
 
           if (provider.visibleEntries.isEmpty) {
             return ListView(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               children: [
-                _HistoryFiltersCard(
-                  provider: provider,
-                  productValue: _productDropdownValue(provider),
-                  periodPreset: _periodPreset,
-                  customRange: _customRange,
-                  onProductChanged: (value) {
-                    setState(() {
-                      if (value == '__all__') {
-                        _productFilter = _HistoryProductFilter.all;
-                      } else {
-                        _productFilter = _HistoryProductFilter.specific;
-                        _selectedProductId = value;
-                      }
-                    });
-                  },
-                  onPresetSelected: (preset) async {
-                    if (preset == _HistoryPeriodPreset.custom) {
-                      await _setCustomPeriod();
-                      return;
-                    }
-                    setState(() => _periodPreset = preset);
-                  },
-                  onCustomRangeTap: _pickCustomRange,
-                ),
+                filters,
                 const SizedBox(height: 20),
                 _EmptyState(
                   icon: Icons.history_toggle_off_rounded,
@@ -209,30 +214,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
           return ListView(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             children: [
-              _HistoryFiltersCard(
-                provider: provider,
-                productValue: _productDropdownValue(provider),
-                periodPreset: _periodPreset,
-                customRange: _customRange,
-                onProductChanged: (value) {
-                  setState(() {
-                    if (value == '__all__') {
-                      _productFilter = _HistoryProductFilter.all;
-                    } else {
-                      _productFilter = _HistoryProductFilter.specific;
-                      _selectedProductId = value;
-                    }
-                  });
-                },
-                onPresetSelected: (preset) async {
-                  if (preset == _HistoryPeriodPreset.custom) {
-                    await _setCustomPeriod();
-                    return;
-                  }
-                  setState(() => _periodPreset = preset);
-                },
-                onCustomRangeTap: _pickCustomRange,
-              ),
+              filters,
               const SizedBox(height: 8),
               Container(
                 margin: const EdgeInsets.only(bottom: 8, top: 4),
