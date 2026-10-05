@@ -32,12 +32,12 @@ class Achievement {
 
   bool get isUnlocked => unlockedAt != null;
 
-  Achievement unlock() => Achievement(
+  Achievement unlock([DateTime? at]) => Achievement(
         id: id,
         title: title,
         description: description,
         emoji: emoji,
-        unlockedAt: DateTime.now(),
+        unlockedAt: at ?? DateTime.now(),
       );
 
   static Achievement definition(AchievementId id) => _defs[id]!;

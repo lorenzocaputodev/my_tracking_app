@@ -731,9 +731,12 @@ class MyTrackingProvider extends ChangeNotifier {
   bool _evaluateAchievements({bool persist = true}) {
     bool changed = false;
 
+    Map<AchievementId, DateTime>? reached;
+
     void tryUnlock(AchievementId id) {
       if (!(_achievements[id]?.isUnlocked ?? false)) {
-        _achievements[id] = Achievement.definition(id).unlock();
+        reached ??= _achievementDatesFromHistory();
+        _achievements[id] = Achievement.definition(id).unlock(reached![id]);
         changed = true;
       }
     }
@@ -788,6 +791,79 @@ class MyTrackingProvider extends ChangeNotifier {
 
     if (changed && persist) _persistAchievements();
     return changed;
+  }
+
+  Map<AchievementId, DateTime> _achievementDatesFromHistory() {
+    final dates = <AchievementId, DateTime>{};
+    if (_entries.isEmpty) return dates;
+
+    void reach(AchievementId id, DateTime at) {
+      final current = dates[id];
+      if (current == null || at.isBefore(current)) dates[id] = at;
+    }
+
+    Map<DateTime, DateTime> firstTimestampPerDay(Iterable<SmokeEntry> list) {
+      final firsts = <DateTime, DateTime>{};
+      for (final entry in list) {
+        final day = dateOnly(entry.timestamp);
+        final current = firsts[day];
+        if (current == null || entry.timestamp.isBefore(current)) {
+          firsts[day] = entry.timestamp;
+        }
+      }
+      return firsts;
+    }
+
+    final allDays = firstTimestampPerDay(_entries);
+    final sortedDays = allDays.keys.toList()..sort();
+    reach(AchievementId.firstEntry, allDays[sortedDays.first]!);
+    if (sortedDays.length >= 7) {
+      reach(AchievementId.tracked7days, allDays[sortedDays[6]]!);
+    }
+    if (sortedDays.length >= 30) {
+      reach(AchievementId.tracked30days, allDays[sortedDays[29]]!);
+    }
+
+    const streakBadges = {
+      3: AchievementId.streak3,
+      7: AchievementId.streak7,
+      14: AchievementId.streak14,
+      30: AchievementId.streak30,
+    };
+    const underLimitBadges = {
+      1: AchievementId.underLimit1,
+      3: AchievementId.underLimit3,
+      7: AchievementId.underLimit7,
+      30: AchievementId.underLimit30,
+    };
+    final today = dateOnly(appNow());
+
+    for (final product in _products) {
+      if (product.isArchived) continue;
+      final productEntries = entriesForProduct(product.id);
+      final firsts = firstTimestampPerDay(productEntries);
+      if (firsts.isEmpty) continue;
+      final days = firsts.keys.toList()..sort();
+
+      var run = 0;
+      DateTime? previous;
+      for (final day in days) {
+        run = previous != null && addDays(previous, 1) == day ? run + 1 : 1;
+        previous = day;
+        final badge = streakBadges[run];
+        if (badge != null) reach(badge, firsts[day]!);
+      }
+
+      if (product.dailyLimit <= 0) continue;
+      final counts = _countsPerDay(productEntries);
+      run = 0;
+      for (var day = days.first; day.isBefore(today); day = addDays(day, 1)) {
+        run = (counts[day] ?? 0) < product.dailyLimit ? run + 1 : 0;
+        final badge = underLimitBadges[run];
+        if (badge != null) reach(badge, addDays(day, 1));
+      }
+    }
+    return dates;
   }
 
   Future<void> _persistAchievements() async {
@@ -1074,6 +1150,8 @@ class MyTrackingProvider extends ChangeNotifier {
       ..clear()
       ..addAll(_normalizeReductionPlans(data.reductionPlans));
     _themePreference = _parseTheme(data.themePreferenceName);
+    _dateUndatedAchievements();
+    _evaluateAchievements(persist: false);
 
     final onboardingDone =
         data.onboardingDone || _products.isNotEmpty || _entries.isNotEmpty;
@@ -1115,6 +1193,17 @@ class MyTrackingProvider extends ChangeNotifier {
     notifyListeners();
     await syncWidgets();
     await _syncNotifications();
+  }
+
+  void _dateUndatedAchievements() {
+    Map<AchievementId, DateTime>? reached;
+    for (final achievement in _achievements.values.toList()) {
+      final at = achievement.unlockedAt;
+      if (at == null || at.millisecondsSinceEpoch != 0) continue;
+      reached ??= _achievementDatesFromHistory();
+      _achievements[achievement.id] = Achievement.definition(achievement.id)
+          .unlock(reached[achievement.id]);
+    }
   }
 
   Future<void> _verifyPersistedState(SharedPreferences prefs) async {

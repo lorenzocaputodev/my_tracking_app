@@ -69,7 +69,7 @@ void main() {
 
     expect(outcome.entries, 1513);
     expect(outcome.products, 1);
-    expect(outcome.unlockedAchievements, 1);
+    expect(outcome.unlockedAchievements, greaterThanOrEqualTo(1));
   });
 
   test('un backup senza cronologia si riconosce prima di sostituire i dati',
