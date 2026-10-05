@@ -63,7 +63,7 @@ void main() {
 
     store.dropEntries = true;
     await expectLater(
-      provider.importFullBackupCsv(csv),
+      provider.restoreBackup(provider.readBackupCsv(csv)),
       throwsA(isA<BackupRestoreException>()),
     );
     store.dropEntries = false;

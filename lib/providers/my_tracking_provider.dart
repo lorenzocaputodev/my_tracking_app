@@ -1110,10 +1110,6 @@ class MyTrackingProvider extends ChangeNotifier {
 
   AppBackupData readBackupCsv(String csv) => AppBackupCsv.decode(csv);
 
-  Future<BackupImportOutcome> importFullBackupCsv(String csv) async {
-    return restoreBackup(AppBackupCsv.decode(csv));
-  }
-
   Future<BackupImportOutcome> restoreBackup(AppBackupData data) =>
       _serialized(() async {
         await _restoreFullBackup(data);

@@ -7,15 +7,10 @@ import 'package:my_tracking_app/models/tracked_product.dart';
 import 'package:my_tracking_app/utils/app_backup_csv.dart';
 
 void main() {
-  test('detects full backup CSV marker', () {
-    const csv = '__MY_TRACKING_APP_BACKUP__,1\n__SECTION__,meta\nkey,value';
-    expect(AppBackupCsv.detectKind(csv), BackupFileKind.fullBackup);
-  });
-
-  test('flags non-backup CSV as invalid', () {
+  test('rejects a CSV that is not a backup', () {
     const csv =
         'id,timestamp,costDeducted,minutesLost,productId,productName\n1,2026-04-03T10:00:00.000Z,0.5,11,p1,Prodotto';
-    expect(AppBackupCsv.detectKind(csv), BackupFileKind.invalid);
+    expect(() => AppBackupCsv.decode(csv), throwsFormatException);
   });
 
   test('encodes and decodes a full backup roundtrip', () {

@@ -64,6 +64,11 @@ Future<MyTrackingProvider> _bootedProvider() async {
 DateTime? _unlockedAt(MyTrackingProvider provider, AchievementId id) =>
     provider.allAchievements.firstWhere((a) => a.id == id).unlockedAt;
 
+extension on MyTrackingProvider {
+  Future<BackupImportOutcome> restoreBackupCsv(String csv) =>
+      restoreBackup(readBackupCsv(csv));
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   setUp(() {
@@ -75,7 +80,7 @@ void main() {
   test('i badge sbloccati dall\'import prendono la data dalla cronologia',
       () async {
     final provider = await _bootedProvider();
-    await provider.importFullBackupCsv(
+    await provider.restoreBackupCsv(
       _backup(entries: _twoPerDay(from: DateTime(2026, 9, 16), days: 10)),
     );
 
@@ -109,7 +114,7 @@ void main() {
   test('le date dei badge restano quelle del backup', () async {
     final provider = await _bootedProvider();
     final original = DateTime.utc(2026, 8, 1, 10);
-    await provider.importFullBackupCsv(
+    await provider.restoreBackupCsv(
       _backup(
         entries: _twoPerDay(from: DateTime(2026, 9, 16), days: 10),
         achievements: [
@@ -123,7 +128,7 @@ void main() {
 
   test('un badge sbloccato senza data non finisce nel 1970', () async {
     final provider = await _bootedProvider();
-    await provider.importFullBackupCsv(
+    await provider.restoreBackupCsv(
       _backup(
         entries: _twoPerDay(from: DateTime(2026, 9, 16), days: 10),
         achievements: [
@@ -141,7 +146,7 @@ void main() {
 
   test('le date ricostruite sopravvivono al riavvio', () async {
     final first = await _bootedProvider();
-    await first.importFullBackupCsv(
+    await first.restoreBackupCsv(
       _backup(entries: _twoPerDay(from: DateTime(2026, 9, 16), days: 10)),
     );
 
@@ -155,7 +160,7 @@ void main() {
 
   test('un badge raggiunto oggi prende l\'ora della registrazione', () async {
     final provider = await _bootedProvider();
-    await provider.importFullBackupCsv(
+    await provider.restoreBackupCsv(
       _backup(entries: _twoPerDay(from: DateTime(2026, 9, 23), days: 2)),
     );
     appNow = () => DateTime(2026, 9, 25, 9, 30);

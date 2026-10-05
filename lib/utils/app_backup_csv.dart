@@ -1,12 +1,8 @@
-import 'dart:convert';
-
 import '../models/achievement.dart';
 import '../models/app_reminder_settings.dart';
 import '../models/reduction_plan.dart';
 import '../models/smoke_entry.dart';
 import '../models/tracked_product.dart';
-
-enum BackupFileKind { fullBackup, invalid }
 
 class AppBackupData {
   final String backupVersion;
@@ -47,19 +43,6 @@ class AppBackupCsv {
   static const String entriesSection = 'entries';
   static const String achievementsSection = 'achievements';
   static const String reductionPlanSection = 'reduction_plan';
-
-  static BackupFileKind detectKind(String raw) {
-    final lines = const LineSplitter().convert(_normalize(raw));
-    for (final line in lines) {
-      if (line.trim().isEmpty) continue;
-      final row = parseRow(line);
-      if (row.isNotEmpty && row.first == backupMarker) {
-        return BackupFileKind.fullBackup;
-      }
-      break;
-    }
-    return BackupFileKind.invalid;
-  }
 
   static String encode(AppBackupData data) {
     final buffer = StringBuffer()

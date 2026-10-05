@@ -57,6 +57,11 @@ Future<MyTrackingProvider> _bootedProvider() async {
   return provider;
 }
 
+extension on MyTrackingProvider {
+  Future<BackupImportOutcome> restoreBackupCsv(String csv) =>
+      restoreBackup(readBackupCsv(csv));
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -65,7 +70,7 @@ void main() {
     SharedPreferences.setMockInitialValues(<String, Object>{});
     final provider = await _bootedProvider();
 
-    final outcome = await provider.importFullBackupCsv(_backupCsv(entryCount: 1513));
+    final outcome = await provider.restoreBackupCsv(_backupCsv(entryCount: 1513));
 
     expect(outcome.entries, 1513);
     expect(outcome.products, 1);
@@ -90,7 +95,7 @@ void main() {
   test('la cronologia importata sopravvive al riavvio dell\'app', () async {
     SharedPreferences.setMockInitialValues(<String, Object>{});
     final first = await _bootedProvider();
-    await first.importFullBackupCsv(_backupCsv(entryCount: 1513));
+    await first.restoreBackupCsv(_backupCsv(entryCount: 1513));
 
     final second = await _bootedProvider();
 
