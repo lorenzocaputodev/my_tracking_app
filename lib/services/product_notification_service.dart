@@ -215,12 +215,6 @@ class ProductNotificationService {
     required SharedPreferences prefs,
     required Duration delay,
   }) async {
-    await Workmanager().registerOneOffTask(
-      _globalReminderWorkName,
-      _globalReminderTask,
-      initialDelay: delay,
-      existingWorkPolicy: ExistingWorkPolicy.replace,
-    );
     await prefs.setString(
       _globalReminderFingerprintKey,
       'on:${settings.intervalMinutes}',
@@ -228,6 +222,12 @@ class ProductNotificationService {
     await prefs.setInt(
       _globalReminderNextAtKey,
       DateTime.now().add(delay).millisecondsSinceEpoch,
+    );
+    await Workmanager().registerOneOffTask(
+      _globalReminderWorkName,
+      _globalReminderTask,
+      initialDelay: delay,
+      existingWorkPolicy: ExistingWorkPolicy.replace,
     );
   }
 

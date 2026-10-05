@@ -1253,7 +1253,11 @@ class MyTrackingProvider extends ChangeNotifier {
     final productSnapshots = <String, dynamic>{};
     for (final product in _products) {
       final productEntries = entriesForProduct(product.id);
-      final productDailyCount = _countTodayForProduct(product.id);
+      final today = dateOnly(now);
+      final todayEntries = productEntries
+          .where((entry) => dateOnly(entry.timestamp) == today)
+          .toList();
+      final productDailyCount = todayEntries.length;
       productSnapshots[product.id] = <String, dynamic>{
         'activeProductId': product.id,
         'name': product.name,
@@ -1263,8 +1267,14 @@ class MyTrackingProvider extends ChangeNotifier {
         'minutesLostPerUnit': product.minutesLost,
         'unitCost': product.unitCost,
         'dailyCount': productDailyCount,
-        'dailyCost': productDailyCount * product.unitCost,
-        'dailyMinutesLost': productDailyCount * product.minutesLost,
+        'dailyCost': todayEntries.fold<double>(
+          0.0,
+          (sum, entry) => sum + entry.costDeducted,
+        ),
+        'dailyMinutesLost': todayEntries.fold<int>(
+          0,
+          (sum, entry) => sum + entry.minutesLost,
+        ),
         'totalSpentForActive': productEntries.fold<double>(
           0.0,
           (sum, entry) => sum + entry.costDeducted,

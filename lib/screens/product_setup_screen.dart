@@ -39,9 +39,12 @@ class _ProductSetupScreenState extends State<ProductSetupScreen> {
     final prefs = await SharedPreferences.getInstance();
     if (!mounted) return;
 
-    final provider = context.read<MyTrackingProvider>();
-    await provider.addProduct(_form.toNewProduct());
-    await prefs.setBool('hasCompletedSetup', true);
+    try {
+      await context.read<MyTrackingProvider>().addProduct(_form.toNewProduct());
+      await prefs.setBool('hasCompletedSetup', true);
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
+    }
 
     if (!mounted) return;
     Navigator.of(context).pushReplacement(
