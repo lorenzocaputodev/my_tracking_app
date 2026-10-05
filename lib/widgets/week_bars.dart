@@ -75,14 +75,14 @@ class WeekBars extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.sm),
         SizedBox(
-          height: _headroom + barHeight + _labelsHeight,
+          height: _headroom + barHeight,
           child: Stack(
             children: [
               if (dailyLimit > 0)
                 Positioned(
                   left: 0,
                   right: 0,
-                  bottom: _labelsHeight + 6 + (barHeight - 6) * dailyLimit / scale,
+                  bottom: 6 + (barHeight - 6) * dailyLimit / scale,
                   child: Row(
                     children: [
                       for (var i = 0; i < 40; i++)
@@ -96,15 +96,18 @@ class WeekBars extends StatelessWidget {
                     ],
                   ),
                 ),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  for (var i = 0; i < 7; i++)
-                    Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Container(
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    for (var i = 0; i < 7; i++)
+                      Expanded(
+                        child: Center(
+                          heightFactor: 1,
+                          child: Container(
                             width: 18,
                             height: counts[i] == 0
                                 ? 4
@@ -114,37 +117,42 @@ class WeekBars extends StatelessWidget {
                               borderRadius: BorderRadius.circular(4),
                             ),
                           ),
-                          SizedBox(
-                            height: _labelsHeight,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Text(
-                                  '${counts[i]}',
-                                  style: TextStyle(
-                                    fontFamily: AppFonts.sans,
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w800,
-                                    color: i == 6 ? accent : colors.textBody,
-                                  ),
-                                ),
-                                Text(
-                                  i == 6
-                                      ? 'OGGI'
-                                      : _weekdays[
-                                          addDays(now, -(6 - i)).weekday - 1],
-                                  style: i == 6
-                                      ? small.copyWith(color: accent)
-                                      : small,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
-                    ),
-                ],
+                  ],
+                ),
               ),
+            ],
+          ),
+        ),
+        ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: _labelsHeight),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              for (var i = 0; i < 7; i++)
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        '${counts[i]}',
+                        style: TextStyle(
+                          fontFamily: AppFonts.sans,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                          color: i == 6 ? accent : colors.textBody,
+                        ),
+                      ),
+                      Text(
+                        i == 6
+                            ? 'OGGI'
+                            : _weekdays[addDays(now, -(6 - i)).weekday - 1],
+                        style: i == 6 ? small.copyWith(color: accent) : small,
+                      ),
+                    ],
+                  ),
+                ),
             ],
           ),
         ),

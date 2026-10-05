@@ -485,6 +485,12 @@ class _StatsPanelState extends State<_StatsPanel> {
     final underLimitStreak = _isSingleProduct
         ? widget.provider.underLimitStreakForProduct(widget.selectedProductId!)
         : 0;
+    final mixedProducts = !_isSingleProduct &&
+        widget.provider.visibleEntries
+                .map((entry) => entry.productId)
+                .toSet()
+                .length >
+            1;
     final stats = context.stats;
     final trendColor =
         trend.deltaPercent <= 0 ? stats.positive : stats.negative;
@@ -510,10 +516,10 @@ class _StatsPanelState extends State<_StatsPanel> {
               ),
               Text(
                 widget.periodLabel.toUpperCase(),
-                style: const TextStyle(fontFamily: AppFonts.sans,
+                style: TextStyle(fontFamily: AppFonts.sans,
                   fontSize: 10,
                   fontWeight: FontWeight.w700,
-                  color: Colors.grey,
+                  color: context.colors.textMuted,
                   letterSpacing: 0.6,
                 ),
               ),
@@ -528,7 +534,25 @@ class _StatsPanelState extends State<_StatsPanel> {
             isExpanded:
                 _expandedSections.contains(_HistoryStatsSection.overview),
             onTap: () => _toggleSection(_HistoryStatsSection.overview),
-            child: Column(
+            child: mixedProducts
+                ? Column(
+                    children: [
+                      _StatItem(
+                        label: 'Totale periodo',
+                        value: '${widget.entries.length} registrazioni',
+                        icon: AppIcons.total,
+                        color: stats.volume,
+                        fullWidth: true,
+                      ),
+                      const SizedBox(height: 10),
+                      _PanelNote(
+                        text: 'Prodotti diversi non si sommano: scegli un '
+                            'prodotto per vedere medie e andamento.',
+                        accent: turquoise,
+                      ),
+                    ],
+                  )
+                : Column(
               children: [
                 Row(
                   children: [
@@ -596,33 +620,37 @@ class _StatsPanelState extends State<_StatsPanel> {
                         color: stats.cost,
                       ),
                     ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: _StatItem(
-                        label: 'Proiezione mese',
-                        value: monthlyProjectionUnits > 0
-                            ? '$monthlyProjectionUnits unit\u00E0'
-                            : '-',
-                        icon: Icons.insights_rounded,
-                        color: stats.projection,
+                    if (!mixedProducts) ...[
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: _StatItem(
+                          label: 'Proiezione mese',
+                          value: monthlyProjectionUnits > 0
+                              ? '$monthlyProjectionUnits unit\u00E0'
+                              : '-',
+                          icon: Icons.insights_rounded,
+                          color: stats.projection,
+                        ),
                       ),
-                    ),
+                    ],
                   ],
                 ),
                 const SizedBox(height: 10),
                 Row(
                   children: [
-                    Expanded(
-                      child: _StatItem(
-                        label: 'Stima annua',
-                        value: annualUnitsEstimate > 0
-                            ? '$annualUnitsEstimate unit\u00E0'
-                            : '-',
-                        icon: Icons.calendar_today_rounded,
-                        color: stats.estimate,
+                    if (!mixedProducts) ...[
+                      Expanded(
+                        child: _StatItem(
+                          label: 'Stima annua',
+                          value: annualUnitsEstimate > 0
+                              ? '$annualUnitsEstimate unit\u00E0'
+                              : '-',
+                          icon: Icons.calendar_today_rounded,
+                          color: stats.estimate,
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 10),
+                      const SizedBox(width: 10),
+                    ],
                     Expanded(
                       child: _StatItem(
                         label: 'Stima mese',
@@ -747,7 +775,8 @@ class _StatsPanelState extends State<_StatsPanel> {
                     ),
                   ),
                 ],
-                if (bestDay != null || worstDay != null) ...[
+                if (!mixedProducts &&
+                    (bestDay != null || worstDay != null)) ...[
                   const SizedBox(height: 14),
                   const Divider(height: 1),
                   const SizedBox(height: 14),
@@ -782,12 +811,12 @@ class _StatsPanelState extends State<_StatsPanel> {
                   const SizedBox(height: 14),
                   const Divider(height: 1),
                   const SizedBox(height: 14),
-                  const Text(
+                  Text(
                     'DISTRIBUZIONE ORARIA',
                     style: TextStyle(fontFamily: AppFonts.sans,
                       fontSize: 9,
                       fontWeight: FontWeight.w800,
-                      color: Colors.grey,
+                      color: context.colors.textMuted,
                       letterSpacing: 0.8,
                     ),
                   ),
@@ -864,18 +893,16 @@ class _StatsSectionCard extends StatelessWidget {
                             style: TextStyle(fontFamily: AppFonts.sans,
                               fontSize: 13,
                               fontWeight: FontWeight.w800,
-                              color: isDark
-                                  ? Colors.white
-                                  : const Color(0xFF1A1A1A),
+                              color: context.colors.textHeading,
                             ),
                           ),
                           const SizedBox(height: 2),
                           Text(
                             subtitle,
-                            style: const TextStyle(fontFamily: AppFonts.sans,
+                            style: TextStyle(fontFamily: AppFonts.sans,
                               fontSize: 11,
                               fontWeight: FontWeight.w500,
-                              color: Colors.grey,
+                              color: context.colors.textMuted,
                             ),
                           ),
                         ],
@@ -945,9 +972,9 @@ class _EmptyState extends StatelessWidget {
           Text(
             message,
             textAlign: TextAlign.center,
-            style: const TextStyle(fontFamily: AppFonts.sans,
+            style: TextStyle(fontFamily: AppFonts.sans,
               fontSize: 12,
-              color: Colors.grey,
+              color: context.colors.textMuted,
               height: 1.4,
             ),
           ),
@@ -1050,10 +1077,24 @@ class _ThinDataNote extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final accent = context.stats.projection;
     final giorni = trackedDays == 1 ? 'un giorno' : '$trackedDays giorni';
+    return _PanelNote(
+      text: 'Stime basate su $giorni di dati: diventeranno attendibili con '
+          'qualche giorno in più.',
+      accent: context.stats.projection,
+    );
+  }
+}
 
+class _PanelNote extends StatelessWidget {
+  final String text;
+  final Color accent;
+
+  const _PanelNote({required this.text, required this.accent});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
@@ -1066,7 +1107,7 @@ class _ThinDataNote extends StatelessWidget {
           const SizedBox(width: AppSpacing.sm),
           Expanded(
             child: Text(
-              'Stime basate su $giorni di dati: diventeranno attendibili con qualche giorno in più.',
+              text,
               style: AppTextStyles.hint(colors.textBody),
             ),
           ),
@@ -1094,7 +1135,7 @@ class _StatItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final labelColor = isDark ? Colors.grey : const Color(0xFF5E7274);
+    final labelColor = context.colors.textMuted;
     return Container(
       width: fullWidth ? double.infinity : null,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -1163,10 +1204,10 @@ class _DayHighlight extends StatelessWidget {
       children: [
         Text(
           label.toUpperCase(),
-          style: const TextStyle(fontFamily: AppFonts.sans,
+          style: TextStyle(fontFamily: AppFonts.sans,
             fontSize: 9,
             fontWeight: FontWeight.w800,
-            color: Colors.grey,
+            color: context.colors.textMuted,
             letterSpacing: 0.8,
           ),
         ),
@@ -1349,9 +1390,9 @@ class _MonthlyChart extends StatelessWidget {
                               space: 4,
                               child: Text(
                                 '${value.toInt()}',
-                                style: const TextStyle(fontFamily: AppFonts.sans,
+                                style: TextStyle(fontFamily: AppFonts.sans,
                                   fontSize: 10,
-                                  color: Colors.grey,
+                                  color: context.colors.textMuted,
                                 ),
                               ),
                             );
@@ -1384,9 +1425,9 @@ class _MonthlyChart extends StatelessWidget {
                             }
                             return Text(
                               DateFormat('d/M', 'it').format(days[index]),
-                              style: const TextStyle(fontFamily: AppFonts.sans,
+                              style: TextStyle(fontFamily: AppFonts.sans,
                                 fontSize: 8,
-                                color: Colors.grey,
+                                color: context.colors.textMuted,
                               ),
                             );
                           },

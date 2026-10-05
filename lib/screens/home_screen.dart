@@ -45,6 +45,7 @@ class HomeScreen extends StatelessWidget {
   AppBar _buildAppBar(BuildContext context, Color turquoise) {
     return AppBar(
       leading: IconButton(
+        tooltip: 'Cronologia',
         icon: Icon(Icons.history_rounded, color: turquoise),
         onPressed: () => Navigator.push(
           context,
@@ -62,6 +63,7 @@ class HomeScreen extends StatelessWidget {
       ),
       actions: [
         IconButton(
+          tooltip: 'Obiettivi e badge',
           icon: Icon(Icons.emoji_events_rounded, color: turquoise),
           onPressed: () => Navigator.push(
             context,
@@ -69,6 +71,7 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
         IconButton(
+          tooltip: 'Impostazioni',
           icon: Icon(Icons.tune_rounded, color: turquoise),
           onPressed: () => Navigator.push(
             context,
@@ -89,6 +92,30 @@ class HomeScreen extends StatelessWidget {
     final usesInventory = provider.activeProduct.tracksInventory;
     final isPackEmpty = usesInventory && provider.packRemaining <= 0;
     final showMinutes = provider.config.minutesLost > 0;
+    final hasUnitCost = provider.config.unitCost > 0;
+    final statsCards = <Widget>[
+      if (hasUnitCost || provider.dailyCost > 0)
+        StatsCard(
+          icon: Icons.euro_rounded,
+          label: 'Oggi',
+          value: formatEuro(provider.dailyCost),
+          accent: turquoise,
+        ),
+      if (showMinutes)
+        StatsCard(
+          icon: Icons.timer_rounded,
+          label: 'Vita persa oggi',
+          value: _formatMinutes(provider.dailyMinutesLost),
+          accent: context.stats.time,
+        ),
+      if (hasUnitCost || provider.totalCost > 0)
+        StatsCard(
+          icon: Icons.account_balance_wallet_rounded,
+          label: 'Totale speso',
+          value: formatEuro(provider.totalCost),
+          accent: turquoise.withValues(alpha: 0.7),
+        ),
+    ];
 
     return SafeArea(
       child: Column(
@@ -111,6 +138,7 @@ class HomeScreen extends StatelessWidget {
                   available: constraints.maxHeight,
                   buttonSize: size.width * 0.55,
                   hasInsight: provider.homeInsight != null,
+                  hasCostLabel: hasUnitCost,
                 );
                 return SingleChildScrollView(
                   child: ConstrainedBox(
@@ -185,41 +213,21 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
           _WeekStrip(provider: provider),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
-              children: [
-                Expanded(
-                  child: StatsCard(
-                    icon: Icons.euro_rounded,
-                    label: 'Oggi',
-                    value: formatEuro(provider.dailyCost),
-                    accent: turquoise,
-                  ),
+          if (statsCards.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    for (var i = 0; i < statsCards.length; i++) ...[
+                      if (i > 0) const SizedBox(width: 10),
+                      Expanded(child: statsCards[i]),
+                    ],
+                  ],
                 ),
-                if (showMinutes) ...[
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: StatsCard(
-                      icon: Icons.timer_rounded,
-                      label: 'Vita persa oggi',
-                      value: _formatMinutes(provider.dailyMinutesLost),
-                      accent: context.stats.time,
-                    ),
-                  ),
-                ],
-                const SizedBox(width: 10),
-                Expanded(
-                  child: StatsCard(
-                    icon: Icons.account_balance_wallet_rounded,
-                    label: 'Totale speso',
-                    value: formatEuro(provider.totalCost),
-                    accent: turquoise.withValues(alpha: 0.7),
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
           const SizedBox(height: 20),
         ],
       ),
@@ -237,11 +245,12 @@ class HomeScreen extends StatelessWidget {
     required double available,
     required double buttonSize,
     required bool hasInsight,
+    required bool hasCostLabel,
   }) {
     final t = MediaQuery.textScalerOf(context).scale(1);
     const minAbove = 12.0, minBelow = 8.0;
     var showInsight = hasInsight;
-    var showCost = true;
+    var showCost = hasCostLabel;
     var counterSize = 92.0;
 
     double content() =>
@@ -456,46 +465,49 @@ class _OpenPackButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => provider.openNewPack(),
-      child: Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: context.stats.warning.withValues(alpha: 0.1),
-          border: Border.all(
-            color: context.stats.warning.withValues(alpha: 0.5),
-            width: 2,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: context.stats.warning.withValues(alpha: 0.2),
-              blurRadius: 20,
-              spreadRadius: 2,
+    return Semantics(
+      button: true,
+      child: GestureDetector(
+        onTap: () => provider.openNewPack(),
+        child: Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: context.stats.warning.withValues(alpha: 0.1),
+            border: Border.all(
+              color: context.stats.warning.withValues(alpha: 0.5),
+              width: 2,
             ),
-          ],
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.add_box_rounded,
-              size: 44,
-              color: context.stats.warning,
-            ),
-            const SizedBox(height: 10),
-            Text(
-              'NUOVA\nSCORTA',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontFamily: AppFonts.sans,
-                fontWeight: FontWeight.w900,
-                color: context.stats.warning,
-                fontSize: 14,
-                height: 1.1,
+            boxShadow: [
+              BoxShadow(
+                color: context.stats.warning.withValues(alpha: 0.2),
+                blurRadius: 20,
+                spreadRadius: 2,
               ),
-            ),
-          ],
+            ],
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.add_box_rounded,
+                size: 44,
+                color: context.stats.warning,
+              ),
+              const SizedBox(height: 10),
+              Text(
+                'NUOVA\nSCORTA',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontFamily: AppFonts.sans,
+                  fontWeight: FontWeight.w900,
+                  color: context.stats.warning,
+                  fontSize: 14,
+                  height: 1.1,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -616,7 +628,6 @@ class _DailyCounter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       children: [
         AnimatedSwitcher(
@@ -631,17 +642,17 @@ class _DailyCounter extends StatelessWidget {
             style: TextStyle(fontFamily: AppFonts.sans,
               fontSize: fontSize,
               fontWeight: FontWeight.w900,
-              color: isDark ? Colors.white : Colors.black,
+              color: context.colors.textHeading,
               height: 1.0,
               letterSpacing: -2,
             ),
           ),
         ),
-        const Text(
+        Text(
           'OGGI',
           style: TextStyle(fontFamily: AppFonts.sans,
             fontSize: 12,
-            color: Colors.grey,
+            color: context.colors.textMuted,
             fontWeight: FontWeight.bold,
             letterSpacing: 2,
           ),
