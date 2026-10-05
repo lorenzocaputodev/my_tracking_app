@@ -13,6 +13,47 @@ void main() {
     expect(() => AppBackupCsv.decode(csv), throwsFormatException);
   });
 
+  test('skips reduction plans with an impossible number of weeks', () {
+    final csv = AppBackupCsv.encode(
+      AppBackupData(
+        backupVersion: AppBackupCsv.backupVersion,
+        exportedAt: DateTime.parse('2026-04-03T08:30:00.000Z'),
+        activeProductId: 'p1',
+        themePreferenceName: 'dark',
+        onboardingDone: true,
+        hasCompletedSetup: true,
+        globalReminderSettings: AppReminderSettings.defaults,
+        products: const <TrackedProduct>[
+          TrackedProduct(
+            id: 'p1',
+            name: 'Prodotto 1',
+            totalCost: 6,
+            pieces: 20,
+            minutesLost: 11,
+            dailyLimit: 10,
+            packRemaining: 6,
+          ),
+        ],
+        entries: const <SmokeEntry>[],
+        achievements: const <Achievement>[],
+        reductionPlans: <ReductionPlan>[
+          for (final weeks in [0, 8, 40])
+            ReductionPlan(
+              productId: 'p1',
+              startAverage: 12,
+              targetPerDay: 7,
+              totalWeeks: weeks,
+              startDate: DateTime.parse('2026-04-01T00:00:00.000Z'),
+            ),
+        ],
+      ),
+    );
+
+    final plans = AppBackupCsv.decode(csv).reductionPlans;
+
+    expect(plans.map((plan) => plan.totalWeeks), [8]);
+  });
+
   test('encodes and decodes a full backup roundtrip', () {
     const product = TrackedProduct(
       id: 'p1',

@@ -394,10 +394,10 @@ class _EntryRow extends StatelessWidget {
     return Dismissible(
       key: Key(entry.id),
       direction: DismissDirection.endToStart,
-      onDismissed: (_) async {
+      confirmDismiss: (_) async {
         final messenger = ScaffoldMessenger.of(context);
         final deleted = await provider.deleteEntry(entry.id);
-        if (deleted == null) return;
+        if (deleted == null) return false;
         messenger
           ..hideCurrentSnackBar()
           ..showSnackBar(
@@ -411,6 +411,7 @@ class _EntryRow extends StatelessWidget {
               ),
             ),
           );
+        return true;
       },
       background: Container(
         alignment: Alignment.centerRight,

@@ -52,6 +52,8 @@ class ProductNotificationService {
       FlutterLocalNotificationsPlugin();
 
   static bool _mainInitialized = false;
+
+  static bool _legacyCleaned = false;
   static bool _backgroundInitialized = false;
 
   static const _statusBarIcon = '@drawable/ic_stat_logo';
@@ -120,7 +122,10 @@ class ProductNotificationService {
     if (!_mainInitialized) return;
 
     final prefs = await SharedPreferences.getInstance();
-    await _cleanupLegacyDailySummaryArtifacts(prefs);
+    if (!_legacyCleaned) {
+      await _cleanupLegacyDailySummaryArtifacts(prefs);
+      _legacyCleaned = true;
+    }
     await _syncGlobalReminder(globalReminderSettings, prefs: prefs);
   }
 

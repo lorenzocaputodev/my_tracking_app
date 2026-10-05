@@ -21,9 +21,8 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    final turquoise = theme.colorScheme.primary;
+    final isDark = context.isDark;
+    final turquoise = context.accent;
 
     return Consumer<MyTrackingProvider>(
       builder: (context, provider, _) {

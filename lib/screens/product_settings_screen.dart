@@ -323,7 +323,9 @@ class _StockCard extends StatelessWidget {
       ),
     );
 
-    controller.dispose();
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => Future<void>.delayed(kThemeAnimationDuration, controller.dispose),
+    );
 
     if (correctedValue == null || !context.mounted) return;
 

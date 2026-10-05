@@ -490,12 +490,14 @@ class AppBackupCsv {
       if (row.length < 4) {
         throw const FormatException('Riga piano di riduzione incompleta.');
       }
+      final totalWeeks = int.parse(row[hasProductId ? 3 : 2]);
+      if (totalWeeks < 2 || totalWeeks > 26) continue;
       plans.add(
         ReductionPlan(
           productId: hasProductId ? row[0] : '',
           startAverage: double.parse(row[hasProductId ? 1 : 0]),
           targetPerDay: double.parse(row[hasProductId ? 2 : 1]),
-          totalWeeks: int.parse(row[hasProductId ? 3 : 2]),
+          totalWeeks: totalWeeks,
           startDate: DateTime.parse(row[hasProductId ? 4 : 3]),
         ),
       );
