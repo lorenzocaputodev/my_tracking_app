@@ -67,7 +67,7 @@ class ProductConfigurationForm extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             subtitle,
-            style: const TextStyle(fontFamily: AppFonts.sans, fontSize: 13, color: Colors.grey),
+            style: TextStyle(fontFamily: AppFonts.sans, fontSize: 13, color: context.colors.textMuted),
           ),
           const SizedBox(height: 28),
         ],
@@ -156,9 +156,9 @@ class ProductConfigurationForm extends StatelessWidget {
             onChanged: (_) => onChanged(),
           ),
           const SizedBox(height: 8),
-          const Text(
+          Text(
             'Puoi inserire anche il numero medio di usi ottenibili da una confezione.',
-            style: TextStyle(fontFamily: AppFonts.sans, fontSize: 11, color: Colors.grey),
+            style: TextStyle(fontFamily: AppFonts.sans, fontSize: 11, color: context.colors.textMuted),
           ),
         ] else ...[
           _sectionLabel('COSTO PER UTILIZZO', accentColor),
@@ -187,9 +187,9 @@ class ProductConfigurationForm extends StatelessWidget {
             onChanged: (_) => onChanged(),
           ),
           const SizedBox(height: 8),
-          const Text(
+          Text(
             'Lascia vuoto se vuoi registrare solo gli utilizzi, senza calcolare costi.',
-            style: TextStyle(fontFamily: AppFonts.sans, fontSize: 11, color: Colors.grey),
+            style: TextStyle(fontFamily: AppFonts.sans, fontSize: 11, color: context.colors.textMuted),
           ),
         ],
         const SizedBox(height: 28),
@@ -250,9 +250,9 @@ class ProductConfigurationForm extends StatelessWidget {
           label: dailyGoal == 0 ? 'Nessun limite' : '$dailyGoal',
           onChanged: (value) => onDailyGoalChanged(value.round()),
         ),
-        const Text(
+        Text(
           '0 = nessun limite impostato',
-          style: TextStyle(fontFamily: AppFonts.sans, fontSize: 11, color: Colors.grey),
+          style: TextStyle(fontFamily: AppFonts.sans, fontSize: 11, color: context.colors.textMuted),
         ),
       ],
     );

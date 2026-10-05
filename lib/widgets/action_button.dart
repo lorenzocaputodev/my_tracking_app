@@ -105,46 +105,49 @@ class _ActionButtonState extends State<ActionButton>
             ),
           ];
 
-    return Listener(
-      onPointerDown: (_) => _onPointerDown(),
-      onPointerUp: (_) => _onPointerUp(),
-      onPointerCancel: (_) => _onPointerUp(),
-      child: GestureDetector(
-        onTap: _handleTap,
-        child: ScaleTransition(
-          scale: _scaleAnimation,
-          child: Container(
-            width: widget.size,
-            height: widget.size,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: RadialGradient(
-                colors: gradientColors,
-                center: const Alignment(-0.2, -0.2),
-                radius: isDark ? 0.98 : 0.92,
+    return Semantics(
+      button: true,
+      child: Listener(
+        onPointerDown: (_) => _onPointerDown(),
+        onPointerUp: (_) => _onPointerUp(),
+        onPointerCancel: (_) => _onPointerUp(),
+        child: GestureDetector(
+          onTap: _handleTap,
+          child: ScaleTransition(
+            scale: _scaleAnimation,
+            child: Container(
+              width: widget.size,
+              height: widget.size,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: gradientColors,
+                  center: const Alignment(-0.2, -0.2),
+                  radius: isDark ? 0.98 : 0.92,
+                ),
+                border: Border.all(color: buttonBorderColor, width: 1.1),
+                boxShadow: buttonShadows,
               ),
-              border: Border.all(color: buttonBorderColor, width: 1.1),
-              boxShadow: buttonShadows,
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.bolt_rounded,
-                  color: textColor,
-                  size: widget.size * 0.32,
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  widget.actionLabel.toUpperCase(),
-                  style: TextStyle(fontFamily: AppFonts.display,
-                    fontSize: widget.size * 0.09,
-                    fontWeight: FontWeight.w700,
-                    color: labelColor,
-                    letterSpacing: 1.5,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.bolt_rounded,
+                    color: textColor,
+                    size: widget.size * 0.32,
                   ),
-                ),
-              ],
+                  const SizedBox(height: 6),
+                  Text(
+                    widget.actionLabel.toUpperCase(),
+                    style: TextStyle(fontFamily: AppFonts.display,
+                      fontSize: widget.size * 0.09,
+                      fontWeight: FontWeight.w700,
+                      color: labelColor,
+                      letterSpacing: 1.5,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

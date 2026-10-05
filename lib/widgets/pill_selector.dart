@@ -25,32 +25,37 @@ class PillSelector<T> extends StatelessWidget {
     final colors = context.colors;
     Widget pill(MapEntry<T, String> entry) {
       final selected = entry.key == value;
-      return GestureDetector(
-        onTap: () => onChanged(entry.key),
-        behavior: HitTestBehavior.opaque,
-        child: AnimatedContainer(
-          duration: AppMotion.fast,
-          curve: AppMotion.curve,
-          alignment: expand ? Alignment.center : null,
-          padding: EdgeInsets.symmetric(
-            horizontal: 11,
-            vertical: expand ? 9 : 6,
-          ),
-          decoration: BoxDecoration(
-            color:
-                selected ? colors.action : colors.action.withValues(alpha: 0),
-            borderRadius: BorderRadius.circular(AppRadii.pill),
-          ),
-          child: AnimatedDefaultTextStyle(
+      return Semantics(
+        button: true,
+        selected: selected,
+        inMutuallyExclusiveGroup: true,
+        child: GestureDetector(
+          onTap: () => onChanged(entry.key),
+          behavior: HitTestBehavior.opaque,
+          child: AnimatedContainer(
             duration: AppMotion.fast,
             curve: AppMotion.curve,
-            style: TextStyle(
-              fontFamily: AppFonts.sans,
-              fontSize: expand ? 14 : 12,
-              fontWeight: FontWeight.w700,
-              color: selected ? colors.onAction : colors.textMuted,
+            alignment: expand ? Alignment.center : null,
+            padding: EdgeInsets.symmetric(
+              horizontal: 11,
+              vertical: expand ? 9 : 6,
             ),
-            child: Text(entry.value, maxLines: 1),
+            decoration: BoxDecoration(
+              color:
+                  selected ? colors.action : colors.action.withValues(alpha: 0),
+              borderRadius: BorderRadius.circular(AppRadii.pill),
+            ),
+            child: AnimatedDefaultTextStyle(
+              duration: AppMotion.fast,
+              curve: AppMotion.curve,
+              style: TextStyle(
+                fontFamily: AppFonts.sans,
+                fontSize: expand ? 14 : 12,
+                fontWeight: FontWeight.w700,
+                color: selected ? colors.onAction : colors.textMuted,
+              ),
+              child: Text(entry.value, maxLines: 1),
+            ),
           ),
         ),
       );

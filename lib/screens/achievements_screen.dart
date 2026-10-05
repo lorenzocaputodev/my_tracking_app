@@ -108,10 +108,10 @@ class _ProgressBanner extends StatelessWidget {
               ),
               Text(
                 '${(pct * 100).round()}%',
-                style: const TextStyle(fontFamily: AppFonts.sans,
+                style: TextStyle(fontFamily: AppFonts.sans,
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
-                  color: Colors.grey,
+                  color: context.colors.textMuted,
                 ),
               ),
             ],
@@ -450,80 +450,91 @@ class _BadgeCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return GestureDetector(
+    final semanticLabel = locked || achievement.unlockedAt == null
+        ? '${achievement.title}, da sbloccare'
+        : '${achievement.title}, sbloccato il '
+            '${DateFormat('d MMMM y', 'it').format(achievement.unlockedAt!)}';
+
+    return Semantics(
+      button: true,
+      label: semanticLabel,
+      excludeSemantics: true,
       onTap: () => _showDetail(context),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
-        decoration: BoxDecoration(
-          color: locked
-              ? (isDark
-                  ? Colors.white.withValues(alpha: 0.03)
-                  : Colors.black.withValues(alpha: 0.03))
-              : color.withValues(alpha: isDark ? 0.12 : 0.08),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: locked ? Colors.transparent : color.withValues(alpha: 0.25),
+      child: GestureDetector(
+        onTap: () => _showDetail(context),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
+          decoration: BoxDecoration(
+            color: locked
+                ? (isDark
+                    ? Colors.white.withValues(alpha: 0.03)
+                    : Colors.black.withValues(alpha: 0.03))
+                : color.withValues(alpha: isDark ? 0.12 : 0.08),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: locked ? Colors.transparent : color.withValues(alpha: 0.25),
+            ),
           ),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ColorFiltered(
-              colorFilter: locked
-                  ? const ColorFilter.matrix(<double>[
-                      0.2126,
-                      0.7152,
-                      0.0722,
-                      0,
-                      0,
-                      0.2126,
-                      0.7152,
-                      0.0722,
-                      0,
-                      0,
-                      0.2126,
-                      0.7152,
-                      0.0722,
-                      0,
-                      0,
-                      0,
-                      0,
-                      0,
-                      1,
-                      0,
-                    ])
-                  : const ColorFilter.mode(Colors.transparent, BlendMode.dst),
-              child: Text(
-                achievement.emoji,
-                style: const TextStyle(fontSize: 30),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              achievement.title,
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(fontFamily: AppFonts.sans,
-                fontSize: 11,
-                fontWeight: FontWeight.w800,
-                color: locked
-                    ? Colors.grey
-                    : (isDark ? Colors.white : Colors.black87),
-              ),
-            ),
-            if (!locked && achievement.unlockedAt != null) ...[
-              const SizedBox(height: 4),
-              Text(
-                DateFormat('d MMM', 'it').format(achievement.unlockedAt!),
-                style: TextStyle(fontFamily: AppFonts.sans,
-                  fontSize: 9,
-                  fontWeight: FontWeight.w600,
-                  color: color,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ColorFiltered(
+                colorFilter: locked
+                    ? const ColorFilter.matrix(<double>[
+                        0.2126,
+                        0.7152,
+                        0.0722,
+                        0,
+                        0,
+                        0.2126,
+                        0.7152,
+                        0.0722,
+                        0,
+                        0,
+                        0.2126,
+                        0.7152,
+                        0.0722,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        1,
+                        0,
+                      ])
+                    : const ColorFilter.mode(Colors.transparent, BlendMode.dst),
+                child: Text(
+                  achievement.emoji,
+                  style: const TextStyle(fontSize: 30),
                 ),
               ),
+              const SizedBox(height: 8),
+              Text(
+                achievement.title,
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontFamily: AppFonts.sans,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w800,
+                  color: locked
+                      ? context.colors.textMuted
+                      : context.colors.textPrimary,
+                ),
+              ),
+              if (!locked && achievement.unlockedAt != null) ...[
+                const SizedBox(height: 4),
+                Text(
+                  DateFormat('d MMM', 'it').format(achievement.unlockedAt!),
+                  style: TextStyle(fontFamily: AppFonts.sans,
+                    fontSize: 9,
+                    fontWeight: FontWeight.w600,
+                    color: color,
+                  ),
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );
@@ -560,9 +571,9 @@ class _BadgeCard extends StatelessWidget {
               Text(
                 achievement.description,
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontFamily: AppFonts.sans,
+                style: TextStyle(fontFamily: AppFonts.sans,
                   fontSize: 13,
-                  color: Colors.grey,
+                  color: context.colors.textMuted,
                   height: 1.35,
                 ),
               ),
@@ -863,10 +874,10 @@ class _PlanStat extends StatelessWidget {
         children: [
           Text(
             label,
-            style: const TextStyle(fontFamily: AppFonts.sans,
+            style: TextStyle(fontFamily: AppFonts.sans,
               fontSize: 10,
               fontWeight: FontWeight.w600,
-              color: Colors.grey,
+              color: context.colors.textMuted,
             ),
           ),
           const SizedBox(height: 4),
@@ -880,10 +891,10 @@ class _PlanStat extends StatelessWidget {
           ),
           Text(
             unit,
-            style: const TextStyle(fontFamily: AppFonts.sans,
+            style: TextStyle(fontFamily: AppFonts.sans,
               fontSize: 10,
               fontWeight: FontWeight.w600,
-              color: Colors.grey,
+              color: context.colors.textMuted,
             ),
           ),
         ],
@@ -906,10 +917,10 @@ class _EmptyHint extends StatelessWidget {
       child: Text(
         text,
         textAlign: TextAlign.center,
-        style: const TextStyle(fontFamily: AppFonts.sans,
+        style: TextStyle(fontFamily: AppFonts.sans,
           fontSize: 13,
           fontWeight: FontWeight.w600,
-          color: Colors.grey,
+          color: context.colors.textMuted,
         ),
       ),
     );

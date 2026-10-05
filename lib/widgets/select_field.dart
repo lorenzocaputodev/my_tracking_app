@@ -29,40 +29,45 @@ class SelectField<T> extends StatelessWidget {
         ? ''
         : current.first.fieldLabel ?? current.first.label;
 
-    return Material(
-      color: colors.inputFill,
-      borderRadius: BorderRadius.circular(AppRadii.field),
-      child: InkWell(
+    return Semantics(
+      container: true,
+      button: true,
+      label: sheetTitle,
+      child: Material(
+        color: colors.inputFill,
         borderRadius: BorderRadius.circular(AppRadii.field),
-        onTap: () async {
-          final picked = await showOptionSheet<T>(
-            context,
-            title: sheetTitle,
-            options: options,
-            selected: value,
-          );
-          if (picked != null && picked != value) onChanged(picked);
-        },
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(14, 18, 14, 18),
-          child: Row(
-            children: [
-              Icon(icon, size: 20, color: colors.textMuted),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontFamily: AppFonts.sans,
-                    fontSize: 16,
-                    color: colors.textPrimary,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(AppRadii.field),
+          onTap: () async {
+            final picked = await showOptionSheet<T>(
+              context,
+              title: sheetTitle,
+              options: options,
+              selected: value,
+            );
+            if (picked != null && picked != value) onChanged(picked);
+          },
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(14, 18, 14, 18),
+            child: Row(
+              children: [
+                Icon(icon, size: 20, color: colors.textMuted),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontFamily: AppFonts.sans,
+                      fontSize: 16,
+                      color: colors.textPrimary,
+                    ),
                   ),
                 ),
-              ),
-              Icon(Icons.expand_more_rounded, color: context.accent),
-            ],
+                Icon(Icons.expand_more_rounded, color: context.accent),
+              ],
+            ),
           ),
         ),
       ),

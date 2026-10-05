@@ -6,6 +6,7 @@ import 'option_sheet.dart';
 import 'select_field.dart';
 import 'tracking_input_decoration.dart';
 import '../theme/app_fonts.dart';
+import '../theme/theme_context.dart';
 
 class MinutesLostSelector extends StatelessWidget {
   final bool isDark;
@@ -37,7 +38,7 @@ class MinutesLostSelector extends StatelessWidget {
     final baseTextStyle = TextStyle(fontFamily: AppFonts.sans,
       fontSize: 14,
       fontWeight: FontWeight.w500,
-      color: isDark ? Colors.white : Colors.black87,
+      color: context.colors.textPrimary,
     );
 
     return Column(
@@ -82,10 +83,10 @@ class MinutesLostSelector extends StatelessWidget {
               accentColor: accentColor,
             ).copyWith(
               suffixText: 'min',
-              suffixStyle: const TextStyle(fontFamily: AppFonts.sans,
+              suffixStyle: TextStyle(fontFamily: AppFonts.sans,
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
-                color: Colors.grey,
+                color: context.colors.textMuted,
               ),
             ),
           ),
