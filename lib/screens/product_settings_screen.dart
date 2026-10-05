@@ -2,17 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
-import '../models/pack_config.dart';
 import '../models/tracked_product.dart';
 import '../providers/my_tracking_provider.dart';
 import '../theme/app_decorations.dart';
 import '../theme/app_fonts.dart';
 import '../theme/theme_context.dart';
-import '../utils/app_formatters.dart';
-import '../utils/minutes_presets.dart';
 import '../theme/app_icons.dart';
 import '../widgets/option_sheet.dart';
 import '../widgets/product_configuration_form.dart';
+import '../widgets/product_form_state.dart';
 import '../widgets/save_bar.dart';
 
 class ProductSettingsScreen extends StatefulWidget {
@@ -25,17 +23,8 @@ class ProductSettingsScreen extends StatefulWidget {
 }
 
 class _ProductSettingsScreenState extends State<ProductSettingsScreen> {
+  final _form = ProductFormState();
   final _formKey = GlobalKey<FormState>();
-  final _nameCtrl = TextEditingController();
-  final _packCostCtrl = TextEditingController();
-  final _piecesCtrl = TextEditingController();
-  final _directCostCtrl = TextEditingController();
-  final _minutesCtrl = TextEditingController();
-
-  int _dailyGoal = 0;
-  bool _tracksInventory = true;
-  int? _selectedPresetMinutes;
-  bool _minutesCustomMode = false;
   bool _isSaving = false;
   String _savedSnapshot = '';
 
@@ -47,11 +36,7 @@ class _ProductSettingsScreenState extends State<ProductSettingsScreen> {
 
   @override
   void dispose() {
-    _nameCtrl.dispose();
-    _packCostCtrl.dispose();
-    _piecesCtrl.dispose();
-    _directCostCtrl.dispose();
-    _minutesCtrl.dispose();
+    _form.dispose();
     super.dispose();
   }
 
@@ -59,94 +44,25 @@ class _ProductSettingsScreenState extends State<ProductSettingsScreen> {
       .cast<TrackedProduct?>()
       .firstWhere((p) => p?.id == widget.productId, orElse: () => null);
 
-  String _snapshot() => [
-        _nameCtrl.text.trim(),
-        _packCostCtrl.text.trim(),
-        _piecesCtrl.text.trim(),
-        _directCostCtrl.text.trim(),
-        _minutesCtrl.text.trim(),
-        _dailyGoal,
-        _tracksInventory,
-      ].join('|');
-
-  bool get _isDirty => _snapshot() != _savedSnapshot;
+  bool get _isDirty => _form.snapshot != _savedSnapshot;
 
   void _reload() {
     final product = _product(context.read<MyTrackingProvider>());
     if (product == null) return;
     setState(() {
-      _nameCtrl.text = product.name;
-      _packCostCtrl.text = formatDecimal(product.totalCost);
-      _piecesCtrl.text = '${product.pieces}';
-      _directCostCtrl.text = product.directUnitCost == null
-          ? ''
-          : formatDecimal(product.directUnitCost!);
-      _minutesCtrl.text = '${product.minutesLost}';
-      _dailyGoal = product.dailyLimit;
-      _tracksInventory = product.tracksInventory;
-      _selectedPresetMinutes = presetForMinutes(product.minutesLost)?.minutes;
-      _minutesCustomMode = _selectedPresetMinutes == null;
-      _savedSnapshot = _snapshot();
-    });
-  }
-
-  bool get _canSave {
-    final name = _nameCtrl.text.trim();
-    final minutes = int.tryParse(_minutesCtrl.text.trim());
-    if (name.isEmpty || minutes == null || minutes < 0) {
-      return false;
-    }
-
-    if (_tracksInventory) {
-      final packCost = double.tryParse(_packCostCtrl.text.replaceAll(',', '.'));
-      final pieces = int.tryParse(_piecesCtrl.text.trim());
-      return packCost != null && packCost > 0 && pieces != null && pieces > 0;
-    }
-
-    final directCost = _directCostCtrl.text.trim();
-    if (directCost.isEmpty) return true;
-    final parsed = double.tryParse(directCost.replaceAll(',', '.'));
-    return parsed != null && parsed >= 0;
-  }
-
-  void _onMinutesPresetSelected(int value) {
-    setState(() {
-      if (value == customMinutesPresetValue) {
-        _minutesCustomMode = true;
-        _selectedPresetMinutes = null;
-        if (presetForMinutes(int.tryParse(_minutesCtrl.text.trim()) ?? -999) !=
-            null) {
-          _minutesCtrl.clear();
-        }
-      } else {
-        _minutesCustomMode = false;
-        _selectedPresetMinutes = value;
-        _minutesCtrl.text = '$value';
-      }
+      _form.load(product);
+      _savedSnapshot = _form.snapshot;
     });
   }
 
   Future<void> _save() async {
     if (_isSaving) return;
-    if (!_formKey.currentState!.validate() || !_canSave) return;
+    if (!_formKey.currentState!.validate() || !_form.isValid) return;
 
     setState(() => _isSaving = true);
     try {
-      final directUnitCost = _directCostCtrl.text.trim().isEmpty
-          ? null
-          : double.tryParse(_directCostCtrl.text.replaceAll(',', '.'));
-
       await context.read<MyTrackingProvider>().updateProductConfig(
-            PackConfig(
-              name: _nameCtrl.text.trim(),
-              totalCost:
-                  double.tryParse(_packCostCtrl.text.replaceAll(',', '.')) ?? 0,
-              pieces: int.tryParse(_piecesCtrl.text.trim()) ?? 20,
-              minutesLost: int.parse(_minutesCtrl.text.trim()),
-              dailyLimit: _dailyGoal,
-              tracksInventory: _tracksInventory,
-              directUnitCost: directUnitCost,
-            ),
+            _form.toConfig(),
             productId: widget.productId,
           );
     } finally {
@@ -279,20 +195,7 @@ class _ProductSettingsScreenState extends State<ProductSettingsScreen> {
                 accentColor: accent,
                 title: '',
                 subtitle: '',
-                nameController: _nameCtrl,
-                packCostController: _packCostCtrl,
-                piecesController: _piecesCtrl,
-                directCostController: _directCostCtrl,
-                minutesController: _minutesCtrl,
-                tracksInventory: _tracksInventory,
-                onTracksInventoryChanged: (value) =>
-                    setState(() => _tracksInventory = value),
-                dailyGoal: _dailyGoal,
-                onDailyGoalChanged: (value) =>
-                    setState(() => _dailyGoal = value),
-                selectedPresetMinutes: _selectedPresetMinutes,
-                minutesCustomMode: _minutesCustomMode,
-                onMinutesPresetSelected: _onMinutesPresetSelected,
+                form: _form,
                 onChanged: () => setState(() {}),
               ),
             ],

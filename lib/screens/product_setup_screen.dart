@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../models/tracked_product.dart';
 import '../providers/my_tracking_provider.dart';
-import '../utils/minutes_presets.dart';
 import '../widgets/backup_import.dart';
 import '../widgets/product_configuration_form.dart';
+import '../widgets/product_form_state.dart';
 import '../widgets/reminder_settings.dart';
 import '../widgets/save_bar.dart';
 import '../widgets/settings_rows.dart';
@@ -20,100 +19,19 @@ class ProductSetupScreen extends StatefulWidget {
 }
 
 class _ProductSetupScreenState extends State<ProductSetupScreen> {
-  final _nameCtrl = TextEditingController();
-  final _packCostCtrl = TextEditingController();
-  final _piecesCtrl = TextEditingController();
-  final _directCostCtrl = TextEditingController();
-  final _minutesCtrl = TextEditingController();
+  final _form = ProductFormState();
   final _formKey = GlobalKey<FormState>();
-
-  int _dailyGoal = 10;
   bool _isSaving = false;
-  bool _tracksInventory = true;
-  int? _selectedPresetMinutes = 0;
-  bool _minutesCustomMode = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _minutesCtrl.text = '0';
-    _syncMinutesSelection(0);
-  }
 
   @override
   void dispose() {
-    _nameCtrl.dispose();
-    _packCostCtrl.dispose();
-    _piecesCtrl.dispose();
-    _directCostCtrl.dispose();
-    _minutesCtrl.dispose();
+    _form.dispose();
     super.dispose();
-  }
-
-  bool get _canContinue {
-    final name = _nameCtrl.text.trim();
-    final minutes = int.tryParse(_minutesCtrl.text.trim());
-    if (name.isEmpty || minutes == null || minutes < 0) {
-      return false;
-    }
-
-    if (_tracksInventory) {
-      final cost = double.tryParse(_packCostCtrl.text.replaceAll(',', '.'));
-      final pieces = int.tryParse(_piecesCtrl.text.trim());
-      return cost != null && cost > 0 && pieces != null && pieces > 0;
-    }
-
-    final directCost = _directCostCtrl.text.trim();
-    if (directCost.isEmpty) return true;
-    final parsed = double.tryParse(directCost.replaceAll(',', '.'));
-    return parsed != null && parsed >= 0;
-  }
-
-  void _syncMinutesSelection(int minutes) {
-    final preset = presetForMinutes(minutes);
-    _selectedPresetMinutes = preset?.minutes;
-    _minutesCustomMode = preset == null;
-  }
-
-  void _onMinutesPresetSelected(int value) {
-    setState(() {
-      if (value == customMinutesPresetValue) {
-        _minutesCustomMode = true;
-        _selectedPresetMinutes = null;
-        if (presetForMinutes(int.tryParse(_minutesCtrl.text.trim()) ?? -999) !=
-            null) {
-          _minutesCtrl.clear();
-        }
-      } else {
-        _minutesCustomMode = false;
-        _selectedPresetMinutes = value;
-        _minutesCtrl.text = '$value';
-      }
-    });
-  }
-
-  TrackedProduct _buildProduct() {
-    final totalCost =
-        double.tryParse(_packCostCtrl.text.replaceAll(',', '.')) ?? 0;
-    final pieces = int.tryParse(_piecesCtrl.text.trim()) ?? 20;
-    final directUnitCost = _directCostCtrl.text.trim().isEmpty
-        ? null
-        : double.tryParse(_directCostCtrl.text.replaceAll(',', '.'));
-
-    return TrackedProduct.createNew(
-      name: _nameCtrl.text.trim(),
-      totalCost: totalCost,
-      pieces: pieces,
-      minutesLost: int.parse(_minutesCtrl.text.trim()),
-      dailyLimit: _dailyGoal,
-      tracksInventory: _tracksInventory,
-      directUnitCost: directUnitCost,
-    );
   }
 
   Future<void> _finish() async {
     if (_isSaving) return;
-    if (!_formKey.currentState!.validate() || !_canContinue) return;
+    if (!_formKey.currentState!.validate() || !_form.isValid) return;
 
     setState(() => _isSaving = true);
 
@@ -121,7 +39,7 @@ class _ProductSetupScreenState extends State<ProductSetupScreen> {
     if (!mounted) return;
 
     final provider = context.read<MyTrackingProvider>();
-    await provider.addProduct(_buildProduct());
+    await provider.addProduct(_form.toNewProduct());
     await prefs.setBool('hasCompletedSetup', true);
 
     if (!mounted) return;
@@ -177,19 +95,7 @@ class _ProductSetupScreenState extends State<ProductSetupScreen> {
               title: 'Cosa vuoi tracciare?',
               subtitle:
                   'Puoi modificare tutto nelle impostazioni in qualsiasi momento.',
-              nameController: _nameCtrl,
-              packCostController: _packCostCtrl,
-              piecesController: _piecesCtrl,
-              directCostController: _directCostCtrl,
-              minutesController: _minutesCtrl,
-              tracksInventory: _tracksInventory,
-              onTracksInventoryChanged: (value) =>
-                  setState(() => _tracksInventory = value),
-              dailyGoal: _dailyGoal,
-              onDailyGoalChanged: (value) => setState(() => _dailyGoal = value),
-              selectedPresetMinutes: _selectedPresetMinutes,
-              minutesCustomMode: _minutesCustomMode,
-              onMinutesPresetSelected: _onMinutesPresetSelected,
+              form: _form,
               onChanged: () => setState(() {}),
             ),
             const SettingsSectionLabel('PROMEMORIA', inset: 0),

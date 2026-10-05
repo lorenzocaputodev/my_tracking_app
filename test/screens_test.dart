@@ -10,10 +10,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:my_tracking_app/providers/my_tracking_provider.dart';
 import 'package:my_tracking_app/screens/history_screen.dart';
 import 'package:my_tracking_app/screens/home_screen.dart';
+import 'package:my_tracking_app/screens/product_settings_screen.dart';
 import 'package:my_tracking_app/screens/product_setup_screen.dart';
 import 'package:my_tracking_app/screens/settings_screen.dart';
 import 'package:my_tracking_app/theme/app_theme.dart';
 import 'package:my_tracking_app/utils/app_clock.dart';
+import 'package:my_tracking_app/widgets/save_bar.dart';
 import 'package:my_tracking_app/widgets/stats_card.dart';
 
 final _now = DateTime(2026, 9, 25, 17);
@@ -336,6 +338,59 @@ void main() {
     expect(provider.activeProduct.name, 'Svapo');
     expect(provider.activeProduct.minutesLost, 0);
     expect(find.text('Svapo aggiunto e in uso'), findsOneWidget);
+
+    await _dispose(tester, provider);
+  });
+
+  // --- Impostazioni del prodotto ---
+
+  testWidgets('la pagina del prodotto salva e annulla le modifiche', (
+    tester,
+  ) async {
+    final provider = await _pump(
+      tester,
+      const ProductSettingsScreen(productId: 'p1'),
+      <String, Object>{
+        'tracked_products_v1': jsonEncode([_product('p1', 'Sigarette')]),
+        'active_product_id': 'p1',
+      },
+    );
+
+    expect(find.byType(SaveBar), findsNothing);
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Sigarette'),
+      'Rosse',
+    );
+    await tester.pump();
+    expect(find.byType(SaveBar), findsOneWidget);
+    await tester.tap(find.text('Annulla'));
+    await tester.pump();
+    expect(find.byType(SaveBar), findsNothing);
+    expect(find.widgetWithText(TextFormField, 'Sigarette'), findsOneWidget);
+
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Sigarette'),
+      'Rosse',
+    );
+    await tester.tap(find.text('Senza scorta'));
+    await tester.pump();
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Facoltativo, es. 0,10'),
+      '0,15',
+    );
+    await tester.pump();
+    await tester.tap(find.text('Salva'));
+    await _settleAsync(tester);
+    await tester.pumpAndSettle();
+
+    final saved = provider.products.single;
+    expect(saved.name, 'Rosse');
+    expect(saved.tracksInventory, isFalse);
+    expect(saved.directUnitCost, 0.15);
+    expect(saved.minutesLost, 11);
+    expect(saved.dailyLimit, 10);
+    expect(find.byType(SaveBar), findsNothing);
+    expect(find.text('Modifiche salvate'), findsOneWidget);
 
     await _dispose(tester, provider);
   });

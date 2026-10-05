@@ -8,24 +8,14 @@ import '../theme/app_fonts.dart';
 import '../theme/app_text_styles.dart';
 import '../theme/theme_context.dart';
 import 'pill_selector.dart';
+import 'product_form_state.dart';
 
 class ProductConfigurationForm extends StatelessWidget {
   final bool isDark;
   final Color accentColor;
   final String title;
   final String subtitle;
-  final TextEditingController nameController;
-  final TextEditingController packCostController;
-  final TextEditingController piecesController;
-  final TextEditingController directCostController;
-  final TextEditingController minutesController;
-  final bool tracksInventory;
-  final ValueChanged<bool> onTracksInventoryChanged;
-  final int dailyGoal;
-  final ValueChanged<int> onDailyGoalChanged;
-  final int? selectedPresetMinutes;
-  final bool minutesCustomMode;
-  final ValueChanged<int> onMinutesPresetSelected;
+  final ProductFormState form;
   final VoidCallback onChanged;
 
   const ProductConfigurationForm({
@@ -34,20 +24,14 @@ class ProductConfigurationForm extends StatelessWidget {
     required this.accentColor,
     required this.title,
     required this.subtitle,
-    required this.nameController,
-    required this.packCostController,
-    required this.piecesController,
-    required this.directCostController,
-    required this.minutesController,
-    required this.tracksInventory,
-    required this.onTracksInventoryChanged,
-    required this.dailyGoal,
-    required this.onDailyGoalChanged,
-    required this.selectedPresetMinutes,
-    required this.minutesCustomMode,
-    required this.onMinutesPresetSelected,
+    required this.form,
     required this.onChanged,
   });
+
+  void _update(VoidCallback change) {
+    change();
+    onChanged();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +58,7 @@ class ProductConfigurationForm extends StatelessWidget {
         _sectionLabel('NOME PRODOTTO', accentColor),
         const SizedBox(height: 10),
         TextFormField(
-          controller: nameController,
+          controller: form.name,
           style: const TextStyle(fontFamily: AppFonts.sans, fontWeight: FontWeight.w500),
           decoration: _inputDecoration(
             hint: 'Es. Sigarette',
@@ -94,15 +78,15 @@ class ProductConfigurationForm extends StatelessWidget {
         _sectionLabel('MODALIT\u00C0 PRODOTTO', accentColor),
         const SizedBox(height: 10),
         _TrackingModeSection(
-          tracksInventory: tracksInventory,
-          onChanged: onTracksInventoryChanged,
+          tracksInventory: form.tracksInventory,
+          onChanged: (value) => _update(() => form.tracksInventory = value),
         ),
         const SizedBox(height: 28),
-        if (tracksInventory) ...[
+        if (form.tracksInventory) ...[
           _sectionLabel('COSTO CONFEZIONE', accentColor),
           const SizedBox(height: 10),
           TextFormField(
-            controller: packCostController,
+            controller: form.packCost,
             style: const TextStyle(fontFamily: AppFonts.sans, fontWeight: FontWeight.w500),
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             inputFormatters: [
@@ -133,7 +117,7 @@ class ProductConfigurationForm extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           TextFormField(
-            controller: piecesController,
+            controller: form.pieces,
             style: const TextStyle(fontFamily: AppFonts.sans, fontWeight: FontWeight.w500),
             keyboardType: TextInputType.number,
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
@@ -164,7 +148,7 @@ class ProductConfigurationForm extends StatelessWidget {
           _sectionLabel('COSTO PER UTILIZZO', accentColor),
           const SizedBox(height: 10),
           TextFormField(
-            controller: directCostController,
+            controller: form.directCost,
             style: const TextStyle(fontFamily: AppFonts.sans, fontWeight: FontWeight.w500),
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             inputFormatters: [
@@ -198,13 +182,14 @@ class ProductConfigurationForm extends StatelessWidget {
         MinutesLostSelector(
           isDark: isDark,
           accentColor: accentColor,
-          controller: minutesController,
-          selectedPresetMinutes: selectedPresetMinutes,
-          customMode: minutesCustomMode,
-          onPresetSelected: onMinutesPresetSelected,
+          controller: form.minutes,
+          selectedPresetMinutes: form.selectedPresetMinutes,
+          customMode: form.minutesCustomMode,
+          onPresetSelected: (value) =>
+              _update(() => form.selectMinutesPreset(value)),
           onCustomChanged: (_) => onChanged(),
           validator: (value) {
-            if (minutesCustomMode && (value == null || value.trim().isEmpty)) {
+            if (form.minutesCustomMode && (value == null || value.trim().isEmpty)) {
               return 'Inserisci un valore';
             }
             final parsed = int.tryParse(value ?? '');
@@ -221,9 +206,9 @@ class ProductConfigurationForm extends StatelessWidget {
           children: [
             Expanded(
               child: Text(
-                dailyGoal == 0
+                form.dailyGoal == 0
                     ? 'Nessun limite giornaliero'
-                    : 'Voglio stare sotto $dailyGoal al giorno',
+                    : 'Voglio stare sotto ${form.dailyGoal} al giorno',
                 style: const TextStyle(fontFamily: AppFonts.sans,
                   fontWeight: FontWeight.w700,
                   fontSize: 15,
@@ -231,7 +216,7 @@ class ProductConfigurationForm extends StatelessWidget {
               ),
             ),
             Text(
-              '$dailyGoal',
+              '${form.dailyGoal}',
               style: TextStyle(fontFamily: AppFonts.sans,
                 fontSize: 22,
                 fontWeight: FontWeight.w900,
@@ -241,14 +226,14 @@ class ProductConfigurationForm extends StatelessWidget {
           ],
         ),
         Slider(
-          value: dailyGoal.toDouble(),
+          value: form.dailyGoal.toDouble(),
           min: 0,
           max: 50,
           divisions: 50,
           activeColor: accentColor,
           inactiveColor: accentColor.withValues(alpha: 0.15),
-          label: dailyGoal == 0 ? 'Nessun limite' : '$dailyGoal',
-          onChanged: (value) => onDailyGoalChanged(value.round()),
+          label: form.dailyGoal == 0 ? 'Nessun limite' : '${form.dailyGoal}',
+          onChanged: (value) => _update(() => form.dailyGoal = value.round()),
         ),
         Text(
           '0 = nessun limite impostato',
