@@ -74,7 +74,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final turquoise = Theme.of(context).colorScheme.primary;
+    final turquoise = context.accent;
     final isLast = _currentPage == _slides.length - 1;
 
     return Scaffold(

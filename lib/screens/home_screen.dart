@@ -303,7 +303,7 @@ class HomeScreen extends StatelessWidget {
       context: context,
       barrierColor: Colors.black54,
       builder: (ctx) {
-        final isDark = Theme.of(ctx).brightness == Brightness.dark;
+        final isDark = ctx.isDark;
         return Dialog(
           backgroundColor: Colors.transparent,
           insetPadding: const EdgeInsets.symmetric(horizontal: 32),
@@ -689,7 +689,7 @@ class _HomeInsightBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = context.isDark;
     final (icon, color) = switch (insight.type) {
       HomeInsightType.planAhead => (
           Icons.trending_down_rounded,

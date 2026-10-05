@@ -164,7 +164,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final turquoise = Theme.of(context).colorScheme.primary;
+    final turquoise = context.accent;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Cronologia'), elevation: 0),
@@ -414,8 +414,8 @@ class _StatsPanelState extends State<_StatsPanel> {
 
   @override
   Widget build(BuildContext context) {
-    final turquoise = Theme.of(context).colorScheme.primary;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final turquoise = context.accent;
+    final isDark = context.isDark;
     final totalCost = widget.entries.fold<double>(
       0,
       (sum, entry) => sum + entry.costDeducted,
@@ -1116,7 +1116,7 @@ class _StatItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = context.isDark;
     final labelColor = context.colors.textMuted;
     return Container(
       width: fullWidth ? double.infinity : null,
@@ -1281,7 +1281,7 @@ class _MonthlyChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final turquoise = Theme.of(context).colorScheme.primary;
+    final turquoise = context.accent;
     final today = dateOnly(appNow());
     final days = List.generate(30, (index) {
       return addDays(today, -(29 - index));

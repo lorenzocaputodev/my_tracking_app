@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/my_tracking_provider.dart';
+import '../theme/theme_context.dart';
 import '../widgets/product_configuration_form.dart';
 import '../widgets/product_form_state.dart';
 import '../widgets/save_bar.dart';
@@ -43,8 +44,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final accent = Theme.of(context).colorScheme.primary;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final accent = context.accent;
+    final isDark = context.isDark;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Nuovo prodotto')),

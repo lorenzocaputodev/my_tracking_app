@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../providers/my_tracking_provider.dart';
+import '../theme/theme_context.dart';
 import '../widgets/backup_import.dart';
 import '../widgets/product_configuration_form.dart';
 import '../widgets/product_form_state.dart';
@@ -60,8 +61,8 @@ class _ProductSetupScreenState extends State<ProductSetupScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final turquoise = Theme.of(context).colorScheme.primary;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final turquoise = context.accent;
+    final isDark = context.isDark;
 
     return Scaffold(
       appBar: AppBar(

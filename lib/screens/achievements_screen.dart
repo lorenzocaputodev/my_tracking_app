@@ -16,7 +16,7 @@ class AchievementsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final turquoise = Theme.of(context).colorScheme.primary;
+    final turquoise = context.accent;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Obiettivi & Badge'), elevation: 0),
@@ -448,7 +448,7 @@ class _BadgeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = context.isDark;
 
     final semanticLabel = locked || achievement.unlockedAt == null
         ? '${achievement.title}, da sbloccare'
@@ -861,7 +861,7 @@ class _PlanStat extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final accent = highlight ?? Theme.of(context).colorScheme.primary;
+    final accent = highlight ?? context.accent;
 
     return Container(
       padding: const EdgeInsets.all(12),
