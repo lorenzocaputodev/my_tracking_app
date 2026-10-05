@@ -866,10 +866,12 @@ class MyTrackingProvider extends ChangeNotifier {
     return dates;
   }
 
+  String _encodeAchievements() =>
+      jsonEncode(_achievements.values.map((a) => a.toJson()).toList());
+
   Future<void> _persistAchievements() async {
     final prefs = await SharedPreferences.getInstance();
-    final list = _achievements.values.map((a) => a.toJson()).toList();
-    await prefs.setString(_keyAchievements, jsonEncode(list));
+    await prefs.setString(_keyAchievements, _encodeAchievements());
   }
 
   ReductionPlan? reductionPlanForProduct(String productId) {
@@ -1346,26 +1348,10 @@ class MyTrackingProvider extends ChangeNotifier {
     bool clearWidgetTransientState = false,
     bool clearLegacyConfig = false,
   }) async {
-    await prefs.setString(
-      _keyProducts,
-      jsonEncode(_products.map((product) => product.toJson()).toList()),
-    );
-    await prefs.setString(
-      _keyGlobalReminderSettings,
-      jsonEncode(_globalReminderSettings.toJson()),
-    );
-    await prefs.remove(_keyGlobalDailySummarySettingsLegacy);
-    await prefs.setString(_keyActiveProduct, _activeProductId);
-    await prefs.setStringList(
-      _keyEntries,
-      _entries.map((entry) => jsonEncode(entry.toJson())).toList(),
-    );
-    await prefs.setString(
-      _keyAchievements,
-      jsonEncode(_achievements.values.map((a) => a.toJson()).toList()),
-    );
-    await prefs.setString(_keyReductionPlans, _encodeReductionPlans());
-    await prefs.remove(_keyReductionPlanLegacy);
+    await _persistProductsOnly(prefs);
+    await _persistEntriesOnly(prefs);
+    await prefs.setString(_keyAchievements, _encodeAchievements());
+    await _persistReductionPlansOnly(prefs);
     await prefs.setString(_keyTheme, _themePreference.name);
     await prefs.setBool(_keyOnboardingDone, onboardingDone);
     await prefs.setBool(_keyHasCompletedSetup, hasCompletedSetup);
@@ -1382,45 +1368,35 @@ class MyTrackingProvider extends ChangeNotifier {
     }
   }
 
+  static AppReminderSettings _decodeReminderSettings(String? raw) {
+    if (raw == null || raw.trim().isEmpty) return AppReminderSettings.defaults;
+    try {
+      return AppReminderSettings.fromJson(
+        (jsonDecode(raw) as Map).cast<String, dynamic>(),
+      );
+    } catch (_) {
+      return AppReminderSettings.defaults;
+    }
+  }
+
   void _hydrateFromPrefs(SharedPreferences prefs) {
     final productsJson = prefs.getString(_keyProducts);
-    if (productsJson != null) {
-      final list = jsonDecode(productsJson) as List<dynamic>;
-      if (prefs.containsKey(_keyGlobalReminderSettings)) {
-        final rawGlobalReminder = prefs.getString(_keyGlobalReminderSettings);
-        if (rawGlobalReminder != null && rawGlobalReminder.trim().isNotEmpty) {
-          try {
-            _globalReminderSettings = AppReminderSettings.fromJson(
-              (jsonDecode(rawGlobalReminder) as Map).cast<String, dynamic>(),
-            );
-          } catch (_) {
-            _globalReminderSettings = AppReminderSettings.defaults;
-          }
-        } else {
-          _globalReminderSettings = AppReminderSettings.defaults;
-        }
-      } else {
-        _globalReminderSettings =
-            AppReminderSettings.migrateFromLegacyProductMaps(list);
-      }
+    final list = productsJson == null
+        ? null
+        : jsonDecode(productsJson) as List<dynamic>;
+    _globalReminderSettings =
+        list != null && !prefs.containsKey(_keyGlobalReminderSettings)
+            ? AppReminderSettings.migrateFromLegacyProductMaps(list)
+            : _decodeReminderSettings(
+                prefs.getString(_keyGlobalReminderSettings),
+              );
+    if (list != null) {
       _products = list
           .map((e) => TrackedProduct.fromJson(e as Map<String, dynamic>))
           .toList();
     } else {
       final legacy = prefs.getString(_keyConfigLegacy);
       final rem = prefs.getInt(_keyPackRemainingLegacy) ?? 0;
-      final rawGlobalReminder = prefs.getString(_keyGlobalReminderSettings);
-      if (rawGlobalReminder != null && rawGlobalReminder.trim().isNotEmpty) {
-        try {
-          _globalReminderSettings = AppReminderSettings.fromJson(
-            (jsonDecode(rawGlobalReminder) as Map).cast<String, dynamic>(),
-          );
-        } catch (_) {
-          _globalReminderSettings = AppReminderSettings.defaults;
-        }
-      } else {
-        _globalReminderSettings = AppReminderSettings.defaults;
-      }
       if (legacy != null) {
         try {
           final tp = TrackedProduct.fromLegacyPackConfig(
@@ -1436,10 +1412,7 @@ class MyTrackingProvider extends ChangeNotifier {
       }
     }
 
-    _activeProductId = prefs.getString(_keyActiveProduct) ??
-        (activeProducts.isNotEmpty
-            ? activeProducts.first.id
-            : (_products.isNotEmpty ? _products.first.id : ''));
+    _activeProductId = prefs.getString(_keyActiveProduct) ?? '';
 
     final entriesJson = prefs.getStringList(_keyEntries) ?? [];
     final parsedEntries = <SmokeEntry>[];
@@ -1537,25 +1510,23 @@ class MyTrackingProvider extends ChangeNotifier {
   bool _isArchivedProductId(String productId) =>
       _products.any((product) => product.id == productId && product.isArchived);
 
-  Future<void> _persistProducts() async {
-    final prefs = await SharedPreferences.getInstance();
+  Future<void> _persistProductsOnly(SharedPreferences prefs) async {
     await prefs.setString(
       _keyProducts,
       jsonEncode(_products.map((p) => p.toJson()).toList()),
     );
     await _persistGlobalReminderOnly(prefs);
     await prefs.setString(_keyActiveProduct, _activeProductId);
-    await _persistWidgetSnapshots();
-    await WidgetBridge.updateWidgets();
+  }
+
+  Future<void> _persistProducts() async {
+    await _persistProductsOnly(await SharedPreferences.getInstance());
+    await syncWidgets();
     await _syncNotifications();
   }
 
   Future<void> _persist() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList(
-      _keyEntries,
-      _entries.map((e) => jsonEncode(e.toJson())).toList(),
-    );
+    await _persistEntriesOnly(await SharedPreferences.getInstance());
     await _persistProducts();
   }
 

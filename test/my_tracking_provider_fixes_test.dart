@@ -363,4 +363,83 @@ void main() {
         reason: 'la voce torna al suo posto in ordine cronologico');
     provider.dispose();
   });
+
+  group('lettura dei dati salvati', () {
+    Future<MyTrackingProvider> boot(Map<String, Object> prefs) async {
+      SharedPreferences.setMockInitialValues(prefs);
+      final provider = MyTrackingProvider();
+      await provider.init();
+      provider.setForeground(false);
+      return provider;
+    }
+
+    test('i promemoria dei prodotti vecchi diventano quello globale',
+        () async {
+      final provider = await boot(<String, Object>{
+        'tracked_products_v1': _productsJson([
+          {
+            ..._product(id: 'p1', name: 'Sigarette'),
+            'notificationSettings': {
+              'periodicReminderEnabled': true,
+              'periodicReminderMinutes': 90,
+            },
+          },
+        ]),
+      });
+
+      expect(provider.globalReminderSettings.enabled, isTrue);
+      expect(provider.globalReminderSettings.intervalMinutes, 90);
+      expect(provider.activeProduct.id, 'p1');
+      provider.dispose();
+    });
+
+    test('il promemoria globale salvato vince su quelli dei prodotti',
+        () async {
+      final provider = await boot(<String, Object>{
+        'tracked_products_v1': _productsJson([
+          {
+            ..._product(id: 'p1', name: 'Sigarette'),
+            'notificationSettings': {'periodicReminderEnabled': true},
+          },
+        ]),
+        'global_reminder_settings_v1':
+            jsonEncode({'enabled': true, 'intervalMinutes': 240}),
+      });
+
+      expect(provider.globalReminderSettings.intervalMinutes, 240);
+      provider.dispose();
+    });
+
+    test('un promemoria salvato illeggibile torna ai valori predefiniti',
+        () async {
+      final provider = await boot(<String, Object>{
+        'tracked_products_v1':
+            _productsJson([_product(id: 'p1', name: 'Sigarette')]),
+        'global_reminder_settings_v1': '{non json',
+      });
+
+      expect(provider.globalReminderSettings.enabled, isFalse);
+      provider.dispose();
+    });
+
+    test('la configurazione della prima versione diventa un prodotto',
+        () async {
+      final provider = await boot(<String, Object>{
+        'pack_config': jsonEncode({
+          'name': 'Rosse',
+          'totalCost': 6.0,
+          'pieces': 20,
+          'minutesLost': 11,
+        }),
+        'pack_remaining': 7,
+        'global_reminder_settings_v1':
+            jsonEncode({'enabled': true, 'intervalMinutes': 60}),
+      });
+
+      expect(provider.activeProduct.name, 'Rosse');
+      expect(provider.activeProduct.packRemaining, 7);
+      expect(provider.globalReminderSettings.intervalMinutes, 60);
+      provider.dispose();
+    });
+  });
 }
