@@ -160,6 +160,31 @@ void main() {
     await _dispose(tester, provider);
   });
 
+  testWidgets("cambiare modalità non porta errori da un campo all'altro", (
+    tester,
+  ) async {
+    final provider = await _pump(
+      tester,
+      const ProductSetupScreen(),
+      <String, Object>{'onboarding_done': true},
+    );
+
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Es. Sigarette'),
+      'Svapo',
+    );
+    await tester.pump();
+    await tester.tap(find.text('Senza scorta'));
+    await tester.pumpAndSettle();
+    expect(find.text('Inserisci un importo'), findsNothing);
+
+    await tester.tap(find.text('Con scorta'));
+    await tester.pumpAndSettle();
+    expect(find.text('Importo non valido'), findsNothing);
+
+    await _dispose(tester, provider);
+  });
+
   // --- Home ---
 
   testWidgets('la home nasconde costi e minuti non impostati', (tester) async {

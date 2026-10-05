@@ -86,6 +86,7 @@ class ProductConfigurationForm extends StatelessWidget {
           _sectionLabel('COSTO CONFEZIONE', accentColor),
           const SizedBox(height: 10),
           TextFormField(
+            key: const ValueKey('packCost'),
             controller: form.packCost,
             style: const TextStyle(fontFamily: AppFonts.sans, fontWeight: FontWeight.w500),
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
@@ -117,6 +118,7 @@ class ProductConfigurationForm extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           TextFormField(
+            key: const ValueKey('pieces'),
             controller: form.pieces,
             style: const TextStyle(fontFamily: AppFonts.sans, fontWeight: FontWeight.w500),
             keyboardType: TextInputType.number,
@@ -148,6 +150,7 @@ class ProductConfigurationForm extends StatelessWidget {
           _sectionLabel('COSTO PER UTILIZZO', accentColor),
           const SizedBox(height: 10),
           TextFormField(
+            key: const ValueKey('directCost'),
             controller: form.directCost,
             style: const TextStyle(fontFamily: AppFonts.sans, fontWeight: FontWeight.w500),
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
