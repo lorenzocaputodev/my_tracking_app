@@ -8,7 +8,7 @@ class MinutesPreset {
 const int customMinutesPresetValue = -1;
 
 const List<MinutesPreset> minutesPresets = [
-  MinutesPreset('0 — disabilita conteggio vita persa', 0),
+  MinutesPreset('Nessuna stima', 0),
   MinutesPreset('Sigaretta — 11 min (stima)', 11),
   MinutesPreset('Sigaretta elettronica — 5 min (stima)', 5),
   MinutesPreset('Riscaldatore di tabacco — 6 min (stima)', 6),

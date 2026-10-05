@@ -7,6 +7,7 @@ import '../theme/app_dimens.dart';
 import '../theme/app_fonts.dart';
 import '../theme/theme_context.dart';
 import '../utils/backup_file_service.dart';
+import '../widgets/backup_import.dart';
 import '../widgets/pill_selector.dart';
 import '../widgets/reminder_settings.dart';
 import '../widgets/settings_rows.dart';
@@ -87,87 +88,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
         backgroundColor: context.stats.danger,
       );
     }
-  }
-
-  Future<void> _importBackupCsvFile() async {
-    if (!BackupFileService.isSupported) {
-      _showFeedback(
-        'Import/export file disponibile solo su Android e Windows.',
-        backgroundColor: context.stats.danger,
-      );
-      return;
-    }
-
-    try {
-      final file = await BackupFileService.pickCsvFile();
-      if (!mounted || file.status == BackupFileReadStatus.cancelled) return;
-      if (file.status == BackupFileReadStatus.unsupported ||
-          file.content == null) {
-        _showFeedback(
-          'Importazione file non supportata su questa piattaforma.',
-          backgroundColor: context.stats.danger,
-        );
-        return;
-      }
-
-      final provider = context.read<MyTrackingProvider>();
-      final data = provider.readBackupCsv(file.content!);
-
-      if (data.entries.isEmpty && !await _confirmEmptyHistory()) return;
-      if (!mounted) return;
-
-      final outcome = await provider.restoreBackup(data);
-      _showFeedback('Ripristino completato: ${_importSummary(outcome)}.');
-    } on FormatException catch (error) {
-      if (!mounted) return;
-      _showFeedback(
-        error.message.isEmpty ? 'Backup CSV non valido' : error.message,
-        backgroundColor: context.stats.danger,
-      );
-    } on BackupRestoreException catch (error) {
-      if (!mounted) return;
-      _showFeedback(error.message, backgroundColor: context.stats.danger);
-    } catch (_) {
-      if (!mounted) return;
-      _showFeedback(
-        'Importazione CSV non riuscita.',
-        backgroundColor: context.stats.danger,
-      );
-    }
-  }
-
-  Future<bool> _confirmEmptyHistory() async {
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Backup senza cronologia'),
-        content: const Text(
-          'Questo file non contiene nessuna registrazione. '
-          'Importarlo sostituisce i dati attuali e la cronologia resta vuota.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Annulla'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Importa comunque'),
-          ),
-        ],
-      ),
-    );
-    return ok == true;
-  }
-
-  String _importSummary(BackupImportOutcome outcome) {
-    final parts = <String>[
-      outcome.entries == 1
-          ? '1 registrazione'
-          : '${outcome.entries} registrazioni',
-      outcome.products == 1 ? '1 prodotto' : '${outcome.products} prodotti',
-    ];
-    return parts.join(' e ');
   }
 
   Future<void> _confirmReset() async {
@@ -291,7 +211,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 icon: Icons.download_rounded,
                 title: 'Importa backup',
                 subtitle: 'Sostituisce i dati attuali',
-                onTap: _importBackupCsvFile,
+                onTap: () => importBackupFromFile(context),
               ),
             ],
           ),

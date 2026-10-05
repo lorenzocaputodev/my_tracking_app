@@ -19,19 +19,19 @@ class _AddProductScreenState extends State<AddProductScreen> {
   final _packCostCtrl = TextEditingController();
   final _piecesCtrl = TextEditingController();
   final _directCostCtrl = TextEditingController();
-  final _minutesCtrl = TextEditingController(text: '11');
+  final _minutesCtrl = TextEditingController(text: '0');
   final _formKey = GlobalKey<FormState>();
 
   int _dailyGoal = 10;
   bool _isSaving = false;
   bool _tracksInventory = true;
-  int? _selectedPresetMinutes = 11;
+  int? _selectedPresetMinutes = 0;
   bool _minutesCustomMode = false;
 
   @override
   void initState() {
     super.initState();
-    _syncMinutesSelection(11);
+    _syncMinutesSelection(0);
   }
 
   @override

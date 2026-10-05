@@ -40,7 +40,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       title: 'Quanto tempo\nti costa?',
       description: 'Puoi aggiungere una stima dei minuti di vita persi per '
           'ogni utilizzo: è un valore simbolico, non il tempo per '
-          'consumarlo. Se non ti serve, lascialo a 0.',
+          'consumarlo. Se non ti serve, scegli «Nessuna stima».',
     ),
     _OnboardingSlide(
       icon: Icons.bolt_rounded,
@@ -75,7 +75,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     final turquoise = Theme.of(context).colorScheme.primary;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final isLast = _currentPage == _slides.length - 1;
 
     return Scaffold(
@@ -158,7 +157,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           style: TextStyle(fontFamily: AppFonts.sans,
                             fontSize: 16,
                             height: 1.6,
-                            color: isDark ? Colors.white54 : Colors.black54,
+                            color: context.colors.textMuted,
                           ),
                         ),
                       ],

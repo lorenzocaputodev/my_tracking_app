@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/tracked_product.dart';
 import '../providers/my_tracking_provider.dart';
 import '../utils/minutes_presets.dart';
+import '../widgets/backup_import.dart';
 import '../widgets/product_configuration_form.dart';
 import '../widgets/reminder_settings.dart';
 import '../widgets/save_bar.dart';
@@ -29,14 +30,14 @@ class _ProductSetupScreenState extends State<ProductSetupScreen> {
   int _dailyGoal = 10;
   bool _isSaving = false;
   bool _tracksInventory = true;
-  int? _selectedPresetMinutes = 11;
+  int? _selectedPresetMinutes = 0;
   bool _minutesCustomMode = false;
 
   @override
   void initState() {
     super.initState();
-    _minutesCtrl.text = '11';
-    _syncMinutesSelection(11);
+    _minutesCtrl.text = '0';
+    _syncMinutesSelection(0);
   }
 
   @override
@@ -129,6 +130,16 @@ class _ProductSetupScreenState extends State<ProductSetupScreen> {
     );
   }
 
+  Future<void> _importBackup() async {
+    if (_isSaving) return;
+    final outcome = await importBackupFromFile(context);
+    if (outcome == null || !mounted) return;
+    if (context.read<MyTrackingProvider>().activeProducts.isEmpty) return;
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (_) => const HomeScreen()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final turquoise = Theme.of(context).colorScheme.primary;
@@ -149,6 +160,17 @@ class _ProductSetupScreenState extends State<ProductSetupScreen> {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
           children: [
+            SettingsGroup(
+              children: [
+                SettingsRow(
+                  icon: Icons.download_rounded,
+                  title: 'Ho già un backup',
+                  subtitle: 'Ripristina i tuoi dati da un file CSV',
+                  onTap: _importBackup,
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
             ProductConfigurationForm(
               isDark: isDark,
               accentColor: turquoise,
