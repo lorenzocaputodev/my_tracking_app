@@ -38,7 +38,8 @@ Vuoi solo installarla? Scarica l’APK dall’**[ultima versione pubblicata](htt
 - 📉 Piano di riduzione **indipendente per ogni prodotto**
 - ⚙️ Impostazioni con una pagina per ogni prodotto, anche quando non è in uso
 - 🗄️ Archiviazione dei prodotti con storico conservato
-- 📄 Backup ed esportazione in CSV
+- 📄 Backup ed esportazione in CSV, ripristinabili già dalla prima configurazione
+- ♿ Etichette per TalkBack e layout che regge il testo ingrandito dal sistema
 - 📲 Widget Android per la schermata Home in tre dimensioni: **piccola**, **media** e **grande**
 - 🔔 Promemoria periodici, proposti già alla prima configurazione
 - 🎨 Tema **scuro / chiaro / sistema**
