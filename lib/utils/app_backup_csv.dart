@@ -377,17 +377,17 @@ class AppBackupCsv {
       return TrackedProduct(
         id: row[0],
         name: row[1],
-        totalCost: double.parse(row[2]),
-        pieces: int.parse(row[3]),
-        minutesLost: int.parse(row[4]),
-        dailyLimit: int.parse(row[5]),
-        packRemaining: int.parse(row[6]),
+        totalCost: _parseDouble(row[2]),
+        pieces: _parseInt(row[3]),
+        minutesLost: _parseInt(row[4]),
+        dailyLimit: _parseInt(row[5]),
+        packRemaining: _parseInt(row[6]),
         tracksInventory: headerIndex.containsKey('tracksInventory')
             ? _parseBool(readCell(row, 'tracksInventory'))
             : true,
         directUnitCost: readCell(row, 'directUnitCost').trim().isEmpty
             ? null
-            : double.parse(readCell(row, 'directUnitCost')),
+            : _parseDouble(readCell(row, 'directUnitCost')),
         isArchived: headerIndex.containsKey('isArchived')
             ? _parseBool(readCell(row, 'isArchived'))
             : false,
@@ -417,9 +417,9 @@ class AppBackupCsv {
       }
       return SmokeEntry(
         id: row[0],
-        timestamp: DateTime.parse(row[1]),
-        costDeducted: double.parse(row[2]),
-        minutesLost: int.parse(row[3]),
+        timestamp: _parseDate(row[1]),
+        costDeducted: _parseDouble(row[2]),
+        minutesLost: _parseInt(row[3]),
         productId: row[4],
       );
     }).toList()
@@ -454,7 +454,7 @@ class AppBackupCsv {
       final unlocked = _parseBool(row[1]);
       final unlockedAt = row[2].trim().isEmpty
           ? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true)
-          : DateTime.parse(row[2]);
+          : _parseDate(row[2]);
       imported[id] = unlocked
           ? Achievement.definition(id).copyWithUnlockedAt(unlockedAt)
           : Achievement.definition(id);
@@ -487,23 +487,35 @@ class AppBackupCsv {
     final plans = <ReductionPlan>[];
     for (final row in sectionRows.skip(1)) {
       if (row.isEmpty || row.every((cell) => cell.trim().isEmpty)) continue;
-      if (row.length < 4) {
+      if (row.length < (hasProductId ? 5 : 4)) {
         throw const FormatException('Riga piano di riduzione incompleta.');
       }
-      final totalWeeks = int.parse(row[hasProductId ? 3 : 2]);
+      final totalWeeks = _parseInt(row[hasProductId ? 3 : 2]);
       if (totalWeeks < 2 || totalWeeks > 26) continue;
       plans.add(
         ReductionPlan(
           productId: hasProductId ? row[0] : '',
-          startAverage: double.parse(row[hasProductId ? 1 : 0]),
-          targetPerDay: double.parse(row[hasProductId ? 2 : 1]),
+          startAverage: _parseDouble(row[hasProductId ? 1 : 0]),
+          targetPerDay: _parseDouble(row[hasProductId ? 2 : 1]),
           totalWeeks: totalWeeks,
-          startDate: DateTime.parse(row[hasProductId ? 4 : 3]),
+          startDate: _parseDate(row[hasProductId ? 4 : 3]),
         ),
       );
     }
     return plans;
   }
+
+  static int _parseInt(String value) =>
+      int.tryParse(value.trim()) ?? (throw _invalidValue(value));
+
+  static double _parseDouble(String value) =>
+      double.tryParse(value.trim()) ?? (throw _invalidValue(value));
+
+  static DateTime _parseDate(String value) =>
+      DateTime.tryParse(value.trim()) ?? (throw _invalidValue(value));
+
+  static FormatException _invalidValue(String value) =>
+      FormatException('Valore non valido nel backup: "$value".');
 
   static void _expectHeader(
     List<String> actual,

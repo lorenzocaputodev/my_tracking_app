@@ -624,9 +624,10 @@ void _showPlanSheet(
   final productName = provider.productNameById(productId) ?? 'Prodotto';
   final currentAverage = provider.recentDailyAverage(productId);
   final existingPlan = provider.reductionPlanForProduct(productId);
+  final baseline = existingPlan?.startAverage ?? currentAverage;
+  final maxSlider = (baseline * 1.1).clamp(1.0, 40.0);
   double target =
-      (existingPlan?.targetPerDay ?? (currentAverage / 2).clamp(0.0, 40.0))
-          .clamp(0.0, 40.0);
+      (existingPlan?.targetPerDay ?? currentAverage / 2).clamp(0.0, maxSlider);
   int weeks = existingPlan?.totalWeeks ?? 8;
 
   showModalBottomSheet<void>(
@@ -635,8 +636,6 @@ void _showPlanSheet(
     backgroundColor: Colors.transparent,
     builder: (ctx) => StatefulBuilder(
       builder: (ctx, setState) {
-        final maxSlider = (currentAverage * 1.1).clamp(1.0, 40.0);
-
         return Container(
           padding: EdgeInsets.fromLTRB(
             24,
@@ -689,7 +688,7 @@ void _showPlanSheet(
               ),
               const SizedBox(height: 4),
               Slider(
-                value: target.clamp(0.0, maxSlider),
+                value: target,
                 min: 0,
                 max: maxSlider,
                 divisions: (maxSlider * 2).round().clamp(2, 80),
@@ -728,7 +727,7 @@ void _showPlanSheet(
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        'Riduzione di ${formatDecimal(currentAverage - target, decimals: 1)} unit\u00E0/g in $weeks settimane.',
+                        'Riduzione di ${formatDecimal(baseline - target, decimals: 1)} unit\u00E0/g in $weeks settimane.',
                         style: TextStyle(fontFamily: AppFonts.sans, fontSize: 12, color: color),
                       ),
                     ),

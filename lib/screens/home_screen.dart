@@ -115,6 +115,7 @@ class HomeScreen extends StatelessWidget {
           accent: turquoise.withValues(alpha: 0.7),
         ),
     ];
+    final insight = provider.homeInsight;
 
     return SafeArea(
       child: Column(
@@ -136,7 +137,7 @@ class HomeScreen extends StatelessWidget {
                   context,
                   available: constraints.maxHeight,
                   buttonSize: size.width * 0.55,
-                  hasInsight: provider.homeInsight != null,
+                  hasInsight: insight != null,
                   hasCostLabel: hasUnitCost,
                 );
                 return SingleChildScrollView(
@@ -165,7 +166,7 @@ class HomeScreen extends StatelessWidget {
                         if (fit.showInsight) ...[
                           const SizedBox(height: 10),
                           _HomeInsightBadge(
-                            insight: provider.homeInsight!,
+                            insight: insight!,
                             accent: turquoise,
                           ),
                         ],

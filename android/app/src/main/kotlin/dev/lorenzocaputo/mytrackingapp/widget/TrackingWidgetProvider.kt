@@ -83,17 +83,13 @@ class TrackingWidgetProvider : AppWidgetProvider() {
             "tracksInventory",
             product.optBoolean("tracksInventory", true)
         )
-        val remaining = product.optInt("packRemaining", 0)
+        val remaining = snapshot.optInt("packRemaining", product.optInt("packRemaining", 0))
         if (tracksInventory && remaining <= 0) {
             updateAllWidgets(context)
             return
         }
 
         val updatedRemaining = if (tracksInventory) remaining - 1 else remaining
-        if (tracksInventory) {
-            product.put("packRemaining", updatedRemaining)
-            WidgetPreferences.putString(context, "tracked_products_v1", products.toString())
-        }
 
         val pieces = snapshot.optInt("pieces", product.optInt("pieces", 1)).coerceAtLeast(1)
         val unitCost = if (snapshot.has("unitCost")) {
@@ -109,6 +105,7 @@ class TrackingWidgetProvider : AppWidgetProvider() {
             put("costDeducted", unitCost)
             put("minutesLost", minutesLostPerUnit)
             put("productId", productId)
+            put("deductStock", tracksInventory)
         }
         WidgetPreferences.appendPendingEntry(context, pendingEntry)
 
@@ -133,10 +130,14 @@ class TrackingWidgetProvider : AppWidgetProvider() {
         val size = resolveWidgetSize(appWidgetManager.getAppWidgetOptions(appWidgetId))
         val views = RemoteViews(context.packageName, size.layoutRes)
         val products = WidgetPreferences.readProducts(context)
-        val configuredProductId =
-            WidgetPreferences.readConfiguredProductId(context, appWidgetId)
-                ?: WidgetPreferences.readActiveProductId(context)
-        val product = products?.let { configuredProductId?.let { productId -> findProductById(it, productId) } }
+        val product = products?.let { list ->
+            listOfNotNull(
+                WidgetPreferences.readConfiguredProductId(context, appWidgetId),
+                WidgetPreferences.readActiveProductId(context)
+            ).firstNotNullOfOrNull { productId ->
+                findProductById(list, productId)?.takeUnless { isArchivedProduct(it) }
+            }
+        }
 
         if (product == null || isArchivedProduct(product)) {
             bindEmptyState(context, views)

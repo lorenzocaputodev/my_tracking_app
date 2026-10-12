@@ -1,7 +1,6 @@
 version: 2
 updates:
   # ===== Pacchetti Dart e Flutter =====
-  # Solo aggiornamenti minor e patch, raggruppati in una PR alla settimana.
   - package-ecosystem: pub
     directory: /
     schedule:
@@ -11,10 +10,8 @@ updates:
       pub-minor-and-patch:
         update-types: [minor, patch]
     ignore:
-      # I salti di versione maggiore si fanno a mano, uno alla volta.
       - dependency-name: '*'
         update-types: ['version-update:semver-major']
-      # Pacchetti ancora in 0.x: per loro anche un aumento minor può cambiare l'API.
       - dependency-name: fl_chart
         update-types: ['version-update:semver-minor']
       - dependency-name: workmanager
@@ -32,6 +29,3 @@ updates:
     groups:
       github-actions:
         patterns: ['*']
-
-  # Gradle, AGP e Kotlin non sono qui di proposito: restano fissati sulla
-  # linea 8.x di AGP (vedi README) e si aggiornano a mano.

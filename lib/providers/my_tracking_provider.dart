@@ -219,10 +219,13 @@ class MyTrackingProvider extends ChangeNotifier {
       .fold(0.0, (sum, e) => sum + e.costDeducted);
 
   String get timeSinceLastEntry {
-    final sorted = entriesForProduct(_activeProductId)
-      ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
-    if (sorted.isEmpty) return 'Mai';
-    final diff = appNow().difference(sorted.first.timestamp);
+    DateTime? last;
+    for (final e in _entries) {
+      if (e.productId != _activeProductId) continue;
+      if (last == null || e.timestamp.isAfter(last)) last = e.timestamp;
+    }
+    if (last == null) return 'Mai';
+    final diff = appNow().difference(last);
     if (diff.inDays > 0) return '${diff.inDays}g fa';
     if (diff.inHours > 0) {
       final minutes = diff.inMinutes.remainder(60);
@@ -423,6 +426,7 @@ class MyTrackingProvider extends ChangeNotifier {
     }
     if (mergedPending) {
       await _persistEntriesOnly(prefs);
+      await _persistProductsOnly(prefs);
     }
     if (migratedPlan) {
       await _persistReductionPlansOnly(prefs);
@@ -651,7 +655,9 @@ class MyTrackingProvider extends ChangeNotifier {
         final pIdx = _products.indexWhere((p) => p.id == entry.productId);
         if (pIdx != -1) {
           final pr = _products[pIdx];
-          if (pr.tracksInventory && pr.packRemaining < pr.pieces) {
+          if (pr.tracksInventory &&
+              pr.packRemaining < pr.pieces &&
+              _isFromCurrentPack(entry, pr)) {
             _products = List<TrackedProduct>.from(_products)
               ..[pIdx] = pr.copyWith(packRemaining: pr.packRemaining + 1);
             stockReturned = true;
@@ -663,6 +669,20 @@ class MyTrackingProvider extends ChangeNotifier {
         await _persist();
         return (entry: entry, stockReturned: stockReturned);
       });
+
+  bool _isFromCurrentPack(SmokeEntry entry, TrackedProduct product) {
+    final usedFromPack = product.pieces - product.packRemaining;
+    if (usedFromPack <= 0) return false;
+    final newer = _entries
+        .where(
+          (e) =>
+              e.productId == product.id &&
+              e.id != entry.id &&
+              !e.timestamp.isBefore(entry.timestamp),
+        )
+        .length;
+    return newer < usedFromPack;
+  }
 
   Future<void> restoreEntry(
     ({SmokeEntry entry, bool stockReturned}) deleted,
@@ -703,14 +723,15 @@ class MyTrackingProvider extends ChangeNotifier {
             !_products.any((p) => p.id == boundProductId)) {
           return;
         }
+        final existing = _reductionPlans[boundProductId];
+        final recentAverage = recentDailyAverage(boundProductId);
         _reductionPlans[boundProductId] = ReductionPlan(
           productId: boundProductId,
-          startAverage: recentDailyAverage(boundProductId) > 0
-              ? recentDailyAverage(boundProductId)
-              : 1.0,
+          startAverage: existing?.startAverage ??
+              (recentAverage > 0 ? recentAverage : 1.0),
           targetPerDay: targetPerDay,
           totalWeeks: totalWeeks,
-          startDate: appNow(),
+          startDate: existing?.startDate ?? appNow(),
         );
         final prefs = await SharedPreferences.getInstance();
         await _persistReductionPlansOnly(prefs);
@@ -778,6 +799,15 @@ class MyTrackingProvider extends ChangeNotifier {
         continue;
       }
       if (appNow().difference(plan.startDate).inDays < 7) continue;
+      final baselineFrom = plan.startDate.subtract(const Duration(days: 14));
+      if (!_entries.any(
+        (e) =>
+            e.productId == plan.productId &&
+            e.timestamp.isBefore(plan.startDate) &&
+            !e.timestamp.isBefore(baselineFrom),
+      )) {
+        continue;
+      }
       final currentAverage =
           recentDailyAverage(plan.productId, days: 7);
       final planReduction =
@@ -1329,6 +1359,7 @@ class MyTrackingProvider extends ChangeNotifier {
         if (existingIds.add(entry.id)) {
           _entries.add(entry);
           changed = true;
+          if (map['deductStock'] == true) _deductWidgetStock(entry.productId);
         }
       } catch (_) {}
     }
@@ -1336,8 +1367,35 @@ class MyTrackingProvider extends ChangeNotifier {
     if (changed) {
       _entries.sort((a, b) => a.timestamp.compareTo(b.timestamp));
     }
-    await prefs.setString(_keyWidgetPendingEntries, '[]');
+    await _removeConsumedPendingEntries(prefs, decoded);
     return changed || decoded.isNotEmpty;
+  }
+
+  void _deductWidgetStock(String productId) {
+    final idx = _products.indexWhere((p) => p.id == productId);
+    if (idx == -1) return;
+    final product = _products[idx];
+    if (!product.tracksInventory || product.packRemaining <= 0) return;
+    _products = List<TrackedProduct>.from(_products)
+      ..[idx] = product.copyWith(packRemaining: product.packRemaining - 1);
+  }
+
+  Future<void> _removeConsumedPendingEntries(
+    SharedPreferences prefs,
+    List<dynamic> consumed,
+  ) async {
+    final consumedKeys = consumed.map(jsonEncode).toSet();
+    await prefs.reload();
+    var remaining = <dynamic>[];
+    try {
+      final current = jsonDecode(
+        prefs.getString(_keyWidgetPendingEntries) ?? '[]',
+      ) as List<dynamic>;
+      remaining = current
+          .where((item) => !consumedKeys.contains(jsonEncode(item)))
+          .toList();
+    } catch (_) {}
+    await prefs.setString(_keyWidgetPendingEntries, jsonEncode(remaining));
   }
 
   Future<void> _persistEntriesOnly(SharedPreferences prefs) async {
