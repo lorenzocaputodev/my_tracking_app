@@ -53,15 +53,11 @@ class TrackingWidgetProvider : AppWidgetProvider() {
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
         when (intent.action) {
-            ACTION_INCREMENT -> {
-                val productId = intent.getStringExtra(EXTRA_PRODUCT_ID) ?: return
-                handleIncrement(context, productId)
-            }
-            ACTION_MIDNIGHT_REFRESH -> updateAllWidgets(context)
+            ACTION_INCREMENT, ACTION_MIDNIGHT_REFRESH -> updateAllWidgets(context)
         }
     }
 
-    private fun handleIncrement(context: Context, productId: String) {
+    internal fun handleIncrement(context: Context, productId: String) {
         val products = WidgetPreferences.readProducts(context) ?: run {
             updateAllWidgets(context)
             return
@@ -348,7 +344,7 @@ class TrackingWidgetProvider : AppWidgetProvider() {
         NumberFormat.getCurrencyInstance(Locale.ITALY).format(value)
 
     private fun incrementIntent(context: Context, productId: String): PendingIntent {
-        val intent = Intent(context, TrackingWidgetProvider::class.java).apply {
+        val intent = Intent(context, WidgetActionReceiver::class.java).apply {
             action = ACTION_INCREMENT
             putExtra(EXTRA_PRODUCT_ID, productId)
         }
@@ -394,7 +390,7 @@ class TrackingWidgetProvider : AppWidgetProvider() {
         }
 
         private fun midnightRefreshIntent(context: Context): PendingIntent {
-            val intent = Intent(context, TrackingWidgetProvider::class.java).apply {
+            val intent = Intent(context, WidgetActionReceiver::class.java).apply {
                 action = ACTION_MIDNIGHT_REFRESH
             }
             return PendingIntent.getBroadcast(

@@ -69,10 +69,9 @@ void main() {
       SharedPreferences.setMockInitialValues(<String, Object>{
         'tracked_products_v1': jsonEncode([_product(packRemaining: 10)]),
         'active_product_id': 'p1',
-        'widget_pending_entries_v1': jsonEncode([
-          {..._entryMap('w1', now), 'deductStock': true},
-          _entryMap('w-vecchia', now),
-        ]),
+        'widget_pending_entries_v1': jsonEncode([_entryMap('w-vecchia', now)]),
+        'widget_pending_entry_v2_w1':
+            jsonEncode({..._entryMap('w1', now), 'deductStock': true}),
       });
 
       final provider = MyTrackingProvider();
@@ -81,7 +80,8 @@ void main() {
       expect(provider.entries.map((e) => e.id), containsAll(['w1', 'w-vecchia']));
       expect(provider.packRemaining, 9);
       final prefs = await SharedPreferences.getInstance();
-      expect(prefs.getString('widget_pending_entries_v1'), '[]');
+      expect(prefs.getString('widget_pending_entries_v1'), isNull);
+      expect(prefs.getString('widget_pending_entry_v2_w1'), isNull);
       expect(
         (jsonDecode(prefs.getString('tracked_products_v1')!) as List)
             .first['packRemaining'],

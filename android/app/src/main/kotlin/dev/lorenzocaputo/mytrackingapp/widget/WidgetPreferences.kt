@@ -8,7 +8,7 @@ import org.json.JSONObject
 internal object WidgetPreferences {
     private const val PREFS_NAME = "FlutterSharedPreferences"
     private const val PREFIX = "flutter."
-    private const val PENDING_ENTRIES_KEY = "widget_pending_entries_v1"
+    private const val PENDING_ENTRY_PREFIX = "widget_pending_entry_v2_"
     private const val PRODUCT_SNAPSHOTS_KEY = "widget_product_snapshots_v2"
     private const val WIDGET_CONFIG_MAP_KEY = "widget_product_widget_map_v1"
 
@@ -67,23 +67,8 @@ internal object WidgetPreferences {
         }
     }
 
-    fun readPendingEntries(context: Context): JSONArray {
-        val raw = getString(context, PENDING_ENTRIES_KEY, "[]") ?: "[]"
-        return try {
-            JSONArray(raw)
-        } catch (_: Exception) {
-            JSONArray()
-        }
-    }
-
     fun appendPendingEntry(context: Context, entry: JSONObject) {
-        val entries = readPendingEntries(context)
-        entries.put(entry)
-        putString(context, PENDING_ENTRIES_KEY, entries.toString())
-    }
-
-    fun clearPendingEntries(context: Context) {
-        putString(context, PENDING_ENTRIES_KEY, JSONArray().toString())
+        putString(context, PENDING_ENTRY_PREFIX + entry.getString("id"), entry.toString())
     }
 
     fun readConfiguredProductId(context: Context, appWidgetId: Int): String? {

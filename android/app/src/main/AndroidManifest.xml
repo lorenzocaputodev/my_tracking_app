@@ -45,6 +45,10 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/tracking_widget_info" />
         </receiver>
+
+        <receiver
+            android:name=".widget.WidgetActionReceiver"
+            android:exported="false" />
     </application>
 
     <queries>

@@ -111,6 +111,7 @@ class MyTrackingProvider extends ChangeNotifier {
   static const _keyWidgetSnapshot = 'widget_snapshot_v1';
   static const _keyWidgetProductSnapshots = 'widget_product_snapshots_v2';
   static const _keyWidgetPendingEntries = 'widget_pending_entries_v1';
+  static const _keyWidgetPendingEntryPrefix = 'widget_pending_entry_v2_';
 
   // --- Stato ---
   List<TrackedProduct> _products = [];
@@ -1339,20 +1340,27 @@ class MyTrackingProvider extends ChangeNotifier {
   }
 
   Future<bool> _consumePendingWidgetEntries(SharedPreferences prefs) async {
-    final raw = prefs.getString(_keyWidgetPendingEntries);
-    if (raw == null || raw.trim().isEmpty) return false;
-
-    List<dynamic> decoded;
-    try {
-      decoded = jsonDecode(raw) as List<dynamic>;
-    } catch (_) {
-      await prefs.setString(_keyWidgetPendingEntries, '[]');
-      return true;
+    final pending = <Object?>[];
+    final legacyRaw = prefs.getString(_keyWidgetPendingEntries);
+    if (legacyRaw != null && legacyRaw.trim().isNotEmpty) {
+      try {
+        pending.addAll(jsonDecode(legacyRaw) as List<dynamic>);
+      } catch (_) {}
     }
+    final entryKeys = prefs
+        .getKeys()
+        .where((key) => key.startsWith(_keyWidgetPendingEntryPrefix))
+        .toList();
+    for (final key in entryKeys) {
+      try {
+        pending.add(jsonDecode(prefs.getString(key) ?? ''));
+      } catch (_) {}
+    }
+    if (legacyRaw == null && entryKeys.isEmpty) return false;
 
     final existingIds = _entries.map((entry) => entry.id).toSet();
     var changed = false;
-    for (final item in decoded) {
+    for (final item in pending) {
       try {
         final map = (item as Map).cast<String, dynamic>();
         final entry = SmokeEntry.fromJson(map);
@@ -1367,8 +1375,11 @@ class MyTrackingProvider extends ChangeNotifier {
     if (changed) {
       _entries.sort((a, b) => a.timestamp.compareTo(b.timestamp));
     }
-    await _removeConsumedPendingEntries(prefs, decoded);
-    return changed || decoded.isNotEmpty;
+    if (legacyRaw != null) await prefs.remove(_keyWidgetPendingEntries);
+    for (final key in entryKeys) {
+      await prefs.remove(key);
+    }
+    return true;
   }
 
   void _deductWidgetStock(String productId) {
@@ -1380,22 +1391,11 @@ class MyTrackingProvider extends ChangeNotifier {
       ..[idx] = product.copyWith(packRemaining: product.packRemaining - 1);
   }
 
-  Future<void> _removeConsumedPendingEntries(
-    SharedPreferences prefs,
-    List<dynamic> consumed,
-  ) async {
-    final consumedKeys = consumed.map(jsonEncode).toSet();
-    await prefs.reload();
-    var remaining = <dynamic>[];
-    try {
-      final current = jsonDecode(
-        prefs.getString(_keyWidgetPendingEntries) ?? '[]',
-      ) as List<dynamic>;
-      remaining = current
-          .where((item) => !consumedKeys.contains(jsonEncode(item)))
-          .toList();
-    } catch (_) {}
-    await prefs.setString(_keyWidgetPendingEntries, jsonEncode(remaining));
+  Future<void> _removePendingWidgetEntries(SharedPreferences prefs) async {
+    await prefs.remove(_keyWidgetPendingEntries);
+    for (final key in prefs.getKeys().toList()) {
+      if (key.startsWith(_keyWidgetPendingEntryPrefix)) await prefs.remove(key);
+    }
   }
 
   Future<void> _persistEntriesOnly(SharedPreferences prefs) async {
@@ -1421,7 +1421,7 @@ class MyTrackingProvider extends ChangeNotifier {
     await prefs.setBool(_keyHasCompletedSetup, hasCompletedSetup);
 
     if (clearWidgetTransientState) {
-      await prefs.remove(_keyWidgetPendingEntries);
+      await _removePendingWidgetEntries(prefs);
       await prefs.remove(_keyWidgetSnapshot);
       await prefs.remove(_keyWidgetProductSnapshots);
     }
