@@ -415,7 +415,7 @@ class MyTrackingProvider extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     await prefs.reload();
     _hydrateFromPrefs(prefs);
-    final mergedPending = await _consumePendingWidgetEntries(prefs);
+    final pendingKeys = _consumePendingWidgetEntries(prefs);
     final migratedPlan = _needsReductionPlanRewrite(prefs);
     final migratedGlobalReminder =
         !prefs.containsKey(_keyGlobalReminderSettings);
@@ -428,9 +428,12 @@ class MyTrackingProvider extends ChangeNotifier {
     if (achievementsChanged) {
       await _persistAchievements();
     }
-    if (mergedPending) {
+    if (pendingKeys != null) {
       await _persistEntriesOnly(prefs);
       await _persistProductsOnly(prefs);
+      for (final key in pendingKeys) {
+        await prefs.remove(key);
+      }
     }
     if (migratedPlan) {
       await _persistReductionPlansOnly(prefs);
@@ -1350,7 +1353,7 @@ class MyTrackingProvider extends ChangeNotifier {
     return '$year-$month-$day';
   }
 
-  Future<bool> _consumePendingWidgetEntries(SharedPreferences prefs) async {
+  List<String>? _consumePendingWidgetEntries(SharedPreferences prefs) {
     final pending = <Object?>[];
     final legacyRaw = prefs.getString(_keyWidgetPendingEntries);
     if (legacyRaw != null && legacyRaw.trim().isNotEmpty) {
@@ -1367,7 +1370,7 @@ class MyTrackingProvider extends ChangeNotifier {
         pending.add(jsonDecode(prefs.getString(key) ?? ''));
       } catch (_) {}
     }
-    if (legacyRaw == null && entryKeys.isEmpty) return false;
+    if (legacyRaw == null && entryKeys.isEmpty) return null;
 
     final existingIds = _entries.map((entry) => entry.id).toSet();
     var changed = false;
@@ -1386,11 +1389,7 @@ class MyTrackingProvider extends ChangeNotifier {
     if (changed) {
       _entries.sort((a, b) => a.timestamp.compareTo(b.timestamp));
     }
-    if (legacyRaw != null) await prefs.remove(_keyWidgetPendingEntries);
-    for (final key in entryKeys) {
-      await prefs.remove(key);
-    }
-    return true;
+    return [if (legacyRaw != null) _keyWidgetPendingEntries, ...entryKeys];
   }
 
   void _deductWidgetStock(String productId) {
