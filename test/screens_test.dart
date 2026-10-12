@@ -340,7 +340,7 @@ void main() {
       },
     );
 
-    await tester.tap(find.text('Chiaro'));
+    await tester.tap(find.text('Chiaro').first);
     await _settleAsync(tester);
     expect(provider.themePreference, AppThemePreference.light);
 

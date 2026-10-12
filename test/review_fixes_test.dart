@@ -201,4 +201,26 @@ void main() {
       );
     });
   });
+
+  group('tema del widget', () {
+    test('è scuro di base e la scelta resta salvata', () async {
+      SharedPreferences.setMockInitialValues(<String, Object>{
+        'tracked_products_v1': jsonEncode([_product(packRemaining: 10)]),
+        'active_product_id': 'p1',
+      });
+      final provider = MyTrackingProvider();
+      await provider.init();
+      expect(provider.widgetDark, isTrue);
+
+      await provider.setWidgetDark(false);
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getString('widget_theme'), 'light');
+      provider.dispose();
+
+      final again = MyTrackingProvider();
+      await again.init();
+      expect(again.widgetDark, isFalse);
+      again.dispose();
+    });
+  });
 }

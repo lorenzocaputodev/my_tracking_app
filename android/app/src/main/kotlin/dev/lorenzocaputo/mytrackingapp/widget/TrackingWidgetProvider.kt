@@ -125,6 +125,7 @@ class TrackingWidgetProvider : AppWidgetProvider() {
     private fun updateWidget(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
         val size = resolveWidgetSize(appWidgetManager.getAppWidgetOptions(appWidgetId))
         val views = RemoteViews(context.packageName, size.layoutRes)
+        paint(context, views, size, if (WidgetPreferences.readWidgetTheme(context) == "light") WidgetPalette.LIGHT else WidgetPalette.DARK)
         val products = WidgetPreferences.readProducts(context)
         val product = products?.let { list ->
             listOfNotNull(
@@ -330,6 +331,31 @@ class TrackingWidgetProvider : AppWidgetProvider() {
         }
     }
 
+    private fun paint(context: Context, views: RemoteViews, size: WidgetSize, palette: WidgetPalette) {
+        val primary = context.getColor(palette.primary)
+        val muted = context.getColor(palette.muted)
+        views.setInt(R.id.widget_root, "setBackgroundResource", palette.background)
+        views.setInt(R.id.widget_increment, "setBackgroundResource", palette.button)
+        views.setTextColor(R.id.widget_product_name, primary)
+        views.setTextColor(R.id.widget_count, context.getColor(palette.count))
+        views.setTextColor(R.id.widget_count_label, muted)
+        views.setTextColor(R.id.widget_hint, muted)
+        views.setTextColor(R.id.widget_cost_today_value, primary)
+        views.setTextColor(R.id.widget_minutes_today_value, primary)
+        views.setTextColor(R.id.widget_total_cost_value, primary)
+        if (size == WidgetSize.SMALL) {
+            views.setInt(R.id.widget_count, "setBackgroundResource", palette.stat)
+        }
+        if (size == WidgetSize.LARGE) {
+            listOf(R.id.widget_stat_cost, R.id.widget_stat_minutes, R.id.widget_stat_total).forEach {
+                views.setInt(it, "setBackgroundResource", palette.stat)
+            }
+            listOf(R.id.widget_stat_cost_label, R.id.widget_stat_minutes_label, R.id.widget_stat_total_label).forEach {
+                views.setTextColor(it, context.getColor(palette.faint))
+            }
+        }
+    }
+
     private fun resolveWidgetSize(options: Bundle): WidgetSize {
         val minWidth = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 0)
         val minHeight = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 0)
@@ -412,4 +438,33 @@ private enum class WidgetSize(val layoutRes: Int) {
     SMALL(R.layout.tracking_widget_small),
     MEDIUM(R.layout.tracking_widget_medium),
     LARGE(R.layout.tracking_widget_large)
+}
+
+private enum class WidgetPalette(
+    val background: Int,
+    val stat: Int,
+    val button: Int,
+    val primary: Int,
+    val muted: Int,
+    val faint: Int,
+    val count: Int
+) {
+    DARK(
+        R.drawable.widget_background,
+        R.drawable.widget_stat_background,
+        R.drawable.widget_button_background,
+        R.color.widget_text_primary,
+        R.color.widget_text_muted,
+        R.color.widget_text_faint,
+        R.color.widget_count
+    ),
+    LIGHT(
+        R.drawable.widget_background_light,
+        R.drawable.widget_stat_background_light,
+        R.drawable.widget_button_background_light,
+        R.color.widget_light_text_primary,
+        R.color.widget_light_text_muted,
+        R.color.widget_light_text_faint,
+        R.color.widget_light_count
+    )
 }

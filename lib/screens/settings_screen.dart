@@ -195,6 +195,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   onChanged: provider.setThemePreference,
                 ),
               ),
+              SettingsRow(
+                icon: Icons.widgets_outlined,
+                title: 'Tema del widget',
+                trailing: PillSelector<bool>(
+                  options: const {true: 'Scuro', false: 'Chiaro'},
+                  value: provider.widgetDark,
+                  onChanged: provider.setWidgetDark,
+                ),
+              ),
               ...reminderRows(context),
             ],
           ),

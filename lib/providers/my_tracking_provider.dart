@@ -101,6 +101,7 @@ class MyTrackingProvider extends ChangeNotifier {
   static const _keyReductionPlans = 'reduction_plans_v2';
   static const _keyReductionPlanLegacy = 'reduction_plan';
   static const _keyTheme = 'app_theme_preference';
+  static const _keyWidgetTheme = 'widget_theme';
   static const _keyOnboardingDone = 'onboarding_done';
   static const _keyHasCompletedSetup = 'hasCompletedSetup';
   static const _keyConfigLegacy = 'pack_config';
@@ -122,6 +123,7 @@ class MyTrackingProvider extends ChangeNotifier {
   final Map<AchievementId, Achievement> _achievements = {};
   final Map<String, ReductionPlan> _reductionPlans = {};
   AppThemePreference _themePreference = AppThemePreference.dark;
+  bool _widgetDark = true;
   AppReminderSettings _globalReminderSettings = AppReminderSettings.defaults;
 
   Timer? _ticker;
@@ -210,6 +212,7 @@ class MyTrackingProvider extends ChangeNotifier {
   int get packRemaining => activeProduct.packRemaining;
   bool get isLoading => _isLoading;
   AppThemePreference get themePreference => _themePreference;
+  bool get widgetDark => _widgetDark;
   AppReminderSettings get globalReminderSettings => _globalReminderSettings;
 
   double get dailyCost =>
@@ -460,6 +463,14 @@ class MyTrackingProvider extends ChangeNotifier {
         notifyListeners();
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString(_keyTheme, value.name);
+      });
+
+  Future<void> setWidgetDark(bool dark) => _serialized(() async {
+        _widgetDark = dark;
+        notifyListeners();
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString(_keyWidgetTheme, dark ? 'dark' : 'light');
+        await WidgetBridge.updateWidgets();
       });
 
   // --- Prodotti ---
@@ -1492,6 +1503,7 @@ class MyTrackingProvider extends ChangeNotifier {
 
     final themeStr = prefs.getString(_keyTheme);
     if (themeStr != null) _themePreference = _parseTheme(themeStr);
+    _widgetDark = prefs.getString(_keyWidgetTheme) != 'light';
 
     _achievements.clear();
     final achJson = prefs.getString(_keyAchievements);

@@ -12,4 +12,13 @@
     <color name="widget_action">#FF00CED1</color>
     <color name="widget_on_action">#DD000000</color>
     <color name="widget_count">#FF00CED1</color>
+
+    <color name="widget_light_surface">#FFFFFFFF</color>
+    <color name="widget_light_surface_inset">#FFF9FCFC</color>
+    <color name="widget_light_border">#1A000000</color>
+    <color name="widget_light_text_primary">#FF132222</color>
+    <color name="widget_light_text_muted">#FF556B6D</color>
+    <color name="widget_light_text_faint">#FF607274</color>
+    <color name="widget_light_action">#FF00C2C6</color>
+    <color name="widget_light_count">#FF00686B</color>
 </resources>

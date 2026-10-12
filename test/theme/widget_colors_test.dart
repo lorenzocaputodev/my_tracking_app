@@ -17,6 +17,14 @@ final Map<String, Color> _widgetTokens = {
   'widget_action': AppColors.dark.action,
   'widget_on_action': AppColors.dark.onAction,
   'widget_count': AppStatColors.dark.count,
+  'widget_light_surface': AppColors.light.surface,
+  'widget_light_surface_inset': AppColors.light.surfaceInset,
+  'widget_light_border': AppColors.light.cardBorder,
+  'widget_light_text_primary': AppColors.light.textPrimary,
+  'widget_light_text_muted': AppColors.light.textMuted,
+  'widget_light_text_faint': AppColors.light.textFaint,
+  'widget_light_action': AppColors.light.action,
+  'widget_light_count': AppStatColors.light.count,
 };
 
 const _res = 'android/app/src/main/res';

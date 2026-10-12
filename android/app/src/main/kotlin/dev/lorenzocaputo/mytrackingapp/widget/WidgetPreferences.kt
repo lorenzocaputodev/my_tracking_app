@@ -31,6 +31,9 @@ internal object WidgetPreferences {
         }
     }
 
+    fun readWidgetTheme(context: Context): String? =
+        getString(context, "widget_theme")
+
     fun readActiveProductId(context: Context): String? =
         getString(context, "active_product_id")
 
