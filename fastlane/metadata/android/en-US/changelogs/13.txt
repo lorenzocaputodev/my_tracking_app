@@ -1,0 +1,3 @@
+After restoring a backup, reminders ask for the notification permission.
+Reminders keep running even if one notification fails.
+More accurate history, reduction plan and backup import.
