@@ -615,9 +615,14 @@ class MyTrackingProvider extends ChangeNotifier {
           await prefs.setString(_keyActiveProduct, _activeProductId);
         }
 
-        _reductionPlans.remove(id);
+        final hadPlan = _reductionPlans.remove(id) != null;
 
         await _persist();
+        if (hadPlan) {
+          await _persistReductionPlansOnly(
+            await SharedPreferences.getInstance(),
+          );
+        }
         notifyListeners();
       });
 

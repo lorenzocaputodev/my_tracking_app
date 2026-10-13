@@ -60,9 +60,15 @@ class ProductNotificationService {
 
   static bool get isSupported => !kIsWeb && Platform.isAndroid;
 
-  static Future<void> ensureInitialized() async {
-    if (!isSupported || _mainInitialized) return;
+  static Future<void>? _initializing;
 
+  static Future<void> ensureInitialized() {
+    if (!isSupported || _mainInitialized) return Future.value();
+    return _initializing ??=
+        _initialize().whenComplete(() => _initializing = null);
+  }
+
+  static Future<void> _initialize() async {
     const initializationSettings = InitializationSettings(
       android: AndroidInitializationSettings(_statusBarIcon),
     );
@@ -188,31 +194,33 @@ class ProductNotificationService {
 
     final nowMs = DateTime.now().millisecondsSinceEpoch;
     final lastShownMs = prefs.getInt(_globalReminderLastShownKey) ?? 0;
-    if (nowMs - lastShownMs > _duplicateGuardMs) {
-      await _plugin.show(
-        _globalReminderNotificationId,
-        '\u{1F4CD} Promemoria',
-        'Ricordati di registrare i prodotti tracciati.',
-        const NotificationDetails(
-          android: AndroidNotificationDetails(
-            reminderChannelId,
-            reminderChannelName,
-            channelDescription: reminderChannelDescription,
-            importance: Importance.high,
-            priority: Priority.high,
-            icon: _statusBarIcon,
-            color: AppTheme.darkPrimary,
+    try {
+      if (nowMs - lastShownMs > _duplicateGuardMs) {
+        await _plugin.show(
+          _globalReminderNotificationId,
+          '\u{1F4CD} Promemoria',
+          'Ricordati di registrare i prodotti tracciati.',
+          const NotificationDetails(
+            android: AndroidNotificationDetails(
+              reminderChannelId,
+              reminderChannelName,
+              channelDescription: reminderChannelDescription,
+              importance: Importance.high,
+              priority: Priority.high,
+              icon: _statusBarIcon,
+              color: AppTheme.darkPrimary,
+            ),
           ),
-        ),
+        );
+        await prefs.setInt(_globalReminderLastShownKey, nowMs);
+      }
+    } finally {
+      await _scheduleGlobalReminder(
+        settings,
+        prefs: prefs,
+        delay: Duration(minutes: settings.intervalMinutes),
       );
-      await prefs.setInt(_globalReminderLastShownKey, nowMs);
     }
-
-    await _scheduleGlobalReminder(
-      settings,
-      prefs: prefs,
-      delay: Duration(minutes: settings.intervalMinutes),
-    );
   }
 
   static Future<void> _scheduleGlobalReminder(

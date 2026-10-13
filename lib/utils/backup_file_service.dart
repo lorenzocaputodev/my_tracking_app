@@ -101,8 +101,19 @@ class BackupFileService {
       if (path == null || path.trim().isEmpty) {
         return const BackupFileReadResult.cancelled();
       }
-      final content = await File(path).readAsString(encoding: utf8);
-      return BackupFileReadResult.success(content: content, path: path);
+      final file = File(path);
+      try {
+        final content = await file.readAsString(encoding: utf8);
+        return BackupFileReadResult.success(content: content, path: path);
+      } on FormatException {
+        throw const FormatException(
+          "File non leggibile: usa il backup CSV esportato dall'app, senza modificarlo.",
+        );
+      } finally {
+        try {
+          await file.delete();
+        } catch (_) {}
+      }
     }
 
     return const BackupFileReadResult.unsupported();

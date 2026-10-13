@@ -1,3 +1,5 @@
+import '../utils/app_clock.dart';
+
 enum AchievementId {
   firstEntry,
   tracked7days,
@@ -37,7 +39,7 @@ class Achievement {
         title: title,
         description: description,
         emoji: emoji,
-        unlockedAt: at ?? DateTime.now(),
+        unlockedAt: at ?? appNow(),
       );
 
   static Achievement definition(AchievementId id) => _defs[id]!;

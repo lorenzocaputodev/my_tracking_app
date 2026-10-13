@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/my_tracking_provider.dart';
+import '../services/product_notification_service.dart';
 import '../theme/theme_context.dart';
 import '../utils/backup_file_service.dart';
 
@@ -49,6 +50,19 @@ Future<BackupImportOutcome?> importBackupFromFile(BuildContext context) async {
     if (!context.mounted) return null;
 
     final outcome = await provider.restoreBackup(data);
+    final reminders = provider.globalReminderSettings;
+    if (reminders.enabled &&
+        ProductNotificationService.isSupported &&
+        !await ProductNotificationService.ensurePermission()) {
+      await provider.updateGlobalReminderSettings(
+        reminders.copyWith(enabled: false),
+      );
+      showFeedback(
+        'Ripristino completato: ${_importSummary(outcome)}. '
+        'Promemoria disattivati: permesso notifiche non concesso.',
+      );
+      return outcome;
+    }
     showFeedback('Ripristino completato: ${_importSummary(outcome)}.');
     return outcome;
   } on FormatException catch (error) {

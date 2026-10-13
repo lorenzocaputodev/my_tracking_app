@@ -624,7 +624,8 @@ void _showPlanSheet(
   final productName = provider.productNameById(productId) ?? 'Prodotto';
   final currentAverage = provider.recentDailyAverage(productId);
   final existingPlan = provider.reductionPlanForProduct(productId);
-  final baseline = existingPlan?.startAverage ?? currentAverage;
+  final baseline = existingPlan?.startAverage ??
+      (currentAverage > 0 ? currentAverage : 1.0);
   final maxSlider = (baseline * 1.1).clamp(1.0, 40.0);
   double target =
       (existingPlan?.targetPerDay ?? currentAverage / 2).clamp(0.0, maxSlider);

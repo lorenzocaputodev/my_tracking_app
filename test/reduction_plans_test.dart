@@ -191,6 +191,9 @@ void main() {
       await provider.deleteArchivedProduct('p1');
 
       expect(provider.reductionPlans, isEmpty);
+      final prefs = await SharedPreferences.getInstance();
+      final saved = prefs.getString('reduction_plans_v2');
+      expect(saved == null || !saved.contains('p1'), isTrue);
 
       provider.dispose();
     });

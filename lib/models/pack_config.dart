@@ -42,24 +42,4 @@ class PackConfig {
           clearDirectUnitCost ? null : directUnitCost ?? this.directUnitCost,
     );
   }
-
-  Map<String, dynamic> toJson() => {
-        'name': name,
-        'totalCost': totalCost,
-        'pieces': pieces,
-        'minutesLost': minutesLost,
-        'dailyLimit': dailyLimit,
-        'tracksInventory': tracksInventory,
-        'directUnitCost': directUnitCost,
-      };
-
-  factory PackConfig.fromJson(Map<String, dynamic> json) => PackConfig(
-        name: json['name'] as String,
-        totalCost: (json['totalCost'] as num).toDouble(),
-        pieces: json['pieces'] as int,
-        minutesLost: json['minutesLost'] as int? ?? 11,
-        dailyLimit: json['dailyLimit'] as int? ?? 0,
-        tracksInventory: json['tracksInventory'] as bool? ?? true,
-        directUnitCost: (json['directUnitCost'] as num?)?.toDouble(),
-      );
 }

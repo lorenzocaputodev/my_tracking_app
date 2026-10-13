@@ -96,6 +96,20 @@ class _HistoryPeriodListState extends State<HistoryPeriodList> {
   String? _drillLabel;
   final Set<DateTime> _openDays = {};
 
+  @override
+  void didUpdateWidget(HistoryPeriodList oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final products = widget.entries.map((e) => e.productId).toSet();
+    final oldProducts = oldWidget.entries.map((e) => e.productId).toSet();
+    if (oldWidget.range != widget.range ||
+        products.length != oldProducts.length ||
+        !products.containsAll(oldProducts)) {
+      _drill = null;
+      _drillLabel = null;
+      _openDays.clear();
+    }
+  }
+
   void _setGrouping(HistoryGrouping g) => setState(() {
         _grouping = g;
         _drill = null;

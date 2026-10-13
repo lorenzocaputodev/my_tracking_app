@@ -55,6 +55,7 @@ class _ActionButtonState extends State<ActionButton>
 
   void _onPointerDown() {
     if (widget.onLongPress == null) return;
+    _longPressTimer?.cancel();
     _longPressTimer = Timer(_longPressDuration, () {
       widget.onLongPress!();
     });

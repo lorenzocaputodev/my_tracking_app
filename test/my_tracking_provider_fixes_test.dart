@@ -158,7 +158,7 @@ void main() {
   });
 
   group('totali della schermata principale', () {
-    test('totalCost e totalTimeLost contano solo il prodotto attivo', () async {
+    test('totalCost conta solo il prodotto attivo', () async {
       SharedPreferences.setMockInitialValues(<String, Object>{});
 
       final provider = MyTrackingProvider();
