@@ -1,0 +1,16 @@
+<p>Keep track of cigarettes, IQOS and vapes, or any habit you want to cut down. No account and no ads: your data stays on your phone. The app is in Italian.</p>
+<p><b>Features</b></p>
+<ul>
+<li>Several products to track, with a quick switcher</li>
+<li>Home with daily count, stock, costs and the last 7 days</li>
+<li>History by day, week and month, with charts and statistics</li>
+<li>Undo after every entry and deletion</li>
+<li>Goals and unlockable badges</li>
+<li>Independent reduction plan for each product</li>
+<li>Archived products keep their history</li>
+<li>Backup and CSV export</li>
+<li>TalkBack labels and layout that handles large system text</li>
+<li>Home screen widget in three sizes</li>
+<li>Periodic reminders</li>
+<li>Dark, light or system theme</li>
+</ul>
