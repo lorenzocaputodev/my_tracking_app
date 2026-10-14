@@ -103,7 +103,7 @@ class BackupFileService {
       }
       final file = File(path);
       try {
-        final content = await file.readAsString(encoding: utf8);
+        final content = utf8.decode(await file.readAsBytes());
         return BackupFileReadResult.success(content: content, path: path);
       } on FormatException {
         throw const FormatException(
