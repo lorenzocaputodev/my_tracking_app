@@ -39,7 +39,7 @@ class SmokeEntry {
 
   factory SmokeEntry.fromJson(Map<String, dynamic> json) => SmokeEntry(
         id: json['id'] as String,
-        timestamp: DateTime.parse(json['timestamp'] as String),
+        timestamp: DateTime.parse(json['timestamp'] as String).toLocal(),
         costDeducted: (json['costDeducted'] as num).toDouble(),
         minutesLost: json['minutesLost'] as int? ?? 0,
         productId: json['productId'] as String? ?? 'default',

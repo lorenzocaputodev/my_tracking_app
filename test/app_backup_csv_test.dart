@@ -13,6 +13,16 @@ void main() {
     expect(() => AppBackupCsv.decode(csv), throwsFormatException);
   });
 
+  test('reads widget timestamps with an offset as local time', () {
+    final entry = SmokeEntry.fromJson(<String, dynamic>{
+      'id': 'w1',
+      'timestamp': '2026-10-14T00:30:00.000+02:00',
+      'costDeducted': 0.3,
+    });
+
+    expect(entry.timestamp.isUtc, isFalse);
+  });
+
   test('skips reduction plans with an impossible number of weeks', () {
     final csv = AppBackupCsv.encode(
       AppBackupData(
