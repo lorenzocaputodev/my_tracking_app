@@ -43,6 +43,7 @@ Vuoi solo installarla? Scarica l’APK dall’**[ultima versione pubblicata](htt
 - 📲 Widget Android per la schermata Home in tre dimensioni: **piccola**, **media** e **grande**
 - 🔔 Promemoria periodici, proposti già alla prima configurazione
 - 🎨 Tema **scuro / chiaro / sistema**
+- 🆕 «Controlla aggiornamenti» mostra la versione installata e apre la pagina delle nuove versioni su GitHub
 - 🔒 Dati salvati localmente sul dispositivo
 
 ---
@@ -137,6 +138,7 @@ flutter run
 
 - Nessun account richiesto
 - Nessun backend obbligatorio
+- Nessun accesso a internet: «Controlla aggiornamenti» apre la pagina nel browser
 - Dati salvati localmente sul dispositivo
 
 ---
