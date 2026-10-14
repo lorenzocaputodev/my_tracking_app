@@ -1,3 +1,0 @@
-Nelle impostazioni si sceglie il tema del widget, chiaro o scuro.
-Una registrazione fatta dal widget non va più persa se l'app viene chiusa mentre la salva.
-Il widget accetta registrazioni solo dal suo pulsante.

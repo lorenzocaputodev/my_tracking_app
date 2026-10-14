@@ -1,3 +1,0 @@
-Dopo il ripristino di un backup i promemoria chiedono il permesso delle notifiche.
-I promemoria continuano anche se una notifica non parte.
-Cronologia, piano di riduzione e importazione dei backup più precisi.

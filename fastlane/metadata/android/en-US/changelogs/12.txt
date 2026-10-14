@@ -1,3 +1,0 @@
-Choose the widget theme, light or dark, in the settings.
-An entry made from the widget is no longer lost if the app is closed while saving it.
-The widget only accepts entries from its button.
