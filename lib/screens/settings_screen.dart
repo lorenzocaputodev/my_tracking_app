@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../models/tracked_product.dart';
 import '../providers/my_tracking_provider.dart';
@@ -24,6 +26,14 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
+  static final _releasesPage = Uri.https(
+    'github.com',
+    '/lorenzocaputodev/my_tracking_app/releases/latest',
+  );
+
+  late final Future<String> _version =
+      PackageInfo.fromPlatform().then((info) => info.version);
+
   void _showFeedback(String message, {Color? backgroundColor}) {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -85,6 +95,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
     } catch (_) {
       _showFeedback(
         'Esportazione CSV non riuscita.',
+        backgroundColor: context.stats.danger,
+      );
+    }
+  }
+
+  // --- Aggiornamenti ---
+
+  Future<void> _openReleasesPage() async {
+    var opened = false;
+    try {
+      opened = await launchUrl(
+        _releasesPage,
+        mode: LaunchMode.externalApplication,
+      );
+    } catch (_) {}
+    if (!opened && mounted) {
+      _showFeedback(
+        'Non riesco ad aprire il browser.',
         backgroundColor: context.stats.danger,
       );
     }
@@ -221,6 +249,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 title: 'Importa backup',
                 subtitle: 'Sostituisce i dati attuali',
                 onTap: () => importBackupFromFile(context),
+              ),
+            ],
+          ),
+          const SettingsSectionLabel('INFORMAZIONI'),
+          SettingsGroup(
+            children: [
+              FutureBuilder<String>(
+                future: _version,
+                builder: (context, snapshot) => SettingsRow(
+                  icon: Icons.system_update_alt_rounded,
+                  title: 'Controlla aggiornamenti',
+                  subtitle: snapshot.hasData
+                      ? 'Versione installata ${snapshot.data} · apre GitHub'
+                      : 'Apre la pagina delle versioni su GitHub',
+                  onTap: _openReleasesPage,
+                ),
               ),
             ],
           ),
