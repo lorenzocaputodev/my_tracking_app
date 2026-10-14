@@ -36,4 +36,26 @@ void main() {
 
     provider.dispose();
   });
+
+  test('un prodotto salvato male non blocca l’avvio', () async {
+    SharedPreferences.setMockInitialValues(<String, Object>{
+      'tracked_products_v1': jsonEncode([
+        <String, dynamic>{
+          'id': 'p1',
+          'name': 'Prodotto 1',
+          'totalCost': 5.0,
+          'pieces': 20,
+          'packRemaining': 20,
+        },
+        <String, dynamic>{'id': 'p2'},
+      ]),
+      'active_product_id': 'p1',
+    });
+    final provider = MyTrackingProvider();
+    await provider.init();
+
+    expect(provider.products.map((p) => p.id), ['p1']);
+
+    provider.dispose();
+  });
 }

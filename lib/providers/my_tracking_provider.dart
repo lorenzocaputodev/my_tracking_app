@@ -1460,9 +1460,14 @@ class MyTrackingProvider extends ChangeNotifier {
 
   void _hydrateFromPrefs(SharedPreferences prefs) {
     final productsJson = prefs.getString(_keyProducts);
-    final list = productsJson == null
-        ? null
-        : jsonDecode(productsJson) as List<dynamic>;
+    List<dynamic>? list;
+    try {
+      list = productsJson == null
+          ? null
+          : jsonDecode(productsJson) as List<dynamic>;
+    } catch (_) {
+      list = null;
+    }
     _globalReminderSettings =
         list != null && !prefs.containsKey(_keyGlobalReminderSettings)
             ? AppReminderSettings.migrateFromLegacyProductMaps(list)
@@ -1470,9 +1475,14 @@ class MyTrackingProvider extends ChangeNotifier {
                 prefs.getString(_keyGlobalReminderSettings),
               );
     if (list != null) {
-      _products = list
-          .map((e) => TrackedProduct.fromJson(e as Map<String, dynamic>))
-          .toList();
+      final parsedProducts = <TrackedProduct>[];
+      for (final e in list) {
+        try {
+          parsedProducts
+              .add(TrackedProduct.fromJson(e as Map<String, dynamic>));
+        } catch (_) {}
+      }
+      _products = parsedProducts;
     } else {
       final legacy = prefs.getString(_keyConfigLegacy);
       final rem = prefs.getInt(_keyPackRemainingLegacy) ?? 0;
