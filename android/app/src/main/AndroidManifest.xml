@@ -28,8 +28,12 @@
 
         <activity
             android:name=".widget.WidgetConfigureActivity"
-            android:exported="false"
-            android:theme="@style/WidgetConfigureTheme" />
+            android:exported="true"
+            android:theme="@style/WidgetConfigureTheme">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
 
         <meta-data
             android:name="flutterEmbedding"
