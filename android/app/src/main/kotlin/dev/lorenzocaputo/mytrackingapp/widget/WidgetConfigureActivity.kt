@@ -2,6 +2,7 @@ package dev.lorenzocaputo.mytrackingapp.widget
 
 import android.app.Activity
 import android.appwidget.AppWidgetManager
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -17,6 +18,10 @@ import org.json.JSONArray
 
 class WidgetConfigureActivity : Activity() {
     private var appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID
+
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(WidgetPreferences.localizedContext(newBase))
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,7 +41,7 @@ class WidgetConfigureActivity : Activity() {
         val products = WidgetPreferences.readProducts(this)
         val options = products?.toOptions().orEmpty()
         if (options.isEmpty()) {
-            Toast.makeText(this, "Apri l'app per configurare almeno un prodotto", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, getString(R.string.widget_config_no_products), Toast.LENGTH_LONG).show()
             startActivity(
                 Intent(this, MainActivity::class.java).apply {
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
@@ -47,7 +52,7 @@ class WidgetConfigureActivity : Activity() {
         }
 
         val titleView = findViewById<TextView>(R.id.widget_config_title)
-        titleView.text = "Scegli il prodotto del widget"
+        titleView.text = getString(R.string.widget_config_title)
 
         val listView = findViewById<ListView>(R.id.widget_config_list)
         listView.adapter = object : ArrayAdapter<ProductOption>(

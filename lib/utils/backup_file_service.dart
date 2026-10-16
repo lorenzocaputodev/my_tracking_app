@@ -5,6 +5,7 @@ import 'package:file_selector/file_selector.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_file_dialog/flutter_file_dialog.dart';
 import 'package:path_provider/path_provider.dart';
+import '../l10n/l10n.dart';
 
 enum BackupFileReadStatus { success, cancelled, unsupported }
 
@@ -76,7 +77,7 @@ class BackupFileService {
     if (_isWindows) {
       final file = await openFile(
         acceptedTypeGroups: const <XTypeGroup>[_csvTypeGroup],
-        confirmButtonText: 'Apri CSV',
+        confirmButtonText: L10n.current.openCsv,
       );
       if (file == null) {
         return const BackupFileReadResult.cancelled();
@@ -106,9 +107,7 @@ class BackupFileService {
         final content = utf8.decode(await file.readAsBytes());
         return BackupFileReadResult.success(content: content, path: path);
       } on FormatException {
-        throw const FormatException(
-          "File non leggibile: usa il backup CSV esportato dall'app, senza modificarlo.",
-        );
+        throw FormatException(L10n.current.unreadableBackupFile);
       } finally {
         try {
           await file.delete();
@@ -129,7 +128,7 @@ class BackupFileService {
         acceptedTypeGroups: const <XTypeGroup>[_csvTypeGroup],
         initialDirectory: initialDirectory,
         suggestedName: fileName,
-        confirmButtonText: 'Salva CSV',
+        confirmButtonText: L10n.current.saveCsv,
       );
       if (location == null) {
         return const BackupFileSaveResult.cancelled();

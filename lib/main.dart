@@ -2,12 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'l10n/l10n.dart';
 import 'providers/my_tracking_provider.dart';
 import 'services/product_notification_service.dart';
 import 'screens/home_screen.dart';
@@ -25,7 +25,12 @@ Future<void> main() async {
     DeviceOrientation.portraitDown,
   ]);
 
-  final provider = MyTrackingProvider();
+  final prefs = await SharedPreferences.getInstance();
+  final language =
+      parseLanguagePreference(prefs.getString(appLanguagePreferenceKey));
+  L10n.current = lookupAppLocalizations(resolveAppLocale(language));
+
+  final provider = MyTrackingProvider(initialLanguage: language);
 
   runApp(
     ChangeNotifierProvider.value(value: provider, child: const MyTrackingApp()),
@@ -74,6 +79,12 @@ class _MyTrackingAppState extends State<MyTrackingApp>
   }
 
   @override
+  void didChangeLocales(List<Locale>? locales) {
+    if (!mounted) return;
+    unawaited(context.read<MyTrackingProvider>().onSystemLocaleChanged());
+  }
+
+  @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (!mounted) return;
     final provider = context.read<MyTrackingProvider>();
@@ -85,17 +96,27 @@ class _MyTrackingAppState extends State<MyTrackingApp>
 
   @override
   Widget build(BuildContext context) {
-    return Selector<MyTrackingProvider, AppThemePreference>(
-      selector: (_, provider) => provider.themePreference,
-      builder: (context, themePreference, child) {
+    return Selector<MyTrackingProvider,
+        (AppThemePreference, AppLanguagePreference)>(
+      selector: (_, provider) =>
+          (provider.themePreference, provider.languagePreference),
+      builder: (context, preferences, child) {
+        final (themePreference, languagePreference) = preferences;
         return MaterialApp(
           title: 'My Tracking App',
           debugShowCheckedModeBanner: false,
           themeMode: MyTrackingApp._themeMode(themePreference),
           theme: _lightTheme,
           darkTheme: _darkTheme,
-          localizationsDelegates: GlobalMaterialLocalizations.delegates,
-          supportedLocales: const [Locale('it'), Locale('en')],
+          locale: localeForPreference(languagePreference),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          localeListResolutionCallback: (locales, _) =>
+              resolveSystemLocale(locales),
+          builder: (context, child) {
+            L10n.current = AppLocalizations.of(context);
+            return child!;
+          },
           home: child,
         );
       },
@@ -132,7 +153,8 @@ class _AppBootstrapScreenState extends State<_AppBootstrapScreen> {
     final hasCompletedSetup = prefs.getBool('hasCompletedSetup') ?? false;
 
     await Future.wait<dynamic>([
-      initializeDateFormatting('it_IT', null),
+      initializeDateFormatting('it', null),
+      initializeDateFormatting('en', null),
       ProductNotificationService.ensureInitialized(),
       provider.init(),
     ]);
@@ -203,7 +225,7 @@ class _BootstrapLoadingScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'Caricamento...',
+                  context.l10n.loading,
                   style: textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w700,
                   ),
@@ -245,7 +267,7 @@ class _BootstrapErrorScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Avvio non completato',
+                    context.l10n.bootstrapErrorTitle,
                     textAlign: TextAlign.center,
                     style: textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.w700,
@@ -253,7 +275,7 @@ class _BootstrapErrorScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Si \u00E8 verificato un problema durante il caricamento iniziale. Puoi riprovare senza chiudere l\'app.',
+                    context.l10n.bootstrapErrorBody,
                     textAlign: TextAlign.center,
                     style: textTheme.bodyMedium,
                   ),
@@ -271,7 +293,7 @@ class _BootstrapErrorScreen extends StatelessWidget {
                   FilledButton.icon(
                     onPressed: onRetry,
                     icon: const Icon(Icons.refresh_rounded),
-                    label: const Text('Riprova'),
+                    label: Text(context.l10n.retry),
                   ),
                 ],
               ),

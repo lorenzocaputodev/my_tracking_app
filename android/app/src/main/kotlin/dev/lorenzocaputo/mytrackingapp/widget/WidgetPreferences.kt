@@ -2,8 +2,10 @@ package dev.lorenzocaputo.mytrackingapp.widget
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.content.res.Configuration
 import org.json.JSONArray
 import org.json.JSONObject
+import java.util.Locale
 
 internal object WidgetPreferences {
     private const val PREFS_NAME = "FlutterSharedPreferences"
@@ -33,6 +35,17 @@ internal object WidgetPreferences {
 
     fun readWidgetTheme(context: Context): String? =
         getString(context, "widget_theme")
+
+    fun localizedContext(context: Context): Context {
+        val tag = when (getString(context, "app_language")) {
+            "italian" -> "it"
+            "english" -> "en"
+            else -> return context
+        }
+        val configuration = Configuration(context.resources.configuration)
+        configuration.setLocale(Locale.forLanguageTag(tag))
+        return context.createConfigurationContext(configuration)
+    }
 
     fun readActiveProductId(context: Context): String? =
         getString(context, "active_product_id")

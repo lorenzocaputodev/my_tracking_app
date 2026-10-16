@@ -11,6 +11,7 @@ import '../widgets/reminder_settings.dart';
 import '../widgets/save_bar.dart';
 import '../widgets/settings_rows.dart';
 import 'home_screen.dart';
+import '../l10n/l10n.dart';
 
 class ProductSetupScreen extends StatefulWidget {
   const ProductSetupScreen({super.key});
@@ -70,10 +71,10 @@ class _ProductSetupScreenState extends State<ProductSetupScreen> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: const Text('Configura il tuo prodotto'),
+        title: Text(context.l10n.setupTitle),
       ),
       bottomNavigationBar: SaveBar(
-        saveLabel: 'Inizia a tracciare',
+        saveLabel: context.l10n.startTracking,
         onSave: _isSaving ? null : _finish,
       ),
       body: Form(
@@ -86,8 +87,8 @@ class _ProductSetupScreenState extends State<ProductSetupScreen> {
               children: [
                 SettingsRow(
                   icon: Icons.download_rounded,
-                  title: 'Ho già un backup',
-                  subtitle: 'Ripristina i tuoi dati da un file CSV',
+                  title: context.l10n.haveBackup,
+                  subtitle: context.l10n.haveBackupSubtitle,
                   onTap: _importBackup,
                 ),
               ],
@@ -96,13 +97,12 @@ class _ProductSetupScreenState extends State<ProductSetupScreen> {
             ProductConfigurationForm(
               isDark: isDark,
               accentColor: turquoise,
-              title: 'Cosa vuoi tracciare?',
-              subtitle:
-                  'Puoi modificare tutto nelle impostazioni in qualsiasi momento.',
+              title: context.l10n.setupQuestion,
+              subtitle: context.l10n.setupSubtitle,
               form: _form,
               onChanged: () => setState(() {}),
             ),
-            const SettingsSectionLabel('PROMEMORIA', inset: 0),
+            SettingsSectionLabel(context.l10n.remindersSection, inset: 0),
             SettingsGroup(children: reminderRows(context)),
           ],
         ),

@@ -18,6 +18,7 @@ import java.text.NumberFormat
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.ZoneId
+import java.util.Currency
 import java.util.Locale
 import java.util.UUID
 
@@ -125,7 +126,9 @@ class TrackingWidgetProvider : AppWidgetProvider() {
     private fun updateWidget(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
         val size = resolveWidgetSize(appWidgetManager.getAppWidgetOptions(appWidgetId))
         val views = RemoteViews(context.packageName, size.layoutRes)
+        val texts = WidgetPreferences.localizedContext(context)
         paint(context, views, size, if (WidgetPreferences.readWidgetTheme(context) == "light") WidgetPalette.LIGHT else WidgetPalette.DARK)
+        bindLabels(texts, views, size)
         val products = WidgetPreferences.readProducts(context)
         val product = products?.let { list ->
             listOfNotNull(
@@ -137,7 +140,7 @@ class TrackingWidgetProvider : AppWidgetProvider() {
         }
 
         if (product == null || isArchivedProduct(product)) {
-            bindEmptyState(context, views)
+            bindEmptyState(context, texts, views)
             appWidgetManager.updateAppWidget(appWidgetId, views)
             return
         }
@@ -145,18 +148,20 @@ class TrackingWidgetProvider : AppWidgetProvider() {
         val productId = product.optString("id")
         val snapshot = readValidSnapshot(context, productId)
         if (snapshot == null) {
-            bindSnapshotUnavailableState(context, views)
+            bindSnapshotUnavailableState(context, texts, views)
             appWidgetManager.updateAppWidget(appWidgetId, views)
             return
         }
 
         val isToday = snapshot.optString("dayKeyLocal") == LocalDate.now(ZoneId.systemDefault()).toString()
 
+        val defaultName = texts.getString(R.string.widget_default_product)
         bindCommonState(
             context = context,
+            texts = texts,
             views = views,
             productId = productId,
-            name = snapshot.optString("name", "Prodotto").ifBlank { "Prodotto" },
+            name = snapshot.optString("name", defaultName).ifBlank { defaultName },
             tracksInventory = snapshot.optBoolean("tracksInventory", product.optBoolean("tracksInventory", true)),
             remaining = snapshot.optInt("packRemaining", 0),
             pieces = snapshot.optInt("pieces", 1).coerceAtLeast(1),
@@ -218,8 +223,8 @@ class TrackingWidgetProvider : AppWidgetProvider() {
 
         return JSONObject().apply {
             put("activeProductId", product.optString("id"))
-            put("name", snapshot.optString("name", product.optString("name", "Prodotto")).ifBlank {
-                product.optString("name", "Prodotto")
+            put("name", snapshot.optString("name", product.optString("name")).ifBlank {
+                product.optString("name")
             })
             put("tracksInventory", tracksInventory)
             put("pieces", pieces)
@@ -248,29 +253,36 @@ class TrackingWidgetProvider : AppWidgetProvider() {
     private fun isArchivedProduct(product: JSONObject): Boolean =
         product.optBoolean("isArchived", false)
 
-    private fun bindEmptyState(context: Context, views: RemoteViews) {
-        views.setTextViewText(R.id.widget_product_name, "Nessun prodotto")
-        views.setTextViewText(R.id.widget_increment, "Apri app")
+    private fun bindLabels(texts: Context, views: RemoteViews, size: WidgetSize) {
+        if (size != WidgetSize.LARGE) return
+        views.setTextViewText(R.id.widget_stat_cost_label, texts.getString(R.string.widget_spent_today))
+        views.setTextViewText(R.id.widget_stat_minutes_label, texts.getString(R.string.widget_life_lost))
+        views.setTextViewText(R.id.widget_stat_total_label, texts.getString(R.string.widget_total_spent))
+    }
+
+    private fun bindEmptyState(context: Context, texts: Context, views: RemoteViews) {
+        views.setTextViewText(R.id.widget_product_name, texts.getString(R.string.widget_no_product))
+        views.setTextViewText(R.id.widget_increment, texts.getString(R.string.widget_open_app))
         views.setTextViewText(R.id.widget_count, "0")
-        views.setTextViewText(R.id.widget_count_label, "Totale usato oggi")
-        views.setTextViewText(R.id.widget_hint, "Apri l'app per configurare il prodotto del widget")
-        views.setTextViewText(R.id.widget_cost_today_value, formatCurrency(0.0))
+        views.setTextViewText(R.id.widget_count_label, texts.getString(R.string.widget_total_today))
+        views.setTextViewText(R.id.widget_hint, texts.getString(R.string.widget_hint_configure))
+        views.setTextViewText(R.id.widget_cost_today_value, formatCurrency(texts, 0.0))
         views.setTextViewText(R.id.widget_minutes_today_value, "--")
-        views.setTextViewText(R.id.widget_total_cost_value, formatCurrency(0.0))
+        views.setTextViewText(R.id.widget_total_cost_value, formatCurrency(texts, 0.0))
         views.setOnClickPendingIntent(R.id.widget_root, openAppIntent(context))
         views.setOnClickPendingIntent(R.id.widget_increment, openAppIntent(context))
         views.setViewVisibility(R.id.widget_hint, View.VISIBLE)
     }
 
-    private fun bindSnapshotUnavailableState(context: Context, views: RemoteViews) {
-        views.setTextViewText(R.id.widget_product_name, "Apri app")
-        views.setTextViewText(R.id.widget_increment, "Apri app")
+    private fun bindSnapshotUnavailableState(context: Context, texts: Context, views: RemoteViews) {
+        views.setTextViewText(R.id.widget_product_name, texts.getString(R.string.widget_open_app))
+        views.setTextViewText(R.id.widget_increment, texts.getString(R.string.widget_open_app))
         views.setTextViewText(R.id.widget_count, "--")
-        views.setTextViewText(R.id.widget_count_label, "Widget in sincronizzazione")
-        views.setTextViewText(R.id.widget_hint, "Apri l'app per riallineare i dati del prodotto")
-        views.setTextViewText(R.id.widget_cost_today_value, formatCurrency(0.0))
+        views.setTextViewText(R.id.widget_count_label, texts.getString(R.string.widget_syncing))
+        views.setTextViewText(R.id.widget_hint, texts.getString(R.string.widget_hint_resync))
+        views.setTextViewText(R.id.widget_cost_today_value, formatCurrency(texts, 0.0))
         views.setTextViewText(R.id.widget_minutes_today_value, "--")
-        views.setTextViewText(R.id.widget_total_cost_value, formatCurrency(0.0))
+        views.setTextViewText(R.id.widget_total_cost_value, formatCurrency(texts, 0.0))
         views.setOnClickPendingIntent(R.id.widget_root, openAppIntent(context))
         views.setOnClickPendingIntent(R.id.widget_increment, openAppIntent(context))
         views.setViewVisibility(R.id.widget_hint, View.VISIBLE)
@@ -278,6 +290,7 @@ class TrackingWidgetProvider : AppWidgetProvider() {
 
     private fun bindCommonState(
         context: Context,
+        texts: Context,
         views: RemoteViews,
         productId: String,
         name: String,
@@ -294,7 +307,9 @@ class TrackingWidgetProvider : AppWidgetProvider() {
         views.setTextViewText(R.id.widget_product_name, name)
         views.setTextViewText(
             R.id.widget_increment,
-            if (!tracksInventory || remaining > 0) "Aggiungi +" else "Apri app"
+            texts.getString(
+                if (!tracksInventory || remaining > 0) R.string.widget_add else R.string.widget_open_app
+            )
         )
         views.setOnClickPendingIntent(
             R.id.widget_increment,
@@ -304,13 +319,13 @@ class TrackingWidgetProvider : AppWidgetProvider() {
 
         if (size != WidgetSize.SMALL) {
             views.setTextViewText(R.id.widget_count, dailyCount.toString())
-            views.setTextViewText(R.id.widget_count_label, "Totale usato oggi")
+            views.setTextViewText(R.id.widget_count_label, texts.getString(R.string.widget_total_today))
             views.setTextViewText(
                 R.id.widget_hint,
                 if (tracksInventory) {
-                    "Residuo $remaining/$pieces • Costo unit. ${formatCurrency(unitCost)}"
+                    texts.getString(R.string.widget_hint_stock, remaining, pieces, formatCurrency(texts, unitCost))
                 } else {
-                    "Tracciamento senza scorta • Costo ${formatCurrency(unitCost)}"
+                    texts.getString(R.string.widget_hint_no_stock, formatCurrency(texts, unitCost))
                 }
             )
             views.setViewVisibility(R.id.widget_hint, View.VISIBLE)
@@ -322,12 +337,12 @@ class TrackingWidgetProvider : AppWidgetProvider() {
         }
 
         if (size == WidgetSize.LARGE) {
-            views.setTextViewText(R.id.widget_cost_today_value, formatCurrency(dailyCost))
+            views.setTextViewText(R.id.widget_cost_today_value, formatCurrency(texts, dailyCost))
             views.setTextViewText(
                 R.id.widget_minutes_today_value,
                 if (dailyMinutes > 0) "${dailyMinutes}m" else "--"
             )
-            views.setTextViewText(R.id.widget_total_cost_value, formatCurrency(totalSpent))
+            views.setTextViewText(R.id.widget_total_cost_value, formatCurrency(texts, totalSpent))
         }
     }
 
@@ -366,8 +381,13 @@ class TrackingWidgetProvider : AppWidgetProvider() {
         }
     }
 
-    private fun formatCurrency(value: Double): String =
-        NumberFormat.getCurrencyInstance(Locale.ITALY).format(value)
+    private fun formatCurrency(texts: Context, value: Double): String {
+        val language = texts.resources.configuration.locales[0].language
+        val locale = if (language == "it") Locale.ITALY else Locale.US
+        return NumberFormat.getCurrencyInstance(locale).apply {
+            currency = Currency.getInstance("EUR")
+        }.format(value)
+    }
 
     private fun incrementIntent(context: Context, productId: String): PendingIntent {
         val intent = Intent(context, WidgetActionReceiver::class.java).apply {

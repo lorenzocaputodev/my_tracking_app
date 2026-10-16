@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_description">Log with one tap and see today\'s count</string>
+    <string name="widget_default_product">Product</string>
+    <string name="widget_product_name_placeholder">Product name</string>
+    <string name="widget_no_product">No product</string>
+    <string name="widget_open_app">Open app</string>
+    <string name="widget_add">Add +</string>
+    <string name="widget_total_today">Total used today</string>
+    <string name="widget_syncing">Widget syncing</string>
+    <string name="widget_hint_configure">Open the app to set up the widget\'s product</string>
+    <string name="widget_hint_resync">Open the app to resync the product data</string>
+    <string name="widget_hint_placeholder">Left 0/0 • Unit cost</string>
+    <string name="widget_hint_stock">Left %1$d/%2$d • Unit cost %3$s</string>
+    <string name="widget_hint_no_stock">No stock tracking • Cost %1$s</string>
+    <string name="widget_spent_today">Spent today</string>
+    <string name="widget_life_lost">Life lost</string>
+    <string name="widget_total_spent">Total spent</string>
+    <string name="widget_config_title">Choose the widget\'s product</string>
+    <string name="widget_config_subtitle">Tap the product to link to the home screen widget.</string>
+    <string name="widget_config_select">Select</string>
+    <string name="widget_config_no_products">Open the app to set up at least one product</string>
+</resources>

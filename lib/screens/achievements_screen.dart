@@ -10,6 +10,7 @@ import '../theme/theme_context.dart';
 import '../utils/app_clock.dart';
 import '../utils/app_formatters.dart';
 import '../utils/calendar_days.dart';
+import '../l10n/l10n.dart';
 
 class AchievementsScreen extends StatelessWidget {
   const AchievementsScreen({super.key});
@@ -19,7 +20,7 @@ class AchievementsScreen extends StatelessWidget {
     final turquoise = context.accent;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Obiettivi & Badge'), elevation: 0),
+      appBar: AppBar(title: Text(context.l10n.achievementsTitle), elevation: 0),
       body: Consumer<MyTrackingProvider>(
         builder: (context, provider, _) {
           final all = provider.allAchievements;
@@ -39,25 +40,23 @@ class AchievementsScreen extends StatelessWidget {
               _ReductionCard(provider: provider, color: turquoise),
               const SizedBox(height: 24),
               _SectionTitle(
-                label: 'SBLOCCATI',
+                label: context.l10n.unlockedSection,
                 count: unlocked.length,
                 color: turquoise,
               ),
               const SizedBox(height: 12),
               unlocked.isEmpty
-                  ? const _EmptyHint(
-                      'Registra le prime attivit\u00E0 per sbloccare i badge!',
-                    )
+                  ? _EmptyHint(context.l10n.noBadgesYet)
                   : _BadgeGrid(achievements: unlocked, color: turquoise),
               const SizedBox(height: 24),
               _SectionTitle(
-                label: 'DA SBLOCCARE',
+                label: context.l10n.lockedSection,
                 count: locked.length,
                 color: turquoise,
               ),
               const SizedBox(height: 12),
               locked.isEmpty
-                  ? const _EmptyHint('Hai sbloccato tutti i badge! \u{1F389}')
+                  ? _EmptyHint(context.l10n.allBadgesUnlocked)
                   : _BadgeGrid(
                       achievements: locked,
                       color: turquoise,
@@ -99,7 +98,7 @@ class _ProgressBanner extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                '$unlocked / $total badge',
+                context.l10n.badgeProgress(unlocked, total),
                 style: TextStyle(fontFamily: AppFonts.sans,
                   fontSize: 17,
                   fontWeight: FontWeight.w800,
@@ -152,7 +151,7 @@ class _ReductionCard extends StatelessWidget {
         ),
         icon: Icon(Icons.trending_down_rounded, color: color),
         label: Text(
-          'Imposta piano di riduzione',
+          context.l10n.setReductionPlan,
           style: TextStyle(fontFamily: AppFonts.sans, fontWeight: FontWeight.w700, color: color),
         ),
         style: OutlinedButton.styleFrom(
@@ -166,7 +165,8 @@ class _ReductionCard extends StatelessWidget {
       );
     }
 
-    final productName = provider.productNameById(plan.productId) ?? 'Prodotto';
+    final productName =
+        provider.productNameById(plan.productId) ?? context.l10n.product;
     final progress = provider.reductionProgressForProduct(plan.productId);
     final recentAverage = progress?.recentAverage ??
         provider.averageDailyCountForRange(
@@ -176,10 +176,16 @@ class _ReductionCard extends StatelessWidget {
         );
     final status = progress?.status;
     final (statusLabel, statusColor) = switch (status) {
-      ReductionPlanStatus.ahead => ('AVANTI', context.stats.positive),
-      ReductionPlanStatus.onTrack => ('IN LINEA', color),
-      ReductionPlanStatus.behind => ('IN RITARDO', context.stats.warning),
-      null => ('ATTIVO', color),
+      ReductionPlanStatus.ahead => (
+          context.l10n.planStatusAhead,
+          context.stats.positive,
+        ),
+      ReductionPlanStatus.onTrack => (context.l10n.planStatusOnTrack, color),
+      ReductionPlanStatus.behind => (
+          context.l10n.planStatusBehind,
+          context.stats.warning,
+        ),
+      null => (context.l10n.planStatusActive, color),
     };
 
     return Container(
@@ -192,7 +198,7 @@ class _ReductionCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'PIANO DI RIDUZIONE',
+                context.l10n.reductionPlanSection,
                 style: TextStyle(fontFamily: AppFonts.sans,
                   fontSize: 11,
                   fontWeight: FontWeight.w800,
@@ -205,7 +211,7 @@ class _ReductionCard extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           Text(
-            'Prodotto: $productName',
+            context.l10n.productLabel(productName),
             style: const TextStyle(fontFamily: AppFonts.sans,
               fontSize: 13,
               fontWeight: FontWeight.w700,
@@ -216,17 +222,17 @@ class _ReductionCard extends StatelessWidget {
             children: [
               Expanded(
                 child: _PlanStat(
-                  label: 'Inizio',
+                  label: context.l10n.planStart,
                   value: formatDecimal(plan.startAverage, decimals: 1),
-                  unit: 'unit\u00E0/g',
+                  unit: context.l10n.unitsPerDayShort,
                 ),
               ),
               const SizedBox(width: 10),
               Expanded(
                 child: _PlanStat(
-                  label: 'Media 7 giorni',
+                  label: context.l10n.average7Days,
                   value: formatDecimal(recentAverage, decimals: 1),
-                  unit: 'unit\u00E0/g',
+                  unit: context.l10n.unitsPerDayShort,
                   highlight: statusColor,
                 ),
               ),
@@ -237,17 +243,17 @@ class _ReductionCard extends StatelessWidget {
             children: [
               Expanded(
                 child: _PlanStat(
-                  label: 'Target oggi',
+                  label: context.l10n.targetToday,
                   value: formatDecimal(plan.currentWeekTarget, decimals: 1),
-                  unit: 'unit\u00E0/g',
+                  unit: context.l10n.unitsPerDayShort,
                 ),
               ),
               const SizedBox(width: 10),
               Expanded(
                 child: _PlanStat(
-                  label: 'Obiettivo finale',
+                  label: context.l10n.finalGoal,
                   value: formatDecimal(plan.targetPerDay, decimals: 1),
-                  unit: 'unit\u00E0/g',
+                  unit: context.l10n.unitsPerDayShort,
                   highlight: color,
                 ),
               ),
@@ -258,13 +264,13 @@ class _ReductionCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Settimana ${plan.currentWeekNumber} / ${plan.totalWeeks}',
+                context.l10n.planWeek(plan.currentWeekNumber, plan.totalWeeks),
                 style: const TextStyle(fontFamily: AppFonts.sans, fontSize: 12, color: Colors.grey),
               ),
               Text(
                 plan.isCompleted
-                    ? 'Completato!'
-                    : '${plan.daysRemaining} giorni rimanenti',
+                    ? context.l10n.planCompleted
+                    : context.l10n.daysRemaining(plan.daysRemaining),
                 style: TextStyle(fontFamily: AppFonts.sans,
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
@@ -298,12 +304,12 @@ class _ReductionCard extends StatelessWidget {
                   child: Text(
                     switch (status) {
                       ReductionPlanStatus.ahead =>
-                        'Sei sotto il target settimanale previsto.',
+                        context.l10n.planAheadMessage,
                       ReductionPlanStatus.onTrack =>
-                        'Sei in linea con il piano attivo.',
+                        context.l10n.planOnTrackMessage,
                       ReductionPlanStatus.behind =>
-                        'Sei sopra il target settimanale previsto.',
-                      null => 'Piano attivo su questo prodotto.',
+                        context.l10n.planBehindMessage,
+                      null => context.l10n.planActiveMessage,
                     },
                     style: TextStyle(fontFamily: AppFonts.sans,
                       fontSize: 12,
@@ -327,9 +333,9 @@ class _ReductionCard extends StatelessWidget {
                     productId: plan.productId,
                   ),
                   style: _outlinedButtonStyle(color),
-                  child: const Text(
-                    'Modifica',
-                    style: TextStyle(fontFamily: AppFonts.sans,
+                  child: Text(
+                    context.l10n.edit,
+                    style: const TextStyle(fontFamily: AppFonts.sans,
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
                     ),
@@ -342,7 +348,7 @@ class _ReductionCard extends StatelessWidget {
                     _confirmDeletePlan(context, provider, plan.productId),
                 style: _outlinedButtonStyle(context.stats.danger),
                 child: Text(
-                  'Elimina',
+                  context.l10n.delete,
                   style: TextStyle(fontFamily: AppFonts.sans,
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
@@ -372,23 +378,23 @@ class _ReductionCard extends StatelessWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text(
-          'Elimina piano',
-          style: TextStyle(fontFamily: AppFonts.sans, fontWeight: FontWeight.w800),
+        title: Text(
+          context.l10n.deletePlanTitle,
+          style: const TextStyle(fontFamily: AppFonts.sans, fontWeight: FontWeight.w800),
         ),
-        content: const Text(
-          'Vuoi eliminare il piano di riduzione?',
-          style: TextStyle(fontFamily: AppFonts.sans, ),
+        content: Text(
+          context.l10n.deletePlanBody,
+          style: const TextStyle(fontFamily: AppFonts.sans, ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Annulla'),
+            child: Text(context.l10n.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
             child: Text(
-              'Elimina',
+              context.l10n.delete,
               style: TextStyle(color: context.stats.danger),
             ),
           ),
@@ -450,10 +456,14 @@ class _BadgeCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = context.isDark;
 
+    final l10n = context.l10n;
+    final title = l10n.achievementTitle(achievement.id);
     final semanticLabel = locked || achievement.unlockedAt == null
-        ? '${achievement.title}, da sbloccare'
-        : '${achievement.title}, sbloccato il '
-            '${DateFormat('d MMMM y', 'it').format(achievement.unlockedAt!)}';
+        ? l10n.badgeLockedSemantics(title)
+        : l10n.badgeUnlockedSemantics(
+            title,
+            DateFormat.yMMMMd(l10n.localeName).format(achievement.unlockedAt!),
+          );
 
     return Semantics(
       button: true,
@@ -510,7 +520,7 @@ class _BadgeCard extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                achievement.title,
+                title,
                 textAlign: TextAlign.center,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
@@ -525,7 +535,8 @@ class _BadgeCard extends StatelessWidget {
               if (!locked && achievement.unlockedAt != null) ...[
                 const SizedBox(height: 4),
                 Text(
-                  DateFormat('d MMM', 'it').format(achievement.unlockedAt!),
+                  DateFormat.MMMd(l10n.localeName)
+                      .format(achievement.unlockedAt!),
                   style: TextStyle(fontFamily: AppFonts.sans,
                     fontSize: 9,
                     fontWeight: FontWeight.w600,
@@ -559,7 +570,7 @@ class _BadgeCard extends StatelessWidget {
               Text(achievement.emoji, style: const TextStyle(fontSize: 54)),
               const SizedBox(height: 14),
               Text(
-                achievement.title,
+                context.l10n.achievementTitle(achievement.id),
                 textAlign: TextAlign.center,
                 style: const TextStyle(fontFamily: AppFonts.sans,
                   fontSize: 19,
@@ -569,7 +580,7 @@ class _BadgeCard extends StatelessWidget {
               ),
               const SizedBox(height: 10),
               Text(
-                achievement.description,
+                context.l10n.achievementDescription(achievement.id),
                 textAlign: TextAlign.center,
                 style: TextStyle(fontFamily: AppFonts.sans,
                   fontSize: 13,
@@ -580,8 +591,11 @@ class _BadgeCard extends StatelessWidget {
               const SizedBox(height: 14),
               Text(
                 !locked && achievement.unlockedAt != null
-                    ? 'Sbloccato il ${DateFormat('d MMMM yyyy', 'it').format(achievement.unlockedAt!)}'
-                    : 'Non ancora sbloccato',
+                    ? context.l10n.unlockedOn(
+                        DateFormat.yMMMMd(context.localeName)
+                            .format(achievement.unlockedAt!),
+                      )
+                    : context.l10n.notUnlockedYet,
                 textAlign: TextAlign.center,
                 style: TextStyle(fontFamily: AppFonts.sans,
                   fontSize: 11,
@@ -597,7 +611,7 @@ class _BadgeCard extends StatelessWidget {
                 child: TextButton(
                   onPressed: () => Navigator.pop(ctx),
                   child: Text(
-                    'Chiudi',
+                    context.l10n.close,
                     style: TextStyle(fontFamily: AppFonts.sans,
                       fontWeight: FontWeight.w700,
                       color: color,
@@ -621,7 +635,8 @@ void _showPlanSheet(
   Color color, {
   required String productId,
 }) {
-  final productName = provider.productNameById(productId) ?? 'Prodotto';
+  final productName =
+      provider.productNameById(productId) ?? context.l10n.product;
   final currentAverage = provider.recentDailyAverage(productId);
   final existingPlan = provider.reductionPlanForProduct(productId);
   final baseline = existingPlan?.startAverage ??
@@ -664,24 +679,26 @@ void _showPlanSheet(
               ),
               const SizedBox(height: 22),
               Text(
-                'PIANO DI RIDUZIONE',
+                context.l10n.reductionPlanSection,
                 style: AppTextStyles.sectionLabel(context.accent),
               ),
               const SizedBox(height: 6),
               Text(
-                'Prodotto: $productName',
+                context.l10n.productLabel(productName),
                 style: const TextStyle(fontFamily: AppFonts.sans,
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
                 ),
               ),
               Text(
-                'Media degli ultimi 14 giorni: ${formatDecimal(currentAverage, decimals: 1)} unit\u00E0/giorno',
+                context.l10n.average14Days(
+                  formatDecimal(currentAverage, decimals: 1),
+                ),
                 style: const TextStyle(fontFamily: AppFonts.sans, fontSize: 13, color: Colors.grey),
               ),
               const SizedBox(height: 24),
               Text(
-                'Obiettivo finale: ${formatDecimal(target, decimals: 1)} unit\u00E0/giorno',
+                context.l10n.finalGoalValue(formatDecimal(target, decimals: 1)),
                 style: const TextStyle(fontFamily: AppFonts.sans,
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
@@ -699,7 +716,7 @@ void _showPlanSheet(
               ),
               const SizedBox(height: 12),
               Text(
-                'Durata: $weeks settimane',
+                context.l10n.planDuration(weeks),
                 style: const TextStyle(fontFamily: AppFonts.sans,
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
@@ -728,7 +745,10 @@ void _showPlanSheet(
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        'Riduzione di ${formatDecimal(baseline - target, decimals: 1)} unit\u00E0/g in $weeks settimane.',
+                        context.l10n.planReductionSummary(
+                          formatDecimal(baseline - target, decimals: 1),
+                          weeks,
+                        ),
                         style: TextStyle(fontFamily: AppFonts.sans, fontSize: 12, color: color),
                       ),
                     ),
@@ -755,7 +775,9 @@ void _showPlanSheet(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
                   child: Text(
-                    existingPlan != null ? 'Aggiorna piano' : 'Imposta piano',
+                    existingPlan != null
+                        ? context.l10n.updatePlan
+                        : context.l10n.setPlan,
                     style: TextStyle(fontFamily: AppFonts.sans,
                       fontSize: 15,
                       fontWeight: FontWeight.w800,

@@ -7,35 +7,23 @@ import '../theme/app_fonts.dart';
 import '../theme/theme_context.dart';
 import 'option_sheet.dart';
 import 'settings_rows.dart';
+import '../l10n/l10n.dart';
 
-class ReminderIntervalOption {
-  final int minutes;
-  final String label;
+const List<int> reminderIntervalOptions = [30, 60, 120, 240, 480, 720];
 
-  const ReminderIntervalOption({required this.minutes, required this.label});
+String _intervalLabel(AppLocalizations l10n, int minutes) {
+  final value = reminderIntervalOptions.contains(minutes) ? minutes : 120;
+  return value < 60
+      ? l10n.durationMinutes(value)
+      : l10n.durationHours(value ~/ 60);
 }
-
-const List<ReminderIntervalOption> reminderIntervalOptions = [
-  ReminderIntervalOption(minutes: 30, label: '30 minuti'),
-  ReminderIntervalOption(minutes: 60, label: '1 ora'),
-  ReminderIntervalOption(minutes: 120, label: '2 ore'),
-  ReminderIntervalOption(minutes: 240, label: '4 ore'),
-  ReminderIntervalOption(minutes: 480, label: '8 ore'),
-  ReminderIntervalOption(minutes: 720, label: '12 ore'),
-];
-
-String _intervalLabel(int minutes) => reminderIntervalOptions
-    .firstWhere(
-      (o) => o.minutes == minutes,
-      orElse: () => reminderIntervalOptions[2],
-    )
-    .label;
 
 List<Widget> reminderRows(BuildContext context) {
   final provider = context.watch<MyTrackingProvider>();
   final reminders = provider.globalReminderSettings;
   final supported = ProductNotificationService.isSupported;
   final colors = context.colors;
+  final l10n = context.l10n;
 
   Future<void> setEnabled(bool value) async {
     if (value) {
@@ -45,7 +33,7 @@ List<Widget> reminderRows(BuildContext context) {
       if (!granted) {
         messenger.showSnackBar(
           SnackBar(
-            content: const Text('Permesso notifiche non concesso.'),
+            content: Text(l10n.notificationPermissionDenied),
             backgroundColor: warning,
           ),
         );
@@ -61,11 +49,11 @@ List<Widget> reminderRows(BuildContext context) {
     final current = provider.globalReminderSettings.intervalMinutes;
     final picked = await showOptionSheet<int>(
       context,
-      title: 'Ricordamelo ogni',
+      title: l10n.remindMeEvery,
       selected: current,
       options: [
-        for (final option in reminderIntervalOptions)
-          SheetOption(option.minutes, option.label),
+        for (final minutes in reminderIntervalOptions)
+          SheetOption(minutes, _intervalLabel(l10n, minutes)),
       ],
     );
     if (picked == null || picked == current) return;
@@ -77,10 +65,10 @@ List<Widget> reminderRows(BuildContext context) {
   return [
     SettingsRow(
       icon: Icons.notifications_rounded,
-      title: 'Promemoria',
+      title: l10n.reminders,
       subtitle: supported
-          ? 'Ti ricorda di registrare'
-          : 'Disponibile solo su Android',
+          ? l10n.remindersSubtitle
+          : l10n.androidOnly,
       enabled: supported,
       trailing: Switch(
         value: supported && reminders.enabled,
@@ -90,13 +78,13 @@ List<Widget> reminderRows(BuildContext context) {
     if (supported && reminders.enabled)
       SettingsRow(
         icon: Icons.schedule_rounded,
-        title: 'Frequenza',
+        title: l10n.frequency,
         onTap: pickInterval,
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Ogni ${_intervalLabel(reminders.intervalMinutes)}',
+              l10n.every(_intervalLabel(l10n, reminders.intervalMinutes)),
               style: TextStyle(
                 fontFamily: AppFonts.sans,
                 fontSize: 13,

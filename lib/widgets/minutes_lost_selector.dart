@@ -7,6 +7,7 @@ import 'select_field.dart';
 import 'tracking_input_decoration.dart';
 import '../theme/app_fonts.dart';
 import '../theme/theme_context.dart';
+import '../l10n/l10n.dart';
 
 class MinutesLostSelector extends StatelessWidget {
   final bool isDark;
@@ -32,6 +33,7 @@ class MinutesLostSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final dropdownValue =
         customMode ? customMinutesPresetValue : (selectedPresetMinutes ?? 0);
 
@@ -46,7 +48,7 @@ class MinutesLostSelector extends StatelessWidget {
       children: [
         SelectField<int>(
           icon: Icons.timer_rounded,
-          sheetTitle: 'Minuti di vita persi',
+          sheetTitle: l10n.minutesLostSheetTitle,
           value: dropdownValue,
           onChanged: onPresetSelected,
           options: [
@@ -54,17 +56,20 @@ class MinutesLostSelector extends StatelessWidget {
               preset.minutes == 0
                   ? SheetOption(
                       0,
-                      'Nessuna stima',
-                      subtitle: 'Non conta la vita persa',
-                      fieldLabel: preset.label,
+                      l10n.noEstimate,
+                      subtitle: l10n.noEstimateSubtitle,
+                      fieldLabel: l10n.noEstimate,
                     )
                   : SheetOption(
                       preset.minutes,
-                      preset.label.split(' — ').first,
-                      subtitle: preset.label.split(' — ').last,
-                      fieldLabel: preset.label,
+                      l10n.minutesPresetName(preset.minutes),
+                      subtitle: l10n.minutesEstimate(preset.minutes),
+                      fieldLabel: l10n.minutesPresetLabel(
+                        l10n.minutesPresetName(preset.minutes),
+                        l10n.minutesEstimate(preset.minutes),
+                      ),
                     ),
-            const SheetOption(customMinutesPresetValue, 'Personalizzato…'),
+            SheetOption(customMinutesPresetValue, l10n.custom),
           ],
         ),
         if (customMode) ...[
@@ -77,7 +82,7 @@ class MinutesLostSelector extends StatelessWidget {
             onChanged: onCustomChanged,
             style: baseTextStyle,
             decoration: trackingInputDecoration(
-              hint: 'Minuti per utilizzo',
+              hint: l10n.minutesPerUse,
               icon: Icons.edit_rounded,
               isDark: isDark,
               accentColor: accentColor,

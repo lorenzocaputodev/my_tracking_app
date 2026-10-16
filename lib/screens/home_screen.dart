@@ -15,6 +15,7 @@ import '../theme/app_dimens.dart';
 import '../theme/app_decorations.dart';
 import '../theme/theme_context.dart';
 import '../theme/app_icons.dart';
+import '../l10n/l10n.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -44,7 +45,7 @@ class HomeScreen extends StatelessWidget {
   AppBar _buildAppBar(BuildContext context, Color turquoise) {
     return AppBar(
       leading: IconButton(
-        tooltip: 'Cronologia',
+        tooltip: context.l10n.historyTitle,
         icon: Icon(Icons.history_rounded, color: turquoise),
         onPressed: () => Navigator.push(
           context,
@@ -62,7 +63,7 @@ class HomeScreen extends StatelessWidget {
       ),
       actions: [
         IconButton(
-          tooltip: 'Obiettivi e badge',
+          tooltip: context.l10n.achievementsTooltip,
           icon: Icon(Icons.emoji_events_rounded, color: turquoise),
           onPressed: () => Navigator.push(
             context,
@@ -70,7 +71,7 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
         IconButton(
-          tooltip: 'Impostazioni',
+          tooltip: context.l10n.settingsTitle,
           icon: Icon(Icons.tune_rounded, color: turquoise),
           onPressed: () => Navigator.push(
             context,
@@ -96,21 +97,21 @@ class HomeScreen extends StatelessWidget {
       if (hasUnitCost || provider.dailyCost > 0)
         StatsCard(
           icon: Icons.euro_rounded,
-          label: 'Oggi',
+          label: context.l10n.today,
           value: formatEuro(provider.dailyCost),
           accent: turquoise,
         ),
       if (showMinutes)
         StatsCard(
           icon: Icons.timer_rounded,
-          label: 'Vita persa oggi',
+          label: context.l10n.lifeLostToday,
           value: _formatMinutes(provider.dailyMinutesLost),
           accent: context.stats.time,
         ),
       if (hasUnitCost || provider.totalCost > 0)
         StatsCard(
           icon: Icons.account_balance_wallet_rounded,
-          label: 'Totale speso',
+          label: context.l10n.totalSpent,
           value: formatEuro(provider.totalCost),
           accent: turquoise.withValues(alpha: 0.7),
         ),
@@ -155,7 +156,11 @@ class HomeScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'ULTIMA: ${provider.timeSinceLastEntry.toUpperCase()}',
+                          context.l10n.lastEntry(
+                            context.l10n
+                                .timeAgo(provider.timeSinceLastEntry)
+                                .toUpperCase(),
+                          ),
                           style: TextStyle(fontFamily: AppFonts.sans,
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
@@ -179,7 +184,7 @@ class HomeScreen extends StatelessWidget {
                         else
                           ActionButton(
                             size: size.width * 0.55,
-                            actionLabel: 'HO USATO',
+                            actionLabel: context.l10n.logButton,
                             onLongPress: () =>
                                 _showCreatorEasterEgg(context, turquoise),
                             onTap: () async {
@@ -287,11 +292,11 @@ class HomeScreen extends StatelessWidget {
       ..hideCurrentSnackBar()
       ..showSnackBar(
         SnackBar(
-          content: Text('Registrato · ${provider.dailyCount} oggi'),
+          content: Text(context.l10n.loggedToday(provider.dailyCount)),
           duration: const Duration(seconds: 3),
           persist: false,
           action: SnackBarAction(
-            label: 'Annulla',
+            label: context.l10n.undo,
             onPressed: () => provider.deleteEntry(entryId),
           ),
         ),
@@ -338,7 +343,7 @@ class HomeScreen extends StatelessWidget {
                     Icon(Icons.favorite_rounded, color: accent, size: 44),
                     const SizedBox(height: 20),
                     Text(
-                      'Applicazione creata da Lorenzo Caputo, with love <3',
+                      context.l10n.creatorMessage,
                       textAlign: TextAlign.center,
                       style: TextStyle(fontFamily: AppFonts.sans,
                         fontSize: 17,
@@ -390,12 +395,12 @@ class HomeScreen extends StatelessWidget {
       ..hideCurrentSnackBar()
       ..showSnackBar(
         SnackBar(
-          content: Text('📦 ${provider.config.name} terminato!'),
+          content: Text(context.l10n.stockFinished(provider.config.name)),
           backgroundColor: context.stats.warning,
           duration: const Duration(seconds: 4),
           persist: false,
           action: SnackBarAction(
-            label: 'Annulla',
+            label: context.l10n.undo,
             textColor: Colors.black,
             onPressed: () => provider.deleteEntry(entryId),
           ),
@@ -423,8 +428,8 @@ class _DailyLimitBanner extends StatelessWidget {
     final over = count > limit;
     final color = over ? context.stats.danger : context.stats.warning;
     final message = over
-        ? 'Sopra il limite impostato ($count/$limit)'
-        : 'Limite giornaliero raggiunto ($count/$limit)';
+        ? context.l10n.overLimit(count, limit)
+        : context.l10n.dailyLimitReached(count, limit);
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
@@ -497,7 +502,7 @@ class _OpenPackButton extends StatelessWidget {
               ),
               const SizedBox(height: 10),
               Text(
-                'NUOVA\nSCORTA',
+                context.l10n.newStockButton,
                 textAlign: TextAlign.center,
                 style: TextStyle(fontFamily: AppFonts.sans,
                   fontWeight: FontWeight.w900,
@@ -521,7 +526,7 @@ class _ProductChip extends StatelessWidget {
   Future<void> _choose(BuildContext context) async {
     final picked = await showOptionSheet<String>(
       context,
-      title: 'Prodotto in uso',
+      title: context.l10n.productInUse,
       selected: provider.activeProduct.id,
       options: [
         for (final p in provider.activeProducts)
@@ -530,8 +535,8 @@ class _ProductChip extends StatelessWidget {
             p.name,
             icon: p.tracksInventory ? AppIcons.stock : AppIcons.noStock,
             subtitle: p.tracksInventory
-                ? '${p.packRemaining}/${p.pieces} in scorta'
-                : 'Senza scorta',
+                ? context.l10n.stockCount(p.packRemaining, p.pieces)
+                : context.l10n.noStock,
           ),
       ],
     );
@@ -649,7 +654,7 @@ class _DailyCounter extends StatelessWidget {
           ),
         ),
         Text(
-          'OGGI',
+          context.l10n.todayCaps,
           style: TextStyle(fontFamily: AppFonts.sans,
             fontSize: 12,
             color: context.colors.textMuted,
@@ -669,10 +674,10 @@ class _SubLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final label = provider.activeProduct.tracksInventory
-        ? 'Costo unitario'
-        : 'Costo per utilizzo';
+        ? context.l10n.unitCost
+        : context.l10n.costPerUse;
     return Text(
-      '$label: ${formatEuro(provider.config.unitCost)}',
+      context.l10n.labelValue(label, formatEuro(provider.config.unitCost)),
       style: TextStyle(fontFamily: AppFonts.sans,
         fontSize: 12,
         color: Colors.grey.withValues(alpha: 0.6),
@@ -722,7 +727,7 @@ class _HomeInsightBadge extends StatelessWidget {
           Icon(icon, size: 14, color: color),
           const SizedBox(width: 8),
           Text(
-            insight.message,
+            context.l10n.homeInsight(insight),
             style: TextStyle(fontFamily: AppFonts.sans,
               fontSize: 12,
               fontWeight: FontWeight.w700,

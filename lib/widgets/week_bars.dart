@@ -8,8 +8,7 @@ import '../theme/theme_context.dart';
 import '../utils/app_clock.dart';
 import '../utils/app_formatters.dart';
 import '../utils/calendar_days.dart';
-
-const _weekdays = ['LUN', 'MAR', 'MER', 'GIO', 'VEN', 'SAB', 'DOM'];
+import '../l10n/l10n.dart';
 
 class WeekBars extends StatelessWidget {
   final List<SmokeEntry> entries;
@@ -55,15 +54,20 @@ class WeekBars extends StatelessWidget {
       return i == 6 ? accent : accent.withValues(alpha: 0.45);
     }
 
+    final weekdays = context.l10n.weekdaysShort.split(',');
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
-            Text('ULTIMI 7 GIORNI', style: AppTextStyles.sectionLabel(accent)),
+            Text(
+              context.l10n.last7Days,
+              style: AppTextStyles.sectionLabel(accent),
+            ),
             const Spacer(),
             Text(
-              'media ${formatDecimal(average, decimals: 1)}/giorno',
+              context.l10n.averagePerDay(formatDecimal(average, decimals: 1)),
               style: TextStyle(
                 fontFamily: AppFonts.sans,
                 fontSize: 11,
@@ -146,8 +150,8 @@ class WeekBars extends StatelessWidget {
                       ),
                       Text(
                         i == 6
-                            ? 'OGGI'
-                            : _weekdays[addDays(now, -(6 - i)).weekday - 1],
+                            ? context.l10n.todayCaps
+                            : weekdays[addDays(now, -(6 - i)).weekday - 1],
                         style: i == 6 ? small.copyWith(color: accent) : small,
                       ),
                     ],

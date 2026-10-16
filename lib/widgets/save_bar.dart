@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_fonts.dart';
 import '../theme/theme_context.dart';
+import '../l10n/l10n.dart';
 
 class SaveBar extends StatelessWidget {
   final String saveLabel;
@@ -63,7 +64,7 @@ class SaveBar extends StatelessWidget {
                     if (onCancel != null)
                       TextButton(
                         onPressed: onCancel,
-                        child: const Text('Annulla'),
+                        child: Text(context.l10n.cancel),
                       ),
                     const SizedBox(width: 8),
                     button,

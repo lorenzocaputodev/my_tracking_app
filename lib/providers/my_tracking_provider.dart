@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
+import '../l10n/l10n.dart';
 import '../models/achievement.dart';
 import '../models/app_reminder_settings.dart';
 import '../models/pack_config.dart';
@@ -30,9 +31,9 @@ enum ReductionPlanStatus { ahead, onTrack, behind }
 
 class HomeInsight {
   final HomeInsightType type;
-  final String message;
+  final int value;
 
-  const HomeInsight({required this.type, required this.message});
+  const HomeInsight({required this.type, this.value = 0});
 }
 
 class BackupImportOutcome {
@@ -102,6 +103,7 @@ class MyTrackingProvider extends ChangeNotifier {
   static const _keyReductionPlanLegacy = 'reduction_plan';
   static const _keyTheme = 'app_theme_preference';
   static const _keyWidgetTheme = 'widget_theme';
+  static const _keyLanguage = appLanguagePreferenceKey;
   static const _keyOnboardingDone = 'onboarding_done';
   static const _keyHasCompletedSetup = 'hasCompletedSetup';
   static const _keyConfigLegacy = 'pack_config';
@@ -124,12 +126,15 @@ class MyTrackingProvider extends ChangeNotifier {
   final Map<String, ReductionPlan> _reductionPlans = {};
   AppThemePreference _themePreference = AppThemePreference.dark;
   bool _widgetDark = true;
+  AppLanguagePreference _languagePreference;
   AppReminderSettings _globalReminderSettings = AppReminderSettings.defaults;
 
   Timer? _ticker;
   bool _isForeground = true;
 
-  MyTrackingProvider() {
+  MyTrackingProvider({
+    AppLanguagePreference initialLanguage = AppLanguagePreference.system,
+  }) : _languagePreference = initialLanguage {
     _startTicker();
   }
 
@@ -213,6 +218,7 @@ class MyTrackingProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   AppThemePreference get themePreference => _themePreference;
   bool get widgetDark => _widgetDark;
+  AppLanguagePreference get languagePreference => _languagePreference;
   AppReminderSettings get globalReminderSettings => _globalReminderSettings;
 
   double get dailyCost =>
@@ -222,23 +228,14 @@ class MyTrackingProvider extends ChangeNotifier {
   double get totalCost => entriesForProduct(_activeProductId)
       .fold(0.0, (sum, e) => sum + e.costDeducted);
 
-  String get timeSinceLastEntry {
+  Duration? get timeSinceLastEntry {
     DateTime? last;
     for (final e in _entries) {
       if (e.productId != _activeProductId) continue;
       if (last == null || e.timestamp.isAfter(last)) last = e.timestamp;
     }
-    if (last == null) return 'Mai';
-    final diff = appNow().difference(last);
-    if (diff.inDays > 0) return '${diff.inDays}g fa';
-    if (diff.inHours > 0) {
-      final minutes = diff.inMinutes.remainder(60);
-      return minutes == 0
-          ? '${diff.inHours}h fa'
-          : '${diff.inHours}h ${minutes}m fa';
-    }
-    if (diff.inMinutes > 0) return '${diff.inMinutes}m fa';
-    return 'Adesso';
+    if (last == null) return null;
+    return appNow().difference(last);
   }
 
   List<SmokeEntry> get todayEntries {
@@ -355,11 +352,6 @@ class MyTrackingProvider extends ChangeNotifier {
           ReductionPlanStatus.onTrack => HomeInsightType.planOnTrack,
           ReductionPlanStatus.behind => HomeInsightType.planBehind,
         },
-        message: switch (progress.status) {
-          ReductionPlanStatus.ahead => 'Piano: avanti',
-          ReductionPlanStatus.onTrack => 'Piano: in linea',
-          ReductionPlanStatus.behind => 'Piano: in ritardo',
-        },
       );
     }
 
@@ -368,9 +360,7 @@ class MyTrackingProvider extends ChangeNotifier {
       if (remaining != null && remaining > 0) {
         return HomeInsight(
           type: HomeInsightType.limitRemaining,
-          message: remaining == 1
-              ? 'Manca 1 unità al limite'
-              : 'Mancano $remaining unità al limite',
+          value: remaining,
         );
       }
     }
@@ -381,15 +371,9 @@ class MyTrackingProvider extends ChangeNotifier {
     );
     if (dailyCount == 0 && yesterday == 0) return null;
 
-    final delta = dailyCount - yesterday;
-    final message = switch (delta) {
-      > 0 => '+$delta rispetto a ieri',
-      < 0 => '$delta rispetto a ieri',
-      _ => '= rispetto a ieri',
-    };
     return HomeInsight(
       type: HomeInsightType.comparedToYesterday,
-      message: message,
+      value: dailyCount - yesterday,
     );
   }
 
@@ -468,6 +452,25 @@ class MyTrackingProvider extends ChangeNotifier {
         await prefs.setString(_keyTheme, value.name);
       });
 
+  Future<void> setLanguagePreference(AppLanguagePreference value) =>
+      _serialized(() async {
+        _languagePreference = value;
+        notifyListeners();
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString(_keyLanguage, value.name);
+        await _applyLanguageOutsideApp();
+      });
+
+  Future<void> onSystemLocaleChanged() async {
+    if (_languagePreference != AppLanguagePreference.system) return;
+    await _applyLanguageOutsideApp();
+  }
+
+  Future<void> _applyLanguageOutsideApp() async {
+    await WidgetBridge.updateWidgets();
+    await ProductNotificationService.refreshChannel();
+  }
+
   Future<void> setWidgetDark(bool dark) => _serialized(() async {
         _widgetDark = dark;
         notifyListeners();
@@ -539,12 +542,12 @@ class MyTrackingProvider extends ChangeNotifier {
         final pid = productId ?? _activeProductId;
         final idx = _products.indexWhere((p) => p.id == pid);
         if (idx == -1) {
-          throw StateError('Prodotto non trovato.');
+          throw StateError(L10n.current.errorProductNotFound);
         }
 
         final product = _products[idx];
         if (!product.tracksInventory) {
-          throw StateError('La correzione della scorta non è disponibile.');
+          throw StateError(L10n.current.errorStockCorrectionUnavailable);
         }
         if (packRemaining < 0 || packRemaining > product.pieces) {
           throw RangeError.range(
@@ -1018,7 +1021,7 @@ class MyTrackingProvider extends ChangeNotifier {
       start: monthStart,
       end: now,
     );
-    final elapsedDays = now.day;
+    final elapsedDays = _trackedDaysThisMonth(productId, monthStart, now);
     if (elapsedDays <= 0 || entries.isEmpty) return 0;
     final costSoFar = entries.fold<double>(
       0.0,
@@ -1026,6 +1029,29 @@ class MyTrackingProvider extends ChangeNotifier {
     );
     final daysInMonth = DateTime(now.year, now.month + 1, 0).day;
     return (costSoFar / elapsedDays) * daysInMonth;
+  }
+
+  int _trackedDaysThisMonth(
+    String? productId,
+    DateTime monthStart,
+    DateTime now,
+  ) {
+    final source =
+        productId == null ? visibleEntries : entriesForProduct(productId);
+    if (source.isEmpty) return 0;
+    var first = dateOnly(source.first.timestamp);
+    for (final entry in source.skip(1)) {
+      final day = dateOnly(entry.timestamp);
+      if (day.isBefore(first)) first = day;
+    }
+    final start = first.isAfter(monthStart) ? first : monthStart;
+    final today = dateOnly(now);
+    if (today.isBefore(start)) return 0;
+    var days = 1;
+    for (var day = start; day.isBefore(today); day = addDays(day, 1)) {
+      days++;
+    }
+    return days;
   }
 
   int projectedMonthlyUnits({String? productId}) {
@@ -1036,7 +1062,7 @@ class MyTrackingProvider extends ChangeNotifier {
       start: monthStart,
       end: now,
     );
-    final elapsedDays = now.day;
+    final elapsedDays = _trackedDaysThisMonth(productId, monthStart, now);
     if (elapsedDays <= 0 || entries.isEmpty) return 0;
     final daysInMonth = DateTime(now.year, now.month + 1, 0).day;
     return ((entries.length / elapsedDays) * daysInMonth).round();
@@ -1145,6 +1171,7 @@ class MyTrackingProvider extends ChangeNotifier {
       exportedAt: appNow().toUtc(),
       activeProductId: _normalizeActiveProductId(_activeProductId),
       themePreferenceName: _themePreference.name,
+      languagePreferenceName: _languagePreference.name,
       onboardingDone: prefs.getBool(_keyOnboardingDone) ?? false,
       hasCompletedSetup: prefs.getBool(_keyHasCompletedSetup) ?? false,
       globalReminderSettings: _globalReminderSettings,
@@ -1183,6 +1210,7 @@ class MyTrackingProvider extends ChangeNotifier {
     final previousAchievements = Map.of(_achievements);
     final previousPlans = Map.of(_reductionPlans);
     final previousTheme = _themePreference;
+    final previousLanguage = _languagePreference;
     final previousOnboardingDone = prefs.getBool(_keyOnboardingDone) ?? false;
     final previousSetupDone = prefs.getBool(_keyHasCompletedSetup) ?? false;
 
@@ -1198,6 +1226,9 @@ class MyTrackingProvider extends ChangeNotifier {
       ..clear()
       ..addAll(_normalizeReductionPlans(data.reductionPlans));
     _themePreference = _parseTheme(data.themePreferenceName);
+    if (data.languagePreferenceName != null) {
+      _languagePreference = parseLanguagePreference(data.languagePreferenceName);
+    }
     _dateUndatedAchievements();
     _evaluateAchievements(persist: false);
 
@@ -1226,6 +1257,7 @@ class MyTrackingProvider extends ChangeNotifier {
         ..clear()
         ..addAll(previousPlans);
       _themePreference = previousTheme;
+      _languagePreference = previousLanguage;
       try {
         await _persistCompleteState(
           prefs,
@@ -1260,8 +1292,10 @@ class MyTrackingProvider extends ChangeNotifier {
     final storedEntries = prefs.getStringList(_keyEntries)?.length ?? 0;
     if (storedEntries != _entries.length) {
       throw BackupRestoreException(
-        'Salvate $storedEntries registrazioni su ${_entries.length}. '
-        'I dati non sono stati ripristinati: riprova.',
+        L10n.current.backupErrorEntriesNotSaved(
+          storedEntries,
+          _entries.length,
+        ),
       );
     }
 
@@ -1271,8 +1305,10 @@ class MyTrackingProvider extends ChangeNotifier {
         : (jsonDecode(storedProductsJson) as List<dynamic>).length;
     if (storedProducts != _products.length) {
       throw BackupRestoreException(
-        'Salvati $storedProducts prodotti su ${_products.length}. '
-        'I dati non sono stati ripristinati: riprova.',
+        L10n.current.backupErrorProductsNotSaved(
+          storedProducts,
+          _products.length,
+        ),
       );
     }
   }
@@ -1432,6 +1468,7 @@ class MyTrackingProvider extends ChangeNotifier {
     await prefs.setString(_keyAchievements, _encodeAchievements());
     await _persistReductionPlansOnly(prefs);
     await prefs.setString(_keyTheme, _themePreference.name);
+    await prefs.setString(_keyLanguage, _languagePreference.name);
     await prefs.setBool(_keyOnboardingDone, onboardingDone);
     await prefs.setBool(_keyHasCompletedSetup, hasCompletedSetup);
 
@@ -1518,6 +1555,7 @@ class MyTrackingProvider extends ChangeNotifier {
     final themeStr = prefs.getString(_keyTheme);
     if (themeStr != null) _themePreference = _parseTheme(themeStr);
     _widgetDark = prefs.getString(_keyWidgetTheme) != 'light';
+    _languagePreference = parseLanguagePreference(prefs.getString(_keyLanguage));
 
     _achievements.clear();
     final achJson = prefs.getString(_keyAchievements);

@@ -21,7 +21,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
-            android:text="Scegli il prodotto del widget"
+            android:text="@string/widget_config_title"
             android:textColor="@color/widget_text_primary"
             android:textSize="24sp"
             android:textStyle="bold" />
@@ -32,7 +32,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="20dp"
-            android:text="Tocca il prodotto da collegare al widget Home."
+            android:text="@string/widget_config_subtitle"
             android:textColor="@color/widget_text_muted"
             android:textSize="14sp" />
 

@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'product_setup_screen.dart';
 import '../theme/app_fonts.dart';
 import '../theme/theme_context.dart';
+import '../l10n/l10n.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -16,46 +17,38 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
-  static const List<_OnboardingSlide> _slides = [
-    _OnboardingSlide(
-      imagePath: 'assets/icon/logo_app.png',
-      title: 'Benvenuto su\nMy Tracking App',
-      description: "Tieni d'occhio quanto usi, quanto spendi e come cambiano "
-          'le tue abitudini. Tutti i dati restano sul tuo telefono.',
-    ),
-    _OnboardingSlide(
-      icon: Icons.track_changes_rounded,
-      title: 'Tieni traccia\ndi tutto',
-      description: 'Puoi seguire più prodotti insieme. Ognuno ha la sua '
-          'cronologia, i suoi costi e il suo obiettivo.',
-    ),
-    _OnboardingSlide(
-      icon: Icons.tune_rounded,
-      title: 'Personalizza\nil tuo prodotto',
-      description: 'Indica nome, costo e confezione, e se vuoi un limite '
-          "giornaliero: il costo di ogni utilizzo lo calcola l'app.",
-    ),
-    _OnboardingSlide(
-      icon: Icons.favorite_border_rounded,
-      title: 'Quanto tempo\nti costa?',
-      description: 'Puoi aggiungere una stima dei minuti di vita persi per '
-          'ogni utilizzo: è un valore simbolico, non il tempo per '
-          'consumarlo. Se non ti serve, scegli «Nessuna stima».',
-    ),
-    _OnboardingSlide(
-      icon: Icons.bolt_rounded,
-      title: 'Un tocco\nper registrare',
-      description: 'Premi HO USATO ogni volta, oppure registra tutto a fine '
-          'giornata. Se tocchi per sbaglio puoi annullare subito, e su '
-          "Android c'è anche il widget.",
-    ),
-    _OnboardingSlide(
-      icon: Icons.bar_chart_rounded,
-      title: 'Osserva\ni tuoi progressi',
-      description: 'Cronologia per giorni, settimane e mesi, obiettivi e un '
-          'piano di riduzione. Con il backup non perdi nulla.',
-    ),
-  ];
+  static List<_OnboardingSlide> _slides(AppLocalizations l10n) => [
+        _OnboardingSlide(
+          imagePath: 'assets/icon/logo_app.png',
+          title: l10n.onboardingWelcomeTitle,
+          description: l10n.onboardingWelcomeBody,
+        ),
+        _OnboardingSlide(
+          icon: Icons.track_changes_rounded,
+          title: l10n.onboardingTrackTitle,
+          description: l10n.onboardingTrackBody,
+        ),
+        _OnboardingSlide(
+          icon: Icons.tune_rounded,
+          title: l10n.onboardingCustomizeTitle,
+          description: l10n.onboardingCustomizeBody,
+        ),
+        _OnboardingSlide(
+          icon: Icons.favorite_border_rounded,
+          title: l10n.onboardingTimeTitle,
+          description: l10n.onboardingTimeBody,
+        ),
+        _OnboardingSlide(
+          icon: Icons.bolt_rounded,
+          title: l10n.onboardingTapTitle,
+          description: l10n.onboardingTapBody,
+        ),
+        _OnboardingSlide(
+          icon: Icons.bar_chart_rounded,
+          title: l10n.onboardingProgressTitle,
+          description: l10n.onboardingProgressBody,
+        ),
+      ];
 
   Future<void> _completeOnboarding() async {
     final prefs = await SharedPreferences.getInstance();
@@ -75,7 +68,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     final turquoise = context.accent;
-    final isLast = _currentPage == _slides.length - 1;
+    final slides = _slides(context.l10n);
+    final isLast = _currentPage == slides.length - 1;
 
     return Scaffold(
       body: SafeArea(
@@ -88,7 +82,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 child: TextButton(
                   onPressed: _completeOnboarding,
                   child: Text(
-                    'Salta',
+                    context.l10n.skip,
                     style: TextStyle(fontFamily: AppFonts.sans,
                       color: turquoise.withValues(alpha: 0.6),
                       fontWeight: FontWeight.w600,
@@ -100,10 +94,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             Expanded(
               child: PageView.builder(
                 controller: _pageController,
-                itemCount: _slides.length,
+                itemCount: slides.length,
                 onPageChanged: (i) => setState(() => _currentPage = i),
                 itemBuilder: (context, index) {
-                  final slide = _slides[index];
+                  final slide = slides[index];
                   final isImage = slide.imagePath != null;
 
                   return Padding(
@@ -172,7 +166,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(_slides.length, (i) {
+                    children: List.generate(slides.length, (i) {
                       final isActive = i == _currentPage;
                       return AnimatedContainer(
                         duration: const Duration(milliseconds: 250),
@@ -208,7 +202,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         elevation: 0,
                       ),
                       child: Text(
-                        isLast ? 'Inizia' : 'Avanti',
+                        isLast ? context.l10n.start : context.l10n.next,
                         style: const TextStyle(fontFamily: AppFonts.sans,
                           fontWeight: FontWeight.w800,
                           fontSize: 16,

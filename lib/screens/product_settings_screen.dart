@@ -12,6 +12,7 @@ import '../widgets/option_sheet.dart';
 import '../widgets/product_configuration_form.dart';
 import '../widgets/product_form_state.dart';
 import '../widgets/save_bar.dart';
+import '../l10n/l10n.dart';
 
 class ProductSettingsScreen extends StatefulWidget {
   final String productId;
@@ -71,7 +72,7 @@ class _ProductSettingsScreenState extends State<ProductSettingsScreen> {
 
     if (!mounted) return;
     _reload();
-    _showFeedback('Modifiche salvate');
+    _showFeedback(context.l10n.changesSaved);
   }
 
   void _showFeedback(String message, {Color? color}) {
@@ -85,16 +86,16 @@ class _ProductSettingsScreenState extends State<ProductSettingsScreen> {
     final discard = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Scartare le modifiche?'),
-        content: const Text('Le modifiche non salvate andranno perse.'),
+        title: Text(context.l10n.discardChangesTitle),
+        content: Text(context.l10n.discardChangesBody),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Annulla'),
+            child: Text(context.l10n.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Scarta'),
+            child: Text(context.l10n.discard),
           ),
         ],
       ),
@@ -105,21 +106,22 @@ class _ProductSettingsScreenState extends State<ProductSettingsScreen> {
   Future<void> _onMenu(String action, MyTrackingProvider provider) async {
     final product = _product(provider);
     if (product == null) return;
+    final l10n = context.l10n;
     switch (action) {
       case 'use':
         await provider.setActiveProduct(product.id);
-        _showFeedback('${product.name} in uso');
+        _showFeedback(l10n.productInUseFeedback(product.name));
       case 'archive':
         final archived = await provider.archiveProduct(product.id);
         if (!mounted) return;
         if (!archived) {
           _showFeedback(
-            'Devi mantenere almeno un prodotto attivo',
+            context.l10n.keepOneActiveProduct,
             color: context.stats.warning,
           );
           return;
         }
-        _showFeedback('${product.name} archiviato');
+        _showFeedback(context.l10n.productArchived(product.name));
         Navigator.pop(context);
     }
   }
@@ -145,7 +147,7 @@ class _ProductSettingsScreenState extends State<ProductSettingsScreen> {
           title: Text(product.name),
           actions: [
             IconButton(
-              tooltip: 'Altre azioni',
+              tooltip: context.l10n.moreActions,
               icon: Icon(Icons.more_vert_rounded, color: colors.textMuted),
               onPressed: () async {
                 final action = await showOptionSheet<String>(
@@ -153,16 +155,16 @@ class _ProductSettingsScreenState extends State<ProductSettingsScreen> {
                   title: product.name,
                   options: [
                     if (!isActive)
-                      const SheetOption(
+                      SheetOption(
                         'use',
-                        'Usa questo prodotto',
-                        subtitle: 'Diventa quello registrato in home',
+                        context.l10n.useThisProduct,
+                        subtitle: context.l10n.useThisProductSubtitle,
                         icon: Icons.check_circle_outline_rounded,
                       ),
-                    const SheetOption(
+                    SheetOption(
                       'archive',
-                      'Archivia',
-                      subtitle: 'Sparisce dalla home, la cronologia resta',
+                      context.l10n.archive,
+                      subtitle: context.l10n.archiveSubtitle,
                       icon: AppIcons.archive,
                     ),
                   ],
@@ -174,9 +176,9 @@ class _ProductSettingsScreenState extends State<ProductSettingsScreen> {
         ),
         bottomNavigationBar: _isDirty
             ? SaveBar(
-                message: 'Modifiche non salvate',
+                message: context.l10n.unsavedChanges,
                 onCancel: _reload,
-                saveLabel: 'Salva',
+                saveLabel: context.l10n.save,
                 onSave: _isSaving ? null : _save,
               )
             : null,
@@ -217,19 +219,16 @@ class _StockCard extends StatelessWidget {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Nuova confezione?'),
-        content: Text(
-          'La scorta di ${product.name} torna a '
-          '${product.pieces}/${product.pieces}.',
-        ),
+        title: Text(context.l10n.newPackTitle),
+        content: Text(context.l10n.newPackBody(product.name, product.pieces)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Annulla'),
+            child: Text(context.l10n.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Reintegra'),
+            child: Text(context.l10n.restock),
           ),
         ],
       ),
@@ -240,7 +239,7 @@ class _StockCard extends StatelessWidget {
         .openNewPack(productId: product.id);
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Scorta reintegrata')),
+      SnackBar(content: Text(context.l10n.stockRestocked)),
     );
   }
 
@@ -252,14 +251,12 @@ class _StockCard extends StatelessWidget {
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (dialogContext, setDialogState) => AlertDialog(
-          title: const Text('Correggi scorta'),
+          title: Text(context.l10n.correctStockTitle),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Inserisci il numero reale di unità rimaste per allineare la scorta attuale.',
-              ),
+              Text(context.l10n.correctStockBody),
               const SizedBox(height: 16),
               TextField(
                 controller: controller,
@@ -267,7 +264,7 @@ class _StockCard extends StatelessWidget {
                 keyboardType: TextInputType.number,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 decoration: InputDecoration(
-                  labelText: 'Unità rimaste',
+                  labelText: context.l10n.unitsLeft,
                   errorText: errorText,
                 ),
                 onChanged: (_) {
@@ -281,14 +278,14 @@ class _StockCard extends StatelessWidget {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogContext),
-              child: const Text('Annulla'),
+              child: Text(context.l10n.cancel),
             ),
             FilledButton(
               onPressed: () {
                 final rawValue = controller.text.trim();
                 if (rawValue.isEmpty) {
                   setDialogState(
-                    () => errorText = 'Inserisci un numero intero.',
+                    () => errorText = context.l10n.enterWholeNumber,
                   );
                   return;
                 }
@@ -296,27 +293,27 @@ class _StockCard extends StatelessWidget {
                 final parsedValue = int.tryParse(rawValue);
                 if (parsedValue == null) {
                   setDialogState(
-                    () => errorText = 'Inserisci un numero intero valido.',
+                    () => errorText = context.l10n.enterValidWholeNumber,
                   );
                   return;
                 }
                 if (parsedValue < 0) {
                   setDialogState(
-                    () => errorText = 'Il valore non può essere negativo.',
+                    () => errorText = context.l10n.valueNotNegative,
                   );
                   return;
                 }
                 if (parsedValue > product.pieces) {
                   setDialogState(
                     () => errorText =
-                        'Il valore non può superare ${product.pieces}.',
+                        context.l10n.valueAtMost(product.pieces),
                   );
                   return;
                 }
 
                 Navigator.pop(dialogContext, parsedValue);
               },
-              child: const Text('Conferma'),
+              child: Text(context.l10n.confirm),
             ),
           ],
         ),
@@ -339,7 +336,7 @@ class _StockCard extends StatelessWidget {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Correzione scorta non riuscita.'),
+          content: Text(context.l10n.correctStockFailed),
           backgroundColor: context.stats.danger,
         ),
       );
@@ -366,7 +363,7 @@ class _StockCard extends StatelessWidget {
           Row(
             children: [
               Text(
-                'Scorta',
+                context.l10n.stock,
                 style: TextStyle(
                   fontFamily: AppFonts.sans,
                   fontSize: 13,
@@ -393,7 +390,7 @@ class _StockCard extends StatelessWidget {
                   onPressed: () => _confirmNewPack(context),
                   style: buttonStyle,
                   icon: const Icon(Icons.refresh_rounded, size: 18),
-                  label: const Text('Reintegra'),
+                  label: Text(context.l10n.restock),
                 ),
               ),
               const SizedBox(width: 10),
@@ -402,7 +399,7 @@ class _StockCard extends StatelessWidget {
                   onPressed: () => _showCorrectDialog(context),
                   style: buttonStyle,
                   icon: const Icon(Icons.edit_rounded, size: 18),
-                  label: const Text('Correggi'),
+                  label: Text(context.l10n.correct),
                 ),
               ),
             ],

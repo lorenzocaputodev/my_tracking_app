@@ -9,6 +9,7 @@ import '../theme/app_text_styles.dart';
 import '../theme/theme_context.dart';
 import 'pill_selector.dart';
 import 'product_form_state.dart';
+import '../l10n/l10n.dart';
 
 class ProductConfigurationForm extends StatelessWidget {
   final bool isDark;
@@ -55,27 +56,27 @@ class ProductConfigurationForm extends StatelessWidget {
           ),
           const SizedBox(height: 28),
         ],
-        _sectionLabel('NOME PRODOTTO', accentColor),
+        _sectionLabel(context.l10n.productNameLabel, accentColor),
         const SizedBox(height: 10),
         TextFormField(
           controller: form.name,
           style: const TextStyle(fontFamily: AppFonts.sans, fontWeight: FontWeight.w500),
           decoration: _inputDecoration(
-            hint: 'Es. Sigarette',
+            hint: context.l10n.productNameHint,
             icon: Icons.label_outline_rounded,
             isDark: isDark,
             accentColor: accentColor,
           ),
           validator: (value) {
             if (value == null || value.trim().isEmpty) {
-              return 'Inserisci un nome';
+              return context.l10n.enterName;
             }
             return null;
           },
           onChanged: (_) => onChanged(),
         ),
         const SizedBox(height: 28),
-        _sectionLabel('MODALIT\u00C0 PRODOTTO', accentColor),
+        _sectionLabel(context.l10n.productModeLabel, accentColor),
         const SizedBox(height: 10),
         _TrackingModeSection(
           tracksInventory: form.tracksInventory,
@@ -83,7 +84,7 @@ class ProductConfigurationForm extends StatelessWidget {
         ),
         const SizedBox(height: 28),
         if (form.tracksInventory) ...[
-          _sectionLabel('COSTO CONFEZIONE', accentColor),
+          _sectionLabel(context.l10n.packCostLabel, accentColor),
           const SizedBox(height: 10),
           TextFormField(
             key: const ValueKey('packCost'),
@@ -94,28 +95,25 @@ class ProductConfigurationForm extends StatelessWidget {
               FilteringTextInputFormatter.allow(RegExp(r'[0-9,\.]')),
             ],
             decoration: _inputDecoration(
-              hint: 'Es. 6,00',
+              hint: context.l10n.packCostHint,
               icon: Icons.euro_rounded,
               isDark: isDark,
               accentColor: accentColor,
             ),
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
-                return 'Inserisci un importo';
+                return context.l10n.enterAmount;
               }
               final parsed = double.tryParse(value.replaceAll(',', '.'));
               if (parsed == null || parsed <= 0) {
-                return 'Importo non valido';
+                return context.l10n.invalidAmount;
               }
               return null;
             },
             onChanged: (_) => onChanged(),
           ),
           const SizedBox(height: 28),
-          _sectionLabel(
-            'UNIT\u00C0 / USI STIMATI PER CONFEZIONE',
-            accentColor,
-          ),
+          _sectionLabel(context.l10n.unitsPerPackLabel, accentColor),
           const SizedBox(height: 10),
           TextFormField(
             key: const ValueKey('pieces'),
@@ -124,18 +122,18 @@ class ProductConfigurationForm extends StatelessWidget {
             keyboardType: TextInputType.number,
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             decoration: _inputDecoration(
-              hint: 'Es. 20',
+              hint: context.l10n.unitsPerPackHint,
               icon: Icons.format_list_numbered_rounded,
               isDark: isDark,
               accentColor: accentColor,
             ),
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
-                return 'Inserisci un numero';
+                return context.l10n.enterNumber;
               }
               final parsed = int.tryParse(value.trim());
               if (parsed == null || parsed <= 0) {
-                return 'Numero non valido';
+                return context.l10n.invalidNumber;
               }
               return null;
             },
@@ -143,11 +141,11 @@ class ProductConfigurationForm extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Puoi inserire anche il numero medio di usi ottenibili da una confezione.',
+            context.l10n.unitsPerPackHelp,
             style: TextStyle(fontFamily: AppFonts.sans, fontSize: 11, color: context.colors.textMuted),
           ),
         ] else ...[
-          _sectionLabel('COSTO PER UTILIZZO', accentColor),
+          _sectionLabel(context.l10n.costPerUseLabel, accentColor),
           const SizedBox(height: 10),
           TextFormField(
             key: const ValueKey('directCost'),
@@ -158,7 +156,7 @@ class ProductConfigurationForm extends StatelessWidget {
               FilteringTextInputFormatter.allow(RegExp(r'[0-9,\.]')),
             ],
             decoration: _inputDecoration(
-              hint: 'Facoltativo, es. 0,10',
+              hint: context.l10n.costPerUseHint,
               icon: Icons.euro_rounded,
               isDark: isDark,
               accentColor: accentColor,
@@ -167,7 +165,7 @@ class ProductConfigurationForm extends StatelessWidget {
               if (value == null || value.trim().isEmpty) return null;
               final parsed = double.tryParse(value.replaceAll(',', '.'));
               if (parsed == null || parsed < 0) {
-                return 'Importo non valido';
+                return context.l10n.invalidAmount;
               }
               return null;
             },
@@ -175,12 +173,12 @@ class ProductConfigurationForm extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Lascia vuoto se vuoi registrare solo gli utilizzi, senza calcolare costi.',
+            context.l10n.costPerUseHelp,
             style: TextStyle(fontFamily: AppFonts.sans, fontSize: 11, color: context.colors.textMuted),
           ),
         ],
         const SizedBox(height: 28),
-        _sectionLabel('MINUTI DI VITA PERSI PER UTILIZZO', accentColor),
+        _sectionLabel(context.l10n.minutesLostLabel, accentColor),
         const SizedBox(height: 10),
         MinutesLostSelector(
           isDark: isDark,
@@ -193,25 +191,25 @@ class ProductConfigurationForm extends StatelessWidget {
           onCustomChanged: (_) => onChanged(),
           validator: (value) {
             if (form.minutesCustomMode && (value == null || value.trim().isEmpty)) {
-              return 'Inserisci un valore';
+              return context.l10n.enterValue;
             }
             final parsed = int.tryParse(value ?? '');
             if (parsed == null || parsed < 0) {
-              return 'Numero non valido';
+              return context.l10n.invalidNumber;
             }
             return null;
           },
         ),
         const SizedBox(height: 28),
-        _sectionLabel('OBIETTIVO GIORNALIERO', accentColor),
+        _sectionLabel(context.l10n.dailyGoalLabel, accentColor),
         const SizedBox(height: 8),
         Row(
           children: [
             Expanded(
               child: Text(
                 form.dailyGoal == 0
-                    ? 'Nessun limite giornaliero'
-                    : 'Voglio stare sotto ${form.dailyGoal} al giorno',
+                    ? context.l10n.noDailyLimit
+                    : context.l10n.dailyGoalText(form.dailyGoal),
                 style: const TextStyle(fontFamily: AppFonts.sans,
                   fontWeight: FontWeight.w700,
                   fontSize: 15,
@@ -235,11 +233,13 @@ class ProductConfigurationForm extends StatelessWidget {
           divisions: 50,
           activeColor: accentColor,
           inactiveColor: accentColor.withValues(alpha: 0.15),
-          label: form.dailyGoal == 0 ? 'Nessun limite' : '${form.dailyGoal}',
+          label: form.dailyGoal == 0
+              ? context.l10n.noLimit
+              : '${form.dailyGoal}',
           onChanged: (value) => _update(() => form.dailyGoal = value.round()),
         ),
         Text(
-          '0 = nessun limite impostato',
+          context.l10n.zeroNoLimit,
           style: TextStyle(fontFamily: AppFonts.sans, fontSize: 11, color: context.colors.textMuted),
         ),
       ],
@@ -266,15 +266,18 @@ class _TrackingModeSection extends StatelessWidget {
         children: [
           PillSelector<bool>(
             expand: true,
-            options: const {true: 'Con scorta', false: 'Senza scorta'},
+            options: {
+              true: context.l10n.withStock,
+              false: context.l10n.noStock,
+            },
             value: tracksInventory,
             onChanged: onChanged,
           ),
           const SizedBox(height: 12),
           Text(
             tracksInventory
-                ? 'Il prodotto usa una scorta residua e pu\u00F2 essere reintegrato quando termina.'
-                : 'Il prodotto registra solo gli utilizzi, senza gestire confezioni o residuo.',
+                ? context.l10n.withStockHelp
+                : context.l10n.noStockHelp,
             style: TextStyle(fontFamily: AppFonts.sans,
               fontSize: 12,
               height: 1.5,

@@ -17,6 +17,7 @@ import '../theme/theme_context.dart';
 import '../theme/app_dimens.dart';
 import '../theme/app_text_styles.dart';
 import '../theme/app_icons.dart';
+import '../l10n/l10n.dart';
 
 enum _HistoryProductFilter { all, specific }
 
@@ -84,11 +85,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   String _periodLabel() {
     return switch (_periodPreset) {
-      _HistoryPeriodPreset.today => 'Oggi',
-      _HistoryPeriodPreset.sevenDays => 'Ultimi 7 giorni',
-      _HistoryPeriodPreset.thirtyDays => 'Ultimi 30 giorni',
-      _HistoryPeriodPreset.all => 'Tutta la cronologia',
-      _HistoryPeriodPreset.custom => 'Periodo personalizzato',
+      _HistoryPeriodPreset.today => context.l10n.today,
+      _HistoryPeriodPreset.sevenDays => context.l10n.last7DaysTitle,
+      _HistoryPeriodPreset.thirtyDays => context.l10n.last30DaysTitle,
+      _HistoryPeriodPreset.all => context.l10n.entireHistory,
+      _HistoryPeriodPreset.custom => context.l10n.customPeriod,
     };
   }
 
@@ -119,12 +120,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
         DateTimeRange(start: addDays(dateOnly(now), -29), end: now);
     final picked = await showDateRangePicker(
       context: context,
-      locale: const Locale('it'),
       firstDate: DateTime(now.year - 5),
       lastDate: DateTime(now.year + 1),
       initialDateRange: initialRange,
-      helpText: 'Seleziona intervallo',
-      saveText: 'Conferma',
+      helpText: context.l10n.selectRange,
+      saveText: context.l10n.confirm,
     );
     if (!mounted || picked == null) return;
     setState(() {
@@ -167,7 +167,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     final turquoise = context.accent;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Cronologia'), elevation: 0),
+      appBar: AppBar(title: Text(context.l10n.historyTitle), elevation: 0),
       body: Consumer<MyTrackingProvider>(
         builder: (context, provider, _) {
           final effectiveProductId = _effectiveProductId(provider);
@@ -203,9 +203,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 _EmptyState(
                   icon: Icons.history_toggle_off_rounded,
                   color: turquoise,
-                  title: 'Nessun dato registrato',
+                  title: context.l10n.noDataLogged,
                   message:
-                      'La cronologia apparir\u00E0 qui dopo i primi utilizzi.',
+                      context.l10n.noDataLoggedBody,
                 ),
               ],
             );
@@ -244,9 +244,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   child: _EmptyState(
                     icon: Icons.filter_alt_off_rounded,
                     color: turquoise,
-                    title: 'Nessun risultato nel filtro selezionato',
+                    title: context.l10n.noFilterResults,
                     message:
-                        'Prova un altro prodotto o un intervallo di date pi\u00F9 ampio.',
+                        context.l10n.noFilterResultsBody,
                   ),
                 )
               else
@@ -295,17 +295,20 @@ class _HistoryFiltersCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('FILTRI', style: AppTextStyles.sectionLabel(turquoise)),
+          Text(
+            context.l10n.filters,
+            style: AppTextStyles.sectionLabel(turquoise),
+          ),
           const SizedBox(height: 14),
           SelectField<String>(
             icon: AppIcons.product,
-            sheetTitle: 'Prodotto',
+            sheetTitle: context.l10n.product,
             value: productValue,
             onChanged: onProductChanged,
             options: [
-              const SheetOption(
+              SheetOption(
                 '__all__',
-                'Tutti i prodotti',
+                context.l10n.allProducts,
                 icon: AppIcons.product,
               ),
               for (final product in provider.activeProducts)
@@ -326,7 +329,7 @@ class _HistoryFiltersCard extends StatelessWidget {
               final selected = preset == periodPreset;
               final colors = context.colors;
               return ChoiceChip(
-                label: Text(_periodPresetLabel(preset)),
+                label: Text(_periodPresetLabel(context.l10n, preset)),
                 selected: selected,
                 showCheckmark: false,
                 shape: const StadiumBorder(),
@@ -348,8 +351,8 @@ class _HistoryFiltersCard extends StatelessWidget {
               icon: Icon(Icons.date_range_rounded, color: turquoise),
               label: Text(
                 customRange == null
-                    ? 'Seleziona intervallo'
-                    : '${DateFormat('d MMM', 'it').format(customRange!.start)} \u2192 ${DateFormat('d MMM', 'it').format(customRange!.end)}',
+                    ? context.l10n.selectRange
+                    : '${DateFormat.MMMd(context.localeName).format(customRange!.start)} → ${DateFormat.MMMd(context.localeName).format(customRange!.end)}',
                 style: TextStyle(fontFamily: AppFonts.sans,
                   fontWeight: FontWeight.w700,
                   color: turquoise,
@@ -488,7 +491,7 @@ class _StatsPanelState extends State<_StatsPanel> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'STATISTICHE',
+                context.l10n.statistics,
                 style: TextStyle(fontFamily: AppFonts.sans,
                   fontSize: 11,
                   fontWeight: FontWeight.w800,
@@ -509,8 +512,8 @@ class _StatsPanelState extends State<_StatsPanel> {
           ),
           const SizedBox(height: 14),
           _StatsSectionCard(
-            title: 'Panoramica periodo',
-            subtitle: 'Medie e riepilogo del filtro selezionato',
+            title: context.l10n.periodOverview,
+            subtitle: context.l10n.periodOverviewSubtitle,
             accentColor: turquoise,
             isDark: isDark,
             isExpanded:
@@ -520,16 +523,15 @@ class _StatsPanelState extends State<_StatsPanel> {
                 ? Column(
                     children: [
                       _StatItem(
-                        label: 'Totale periodo',
-                        value: '${widget.entries.length} registrazioni',
+                        label: context.l10n.periodTotal,
+                        value: context.l10n.entriesCount(widget.entries.length),
                         icon: AppIcons.total,
                         color: stats.volume,
                         fullWidth: true,
                       ),
                       const SizedBox(height: 10),
                       _PanelNote(
-                        text: 'Prodotti diversi non si sommano: scegli un '
-                            'prodotto per vedere medie e andamento.',
+                        text: context.l10n.mixedProductsNote,
                         accent: turquoise,
                       ),
                     ],
@@ -540,7 +542,7 @@ class _StatsPanelState extends State<_StatsPanel> {
                   children: [
                     Expanded(
                       child: _StatItem(
-                        label: 'Media periodo/g',
+                        label: context.l10n.periodAveragePerDay,
                         value: formatDecimal(periodAverage, decimals: 1),
                         icon: Icons.show_chart_rounded,
                         color: turquoise,
@@ -549,7 +551,7 @@ class _StatsPanelState extends State<_StatsPanel> {
                     const SizedBox(width: 10),
                     Expanded(
                       child: _StatItem(
-                        label: 'Trend 7g',
+                        label: context.l10n.trend7Days,
                         value: formatSignedPercent(trend.deltaPercent),
                         icon: Icons.trending_up_rounded,
                         color: trendColor,
@@ -562,7 +564,7 @@ class _StatsPanelState extends State<_StatsPanel> {
                   children: [
                     Expanded(
                       child: _StatItem(
-                        label: 'Media 30 giorni',
+                        label: context.l10n.average30Days,
                         value: formatDecimal(thirtyDayAverage, decimals: 1),
                         icon: Icons.calendar_view_month_rounded,
                         color: stats.average,
@@ -571,8 +573,8 @@ class _StatsPanelState extends State<_StatsPanel> {
                     const SizedBox(width: 10),
                     Expanded(
                       child: _StatItem(
-                        label: 'Totale periodo',
-                        value: '${widget.entries.length} unit\u00E0',
+                        label: context.l10n.periodTotal,
+                        value: context.l10n.unitsCount(widget.entries.length),
                         icon: AppIcons.total,
                         color: stats.volume,
                       ),
@@ -584,8 +586,8 @@ class _StatsPanelState extends State<_StatsPanel> {
           ),
           const SizedBox(height: 10),
           _StatsSectionCard(
-            title: 'Costi e proiezioni',
-            subtitle: 'Spesa attuale e stime future',
+            title: context.l10n.costsAndProjections,
+            subtitle: context.l10n.costsAndProjectionsSubtitle,
             accentColor: stats.projection,
             isDark: isDark,
             isExpanded: _expandedSections.contains(_HistoryStatsSection.costs),
@@ -596,7 +598,7 @@ class _StatsPanelState extends State<_StatsPanel> {
                   children: [
                     Expanded(
                       child: _StatItem(
-                        label: 'Costo periodo',
+                        label: context.l10n.periodCost,
                         value: formatEuro(totalCost),
                         icon: Icons.euro_rounded,
                         color: stats.cost,
@@ -606,9 +608,9 @@ class _StatsPanelState extends State<_StatsPanel> {
                       const SizedBox(width: 10),
                       Expanded(
                         child: _StatItem(
-                          label: 'Proiezione mese',
+                          label: context.l10n.monthlyProjection,
                           value: monthlyProjectionUnits > 0
-                              ? '$monthlyProjectionUnits unit\u00E0'
+                              ? context.l10n.unitsCount(monthlyProjectionUnits)
                               : '-',
                           icon: Icons.insights_rounded,
                           color: stats.projection,
@@ -623,9 +625,9 @@ class _StatsPanelState extends State<_StatsPanel> {
                     if (!mixedProducts) ...[
                       Expanded(
                         child: _StatItem(
-                          label: 'Stima annua',
+                          label: context.l10n.annualEstimate,
                           value: annualUnitsEstimate > 0
-                              ? '$annualUnitsEstimate unit\u00E0'
+                              ? context.l10n.unitsCount(annualUnitsEstimate)
                               : '-',
                           icon: Icons.calendar_today_rounded,
                           color: stats.estimate,
@@ -635,7 +637,7 @@ class _StatsPanelState extends State<_StatsPanel> {
                     ],
                     Expanded(
                       child: _StatItem(
-                        label: 'Stima mese',
+                        label: context.l10n.monthlyEstimate,
                         value: monthlyProjectionCost > 0
                             ? formatEuro(monthlyProjectionCost, decimals: 0)
                             : formatEuro(0, decimals: 0),
@@ -647,7 +649,7 @@ class _StatsPanelState extends State<_StatsPanel> {
                 ),
                 const SizedBox(height: 10),
                 _StatItem(
-                  label: 'Costo annuo stimato',
+                  label: context.l10n.estimatedAnnualCost,
                   value: annualCostEstimate > 0
                       ? formatEuro(annualCostEstimate, decimals: 0)
                       : formatEuro(0, decimals: 0),
@@ -664,8 +666,8 @@ class _StatsPanelState extends State<_StatsPanel> {
           ),
           const SizedBox(height: 10),
           _StatsSectionCard(
-            title: 'Abitudini e orari',
-            subtitle: 'Ritmo, giorni e fascia oraria pi\u00F9 attiva',
+            title: context.l10n.habitsAndTimes,
+            subtitle: context.l10n.habitsAndTimesSubtitle,
             accentColor: stats.peak,
             isDark: isDark,
             isExpanded: _expandedSections.contains(_HistoryStatsSection.habits),
@@ -677,7 +679,7 @@ class _StatsPanelState extends State<_StatsPanel> {
                   children: [
                     Expanded(
                       child: _StatItem(
-                        label: 'Ora picco',
+                        label: context.l10n.peakHour,
                         value: peakHour != null ? _formatHour(peakHour) : '-',
                         icon: Icons.access_time_rounded,
                         color: stats.peak,
@@ -706,9 +708,10 @@ class _StatsPanelState extends State<_StatsPanel> {
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            underLimitStreak == 1
-                                ? '1 giorno consecutivo sotto il limite (${singleProduct.dailyLimit})'
-                                : '$underLimitStreak giorni consecutivi sotto il limite (${singleProduct.dailyLimit})',
+                            context.l10n.underLimitStreak(
+                              underLimitStreak,
+                              singleProduct.dailyLimit,
+                            ),
                             style: TextStyle(fontFamily: AppFonts.sans,
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
@@ -743,9 +746,7 @@ class _StatsPanelState extends State<_StatsPanel> {
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            streak == 1
-                                ? 'Attivo da 1 giorno consecutivo'
-                                : 'Attivo da $streak giorni consecutivi',
+                            context.l10n.activeStreak(streak),
                             style: TextStyle(fontFamily: AppFonts.sans,
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
@@ -767,7 +768,7 @@ class _StatsPanelState extends State<_StatsPanel> {
                       if (bestDay != null)
                         Expanded(
                           child: _DayHighlight(
-                            label: 'Giorno migliore',
+                            label: context.l10n.bestDay,
                             date: bestDay.key,
                             count: bestDay.value,
                             color: context.stats.positive,
@@ -779,7 +780,7 @@ class _StatsPanelState extends State<_StatsPanel> {
                       if (worstDay != null)
                         Expanded(
                           child: _DayHighlight(
-                            label: 'Giorno peggiore',
+                            label: context.l10n.worstDay,
                             date: worstDay.key,
                             count: worstDay.value,
                             color: context.stats.danger,
@@ -794,7 +795,7 @@ class _StatsPanelState extends State<_StatsPanel> {
                   const Divider(height: 1),
                   const SizedBox(height: 14),
                   Text(
-                    'DISTRIBUZIONE ORARIA',
+                    context.l10n.hourlyDistribution,
                     style: TextStyle(fontFamily: AppFonts.sans,
                       fontSize: 9,
                       fontWeight: FontWeight.w800,
@@ -1059,10 +1060,8 @@ class _ThinDataNote extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final giorni = trackedDays == 1 ? 'un giorno' : '$trackedDays giorni';
     return _PanelNote(
-      text: 'Stime basate su $giorni di dati: diventeranno attendibili con '
-          'qualche giorno in più.',
+      text: context.l10n.thinDataNote(trackedDays),
       accent: context.stats.projection,
     );
   }
@@ -1180,7 +1179,7 @@ class _DayHighlight extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final formatted = DateFormat('d MMM', 'it').format(date);
+    final formatted = DateFormat.MMMd(context.localeName).format(date);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1317,7 +1316,7 @@ class _MonthlyChart extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(left: 4, bottom: 16),
             child: Text(
-              'TREND ULTIMI 30 GIORNI',
+              context.l10n.trend30Days,
               style: TextStyle(fontFamily: AppFonts.sans,
                 fontSize: 11,
                 fontWeight: FontWeight.w800,
@@ -1406,7 +1405,8 @@ class _MonthlyChart extends StatelessWidget {
                               return const SizedBox.shrink();
                             }
                             return Text(
-                              DateFormat('d/M', 'it').format(days[index]),
+                              DateFormat.Md(context.localeName)
+                                  .format(days[index]),
                               style: TextStyle(fontFamily: AppFonts.sans,
                                 fontSize: 8,
                                 color: context.colors.textMuted,
@@ -1442,7 +1442,7 @@ class _MonthlyChart extends StatelessWidget {
                             final index = spot.x.round().clamp(0, 29);
                             final count = countPerDay[days[index]]!;
                             return LineTooltipItem(
-                              '${DateFormat('d MMM', 'it').format(days[index])}: $count',
+                              '${DateFormat.MMMd(context.localeName).format(days[index])}: $count',
                               TextStyle(fontFamily: AppFonts.sans,
                                 fontWeight: FontWeight.w800,
                                 color: turquoise,
@@ -1466,13 +1466,13 @@ class _MonthlyChart extends StatelessWidget {
 
 // --- Utilità ---
 
-String _periodPresetLabel(_HistoryPeriodPreset preset) {
+String _periodPresetLabel(AppLocalizations l10n, _HistoryPeriodPreset preset) {
   return switch (preset) {
-    _HistoryPeriodPreset.today => 'Oggi',
-    _HistoryPeriodPreset.sevenDays => '7 giorni',
-    _HistoryPeriodPreset.thirtyDays => '30 giorni',
-    _HistoryPeriodPreset.all => 'Tutto',
-    _HistoryPeriodPreset.custom => 'Personalizzato',
+    _HistoryPeriodPreset.today => l10n.today,
+    _HistoryPeriodPreset.sevenDays => l10n.sevenDays,
+    _HistoryPeriodPreset.thirtyDays => l10n.thirtyDays,
+    _HistoryPeriodPreset.all => l10n.all,
+    _HistoryPeriodPreset.custom => l10n.customShort,
   };
 }
 

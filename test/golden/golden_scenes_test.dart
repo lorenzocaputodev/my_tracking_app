@@ -1,16 +1,16 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:my_tracking_app/theme/app_theme.dart';
-import 'package:my_tracking_app/utils/app_clock.dart';
+import 'package:my_tracking_app/l10n/app_localizations.dart';
 import 'package:my_tracking_app/providers/my_tracking_provider.dart';
 import 'package:my_tracking_app/screens/achievements_screen.dart';
 import 'package:my_tracking_app/screens/home_screen.dart';
+import 'package:my_tracking_app/theme/app_theme.dart';
+import 'package:my_tracking_app/utils/app_clock.dart';
 import 'package:my_tracking_app/widgets/stats_card.dart';
 
 const _productId = 'p1';
@@ -94,8 +94,9 @@ Future<void> _pumpScene(
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: AppTheme.of(brightness),
-        localizationsDelegates: GlobalMaterialLocalizations.delegates,
-        supportedLocales: const [Locale('it'), Locale('en')],
+        locale: const Locale('it'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: screen,
       ),
     ),

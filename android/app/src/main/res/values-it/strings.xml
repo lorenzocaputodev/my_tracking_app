@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_description">Registra con un tocco e vedi quante oggi</string>
+    <string name="widget_default_product">Prodotto</string>
+    <string name="widget_product_name_placeholder">Nome prodotto</string>
+    <string name="widget_no_product">Nessun prodotto</string>
+    <string name="widget_open_app">Apri app</string>
+    <string name="widget_add">Aggiungi +</string>
+    <string name="widget_total_today">Totale usato oggi</string>
+    <string name="widget_syncing">Widget in sincronizzazione</string>
+    <string name="widget_hint_configure">Apri l\'app per configurare il prodotto del widget</string>
+    <string name="widget_hint_resync">Apri l\'app per riallineare i dati del prodotto</string>
+    <string name="widget_hint_placeholder">Residuo 0/0 • Costo unit.</string>
+    <string name="widget_hint_stock">Residuo %1$d/%2$d • Costo unit. %3$s</string>
+    <string name="widget_hint_no_stock">Tracciamento senza scorta • Costo %1$s</string>
+    <string name="widget_spent_today">Spesa oggi</string>
+    <string name="widget_life_lost">Vita persa</string>
+    <string name="widget_total_spent">Totale speso</string>
+    <string name="widget_config_title">Scegli il prodotto del widget</string>
+    <string name="widget_config_subtitle">Tocca il prodotto da collegare al widget Home.</string>
+    <string name="widget_config_select">Seleziona</string>
+    <string name="widget_config_no_products">Apri l\'app per configurare almeno un prodotto</string>
+</resources>

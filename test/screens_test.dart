@@ -1,12 +1,12 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:my_tracking_app/l10n/app_localizations.dart';
 import 'package:my_tracking_app/providers/my_tracking_provider.dart';
 import 'package:my_tracking_app/screens/history_screen.dart';
 import 'package:my_tracking_app/screens/home_screen.dart';
@@ -87,8 +87,9 @@ Future<MyTrackingProvider> _pump(
       value: provider,
       child: MaterialApp(
         theme: AppTheme.of(Brightness.dark),
-        localizationsDelegates: GlobalMaterialLocalizations.delegates,
-        supportedLocales: const [Locale('it')],
+        locale: const Locale('it'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         builder: textScaler == null
             ? null
             : (context, child) => MediaQuery(

@@ -25,7 +25,7 @@
             android:ellipsize="end"
             android:gravity="center"
             android:maxLines="1"
-            android:text="Nome prodotto"
+            android:text="@string/widget_product_name_placeholder"
             android:textColor="@color/widget_text_primary"
             android:textSize="18sp"
             android:textStyle="bold" />
@@ -53,7 +53,7 @@
             android:autoSizeMaxTextSize="11sp"
             android:autoSizeMinTextSize="9sp"
             android:autoSizeTextType="uniform"
-            android:text="Totale usato oggi"
+            android:text="@string/widget_total_today"
             android:textColor="@color/widget_text_muted"
             android:textSize="11sp" />
 
@@ -66,7 +66,7 @@
             android:ellipsize="end"
             android:gravity="center"
             android:maxLines="1"
-            android:text="Residuo 0/0 &#8226; Costo unit."
+            android:text="@string/widget_hint_placeholder"
             android:textColor="@color/widget_text_muted"
             android:textSize="11sp" />
     </LinearLayout>
@@ -84,7 +84,7 @@
         android:gravity="center"
         android:includeFontPadding="false"
         android:maxLines="1"
-        android:text="Aggiungi +"
+        android:text="@string/widget_add"
         android:textColor="@color/widget_on_action"
         android:textSize="16sp"
         android:textStyle="bold" />

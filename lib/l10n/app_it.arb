@@ -1,0 +1,795 @@
+{
+  "@@locale": "it",
+  "loading": "Caricamento...",
+  "bootstrapErrorTitle": "Avvio non completato",
+  "bootstrapErrorBody": "Si è verificato un problema durante il caricamento iniziale. Puoi riprovare senza chiudere l'app.",
+  "retry": "Riprova",
+  "backupErrorEmpty": "Backup CSV vuoto.",
+  "backupErrorUnknownFormat": "Formato backup CSV non riconosciuto.",
+  "backupErrorMissingVersion": "Versione backup mancante.",
+  "backupErrorInvalidSection": "Sezione backup non valida alla riga {line}.",
+  "@backupErrorInvalidSection": {
+    "placeholders": {
+      "line": {
+        "type": "int"
+      }
+    }
+  },
+  "backupErrorMissingHeader": "Header mancante per la sezione \"{section}\".",
+  "@backupErrorMissingHeader": {
+    "placeholders": {
+      "section": {
+        "type": "String"
+      }
+    }
+  },
+  "backupErrorMissingProduct": "La cronologia fa riferimento a un prodotto mancante: {id}.",
+  "@backupErrorMissingProduct": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "backupErrorMissingMeta": "Sezione meta mancante nel backup.",
+  "backupErrorInvalidMetaHeader": "Header meta non valido.",
+  "backupErrorMissingProducts": "Sezione prodotti mancante nel backup.",
+  "backupErrorIncompleteProduct": "Riga prodotti incompleta.",
+  "backupErrorMissingHistory": "Sezione cronologia mancante nel backup.",
+  "backupErrorIncompleteEntry": "Riga cronologia incompleta.",
+  "backupErrorIncompleteAchievement": "Riga achievement incompleta.",
+  "backupErrorIncompletePlan": "Riga piano di riduzione incompleta.",
+  "backupErrorInvalidValue": "Valore non valido nel backup: \"{value}\".",
+  "@backupErrorInvalidValue": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "backupErrorInvalidHeader": "Header {section} non valido.",
+  "@backupErrorInvalidHeader": {
+    "placeholders": {
+      "section": {
+        "type": "String"
+      }
+    }
+  },
+  "backupSectionProducts": "prodotti",
+  "backupSectionHistory": "cronologia",
+  "backupSectionAchievements": "achievement",
+  "backupSectionPlan": "piano di riduzione",
+  "backupSectionReminder": "promemoria globale",
+  "backupErrorEntriesNotSaved": "Salvate {stored} registrazioni su {total}. I dati non sono stati ripristinati: riprova.",
+  "@backupErrorEntriesNotSaved": {
+    "placeholders": {
+      "stored": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "backupErrorProductsNotSaved": "Salvati {stored} prodotti su {total}. I dati non sono stati ripristinati: riprova.",
+  "@backupErrorProductsNotSaved": {
+    "placeholders": {
+      "stored": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "errorProductNotFound": "Prodotto non trovato.",
+  "errorStockCorrectionUnavailable": "La correzione della scorta non è disponibile.",
+  "achFirstEntryTitle": "Prima tracciata",
+  "achFirstEntryDesc": "Hai registrato la prima unità.",
+  "achTracked7Title": "7 giorni di dati",
+  "achTracked7Desc": "Attività registrata per 7 giorni distinti.",
+  "achTracked30Title": "30 giorni di dati",
+  "achTracked30Desc": "Attività registrata per 30 giorni distinti.",
+  "achStreak3Title": "3 giorni di fila",
+  "achStreak3Desc": "Attivo 3 giorni consecutivi.",
+  "achStreak7Title": "Settimana intera",
+  "achStreak7Desc": "Attivo 7 giorni consecutivi.",
+  "achStreak14Title": "Due settimane",
+  "achStreak14Desc": "Attivo 14 giorni consecutivi.",
+  "achStreak30Title": "Un mese intero",
+  "achStreak30Desc": "Attivo 30 giorni consecutivi.",
+  "achUnderLimit1Title": "Primo giorno ok",
+  "achUnderLimit1Desc": "1 giorno sotto il limite giornaliero.",
+  "achUnderLimit3Title": "Tre giorni ok",
+  "achUnderLimit3Desc": "3 giorni consecutivi sotto il limite.",
+  "achUnderLimit7Title": "Settimana ok",
+  "achUnderLimit7Desc": "7 giorni consecutivi sotto il limite.",
+  "achUnderLimit30Title": "Mese sotto controllo",
+  "achUnderLimit30Desc": "30 giorni consecutivi sotto il limite.",
+  "achReduction10Title": "-10% media",
+  "achReduction10Desc": "Media ridotta del 10% rispetto all'inizio del piano.",
+  "achReduction25Title": "-25% media",
+  "achReduction25Desc": "Media ridotta del 25% rispetto all'inizio del piano.",
+  "achReduction50Title": "-50% media",
+  "achReduction50Desc": "Hai dimezzato la tua media. Eccezionale!",
+  "reminderChannelName": "Promemoria registrazione",
+  "reminderChannelDescription": "Promemoria generali per ricordare di registrare i prodotti tracciati.",
+  "reminderNotificationTitle": "Promemoria",
+  "reminderNotificationBody": "Ricordati di registrare i prodotti tracciati.",
+  "productAddedInUse": "{name} aggiunto e in uso",
+  "@productAddedInUse": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "backupFilesUnsupported": "Import/export file disponibile solo su Android e Windows.",
+  "fileSaveUnsupported": "Salvataggio file non supportato su questa piattaforma.",
+  "backupSaved": "Backup CSV salvato",
+  "backupExportFailed": "Esportazione CSV non riuscita.",
+  "browserOpenFailed": "Non riesco ad aprire il browser.",
+  "clearHistoryTitle": "Cancella tutto?",
+  "clearHistoryBody": "Questa azione elimina permanentemente tutta la cronologia registrata finora.",
+  "cancel": "Annulla",
+  "delete": "Elimina",
+  "stockCount": "{remaining}/{total} in scorta",
+  "@stockCount": {
+    "placeholders": {
+      "remaining": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "noStock": "Senza scorta",
+  "settingsTitle": "Impostazioni",
+  "settingsSectionProducts": "PRODOTTI",
+  "addProduct": "Aggiungi prodotto",
+  "archivedCount": "Archiviati ({count})  ›",
+  "@archivedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsSectionApp": "APP",
+  "theme": "Tema",
+  "themeDark": "Scuro",
+  "themeLight": "Chiaro",
+  "system": "Sistema",
+  "language": "Lingua",
+  "widgetTheme": "Tema del widget",
+  "settingsSectionData": "DATI",
+  "exportBackup": "Esporta backup",
+  "exportBackupSubtitle": "Salva un file CSV con tutti i dati",
+  "importBackup": "Importa backup",
+  "importBackupSubtitle": "Sostituisce i dati attuali",
+  "settingsSectionAbout": "INFORMAZIONI",
+  "checkForUpdates": "Controlla aggiornamenti",
+  "installedVersion": "Versione installata {version} · apre GitHub",
+  "@installedVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "opensReleasesPage": "Apre la pagina delle versioni su GitHub",
+  "clearHistory": "Cancella cronologia",
+  "widgetHint": "Tieni premuto sulla schermata Home del telefono per aggiungere il widget.",
+  "inUseBadge": "IN USO",
+  "durationMinutes": "{count, plural, =1{1 minuto} other{{count} minuti}}",
+  "@durationMinutes": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "durationHours": "{count, plural, =1{1 ora} other{{count} ore}}",
+  "@durationHours": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "notificationPermissionDenied": "Permesso notifiche non concesso.",
+  "remindMeEvery": "Ricordamelo ogni",
+  "reminders": "Promemoria",
+  "remindersSubtitle": "Ti ricorda di registrare",
+  "androidOnly": "Disponibile solo su Android",
+  "frequency": "Frequenza",
+  "every": "Ogni {interval}",
+  "@every": {
+    "placeholders": {
+      "interval": {
+        "type": "String"
+      }
+    }
+  },
+  "fileImportUnsupported": "Importazione file non supportata su questa piattaforma.",
+  "restoreCompleted": "Ripristino completato: {summary}.",
+  "@restoreCompleted": {
+    "placeholders": {
+      "summary": {
+        "type": "String"
+      }
+    }
+  },
+  "restoreCompletedRemindersOff": "Ripristino completato: {summary}. Promemoria disattivati: permesso notifiche non concesso.",
+  "@restoreCompletedRemindersOff": {
+    "placeholders": {
+      "summary": {
+        "type": "String"
+      }
+    }
+  },
+  "backupInvalid": "Backup CSV non valido",
+  "backupImportFailed": "Importazione CSV non riuscita.",
+  "emptyBackupTitle": "Backup senza cronologia",
+  "emptyBackupBody": "Questo file non contiene nessuna registrazione. Importarlo sostituisce i dati attuali e la cronologia resta vuota.",
+  "importAnyway": "Importa comunque",
+  "restoreSummary": "{entries} e {products}",
+  "@restoreSummary": {
+    "placeholders": {
+      "entries": {
+        "type": "String"
+      },
+      "products": {
+        "type": "String"
+      }
+    }
+  },
+  "entriesCount": "{count, plural, =1{1 registrazione} other{{count} registrazioni}}",
+  "@entriesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "productsCount": "{count, plural, =1{1 prodotto} other{{count} prodotti}}",
+  "@productsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "productRestored": "{name} ripristinato",
+  "@productRestored": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deletePermanentlyTitle": "Eliminare definitivamente?",
+  "deletePermanentlyBody": "Questa azione rimuove {name} e tutta la cronologia collegata.",
+  "@deletePermanentlyBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "productDeleted": "{name} eliminato definitivamente",
+  "@productDeleted": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "archivedTitle": "Archiviati",
+  "archivedIntro": "I prodotti archiviati non compaiono in home, ma la loro cronologia resta. Ripristinandoli tornano come prima.",
+  "noArchivedProducts": "Nessun prodotto archiviato",
+  "historyKept": "Storico conservato",
+  "restore": "Ripristina",
+  "deletePermanently": "Elimina definitivamente",
+  "newProduct": "Nuovo prodotto",
+  "setupTitle": "Configura il tuo prodotto",
+  "startTracking": "Inizia a tracciare",
+  "haveBackup": "Ho già un backup",
+  "haveBackupSubtitle": "Ripristina i tuoi dati da un file CSV",
+  "setupQuestion": "Cosa vuoi tracciare?",
+  "setupSubtitle": "Puoi modificare tutto nelle impostazioni in qualsiasi momento.",
+  "remindersSection": "PROMEMORIA",
+  "onboardingWelcomeTitle": "Benvenuto su\nMy Tracking App",
+  "onboardingWelcomeBody": "Tieni d'occhio quanto usi, quanto spendi e come cambiano le tue abitudini. Tutti i dati restano sul tuo telefono.",
+  "onboardingTrackTitle": "Tieni traccia\ndi tutto",
+  "onboardingTrackBody": "Puoi seguire più prodotti insieme. Ognuno ha la sua cronologia, i suoi costi e il suo obiettivo.",
+  "onboardingCustomizeTitle": "Personalizza\nil tuo prodotto",
+  "onboardingCustomizeBody": "Indica nome, costo e confezione, e se vuoi un limite giornaliero: il costo di ogni utilizzo lo calcola l'app.",
+  "onboardingTimeTitle": "Quanto tempo\nti costa?",
+  "onboardingTimeBody": "Puoi aggiungere una stima dei minuti di vita persi per ogni utilizzo: è un valore simbolico, non il tempo per consumarlo. Se non ti serve, scegli «Nessuna stima».",
+  "onboardingTapTitle": "Un tocco\nper registrare",
+  "onboardingTapBody": "Premi HO USATO ogni volta, oppure registra tutto a fine giornata. Se tocchi per sbaglio puoi annullare subito, e su Android c'è anche il widget.",
+  "onboardingProgressTitle": "Osserva\ni tuoi progressi",
+  "onboardingProgressBody": "Cronologia per giorni, settimane e mesi, obiettivi e un piano di riduzione. Con il backup non perdi nulla.",
+  "skip": "Salta",
+  "start": "Inizia",
+  "next": "Avanti",
+  "historyTitle": "Cronologia",
+  "achievementsTooltip": "Obiettivi e badge",
+  "today": "Oggi",
+  "lifeLostToday": "Vita persa oggi",
+  "totalSpent": "Totale speso",
+  "lastEntry": "ULTIMA: {time}",
+  "@lastEntry": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "logButton": "HO USATO",
+  "loggedToday": "Registrato · {count} oggi",
+  "@loggedToday": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "undo": "Annulla",
+  "creatorMessage": "Applicazione creata da Lorenzo Caputo, with love <3",
+  "stockFinished": "📦 {name} terminato!",
+  "@stockFinished": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "overLimit": "Sopra il limite impostato ({count}/{limit})",
+  "@overLimit": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
+  "dailyLimitReached": "Limite giornaliero raggiunto ({count}/{limit})",
+  "@dailyLimitReached": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
+  "newStockButton": "NUOVA\nSCORTA",
+  "productInUse": "Prodotto in uso",
+  "todayCaps": "OGGI",
+  "unitCost": "Costo unitario",
+  "costPerUse": "Costo per utilizzo",
+  "labelValue": "{label}: {value}",
+  "@labelValue": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "never": "Mai",
+  "justNow": "Adesso",
+  "daysAgo": "{count}g fa",
+  "@daysAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "hoursAgo": "{count}h fa",
+  "@hoursAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "hoursMinutesAgo": "{hours}h {minutes}m fa",
+  "@hoursMinutesAgo": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "minutesAgo": "{count}m fa",
+  "@minutesAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "insightPlanAhead": "Piano: avanti",
+  "insightPlanOnTrack": "Piano: in linea",
+  "insightPlanBehind": "Piano: in ritardo",
+  "insightLimitRemaining": "{count, plural, =1{Manca 1 unità al limite} other{Mancano {count} unità al limite}}",
+  "@insightLimitRemaining": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "insightComparedToYesterday": "{delta} rispetto a ieri",
+  "@insightComparedToYesterday": {
+    "placeholders": {
+      "delta": {
+        "type": "String"
+      }
+    }
+  },
+  "changesSaved": "Modifiche salvate",
+  "discardChangesTitle": "Scartare le modifiche?",
+  "discardChangesBody": "Le modifiche non salvate andranno perse.",
+  "discard": "Scarta",
+  "productInUseFeedback": "{name} in uso",
+  "@productInUseFeedback": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "keepOneActiveProduct": "Devi mantenere almeno un prodotto attivo",
+  "productArchived": "{name} archiviato",
+  "@productArchived": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "moreActions": "Altre azioni",
+  "useThisProduct": "Usa questo prodotto",
+  "useThisProductSubtitle": "Diventa quello registrato in home",
+  "archive": "Archivia",
+  "archiveSubtitle": "Sparisce dalla home, la cronologia resta",
+  "unsavedChanges": "Modifiche non salvate",
+  "save": "Salva",
+  "newPackTitle": "Nuova confezione?",
+  "newPackBody": "La scorta di {name} torna a {pieces}/{pieces}.",
+  "@newPackBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "pieces": {
+        "type": "int"
+      }
+    }
+  },
+  "restock": "Reintegra",
+  "stockRestocked": "Scorta reintegrata",
+  "correctStockTitle": "Correggi scorta",
+  "correctStockBody": "Inserisci il numero reale di unità rimaste per allineare la scorta attuale.",
+  "unitsLeft": "Unità rimaste",
+  "enterWholeNumber": "Inserisci un numero intero.",
+  "enterValidWholeNumber": "Inserisci un numero intero valido.",
+  "valueNotNegative": "Il valore non può essere negativo.",
+  "valueAtMost": "Il valore non può superare {max}.",
+  "@valueAtMost": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "confirm": "Conferma",
+  "correctStockFailed": "Correzione scorta non riuscita.",
+  "stock": "Scorta",
+  "correct": "Correggi",
+  "productNameLabel": "NOME PRODOTTO",
+  "productNameHint": "Es. Sigarette",
+  "enterName": "Inserisci un nome",
+  "productModeLabel": "MODALITÀ PRODOTTO",
+  "packCostLabel": "COSTO CONFEZIONE",
+  "packCostHint": "Es. 6,00",
+  "enterAmount": "Inserisci un importo",
+  "invalidAmount": "Importo non valido",
+  "unitsPerPackLabel": "UNITÀ / USI STIMATI PER CONFEZIONE",
+  "unitsPerPackHint": "Es. 20",
+  "enterNumber": "Inserisci un numero",
+  "invalidNumber": "Numero non valido",
+  "unitsPerPackHelp": "Puoi inserire anche il numero medio di usi ottenibili da una confezione.",
+  "costPerUseLabel": "COSTO PER UTILIZZO",
+  "costPerUseHint": "Facoltativo, es. 0,10",
+  "costPerUseHelp": "Lascia vuoto se vuoi registrare solo gli utilizzi, senza calcolare costi.",
+  "minutesLostLabel": "MINUTI DI VITA PERSI PER UTILIZZO",
+  "enterValue": "Inserisci un valore",
+  "dailyGoalLabel": "OBIETTIVO GIORNALIERO",
+  "noDailyLimit": "Nessun limite giornaliero",
+  "dailyGoalText": "Voglio stare sotto {count} al giorno",
+  "@dailyGoalText": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noLimit": "Nessun limite",
+  "zeroNoLimit": "0 = nessun limite impostato",
+  "withStock": "Con scorta",
+  "withStockHelp": "Il prodotto usa una scorta residua e può essere reintegrato quando termina.",
+  "noStockHelp": "Il prodotto registra solo gli utilizzi, senza gestire confezioni o residuo.",
+  "minutesLostSheetTitle": "Minuti di vita persi",
+  "noEstimate": "Nessuna stima",
+  "noEstimateSubtitle": "Non conta la vita persa",
+  "minutesEstimate": "{count} min (stima)",
+  "@minutesEstimate": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "minutesPresetLabel": "{name} — {estimate}",
+  "@minutesPresetLabel": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "estimate": {
+        "type": "String"
+      }
+    }
+  },
+  "presetCigarette": "Sigaretta",
+  "presetEcigarette": "Sigaretta elettronica",
+  "presetHeatedTobacco": "Riscaldatore di tabacco",
+  "presetCigar": "Sigaro",
+  "presetHookah": "Narghilè (sessione)",
+  "custom": "Personalizzato…",
+  "minutesPerUse": "Minuti per utilizzo",
+  "last7Days": "ULTIMI 7 GIORNI",
+  "averagePerDay": "media {value}/giorno",
+  "@averagePerDay": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "weekdaysShort": "LUN,MAR,MER,GIO,VEN,SAB,DOM",
+  "openCsv": "Apri CSV",
+  "saveCsv": "Salva CSV",
+  "unreadableBackupFile": "File non leggibile: usa il backup CSV esportato dall'app, senza modificarlo.",
+  "last7DaysTitle": "Ultimi 7 giorni",
+  "last30DaysTitle": "Ultimi 30 giorni",
+  "entireHistory": "Tutta la cronologia",
+  "customPeriod": "Periodo personalizzato",
+  "selectRange": "Seleziona intervallo",
+  "noDataLogged": "Nessun dato registrato",
+  "noDataLoggedBody": "La cronologia apparirà qui dopo i primi utilizzi.",
+  "noFilterResults": "Nessun risultato nel filtro selezionato",
+  "noFilterResultsBody": "Prova un altro prodotto o un intervallo di date più ampio.",
+  "filters": "FILTRI",
+  "product": "Prodotto",
+  "allProducts": "Tutti i prodotti",
+  "statistics": "STATISTICHE",
+  "periodOverview": "Panoramica periodo",
+  "periodOverviewSubtitle": "Medie e riepilogo del filtro selezionato",
+  "periodTotal": "Totale periodo",
+  "mixedProductsNote": "Prodotti diversi non si sommano: scegli un prodotto per vedere medie e andamento.",
+  "periodAveragePerDay": "Media periodo/g",
+  "trend7Days": "Trend 7g",
+  "average30Days": "Media 30 giorni",
+  "unitsCount": "{count} unità",
+  "@unitsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "costsAndProjections": "Costi e proiezioni",
+  "costsAndProjectionsSubtitle": "Spesa attuale e stime future",
+  "periodCost": "Costo periodo",
+  "monthlyProjection": "Proiezione mese",
+  "annualEstimate": "Stima annua",
+  "monthlyEstimate": "Stima mese",
+  "estimatedAnnualCost": "Costo annuo stimato",
+  "habitsAndTimes": "Abitudini e orari",
+  "habitsAndTimesSubtitle": "Ritmo, giorni e fascia oraria più attiva",
+  "peakHour": "Ora picco",
+  "underLimitStreak": "{count, plural, =1{1 giorno consecutivo sotto il limite ({limit})} other{{count} giorni consecutivi sotto il limite ({limit})}}",
+  "@underLimitStreak": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
+  "activeStreak": "{count, plural, =1{Attivo da 1 giorno consecutivo} other{Attivo da {count} giorni consecutivi}}",
+  "@activeStreak": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bestDay": "Giorno migliore",
+  "worstDay": "Giorno peggiore",
+  "hourlyDistribution": "DISTRIBUZIONE ORARIA",
+  "thinDataNote": "{count, plural, =1{Stime basate su un giorno di dati: diventeranno attendibili con qualche giorno in più.} other{Stime basate su {count} giorni di dati: diventeranno attendibili con qualche giorno in più.}}",
+  "@thinDataNote": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "trend30Days": "TREND ULTIMI 30 GIORNI",
+  "sevenDays": "7 giorni",
+  "thirtyDays": "30 giorni",
+  "all": "Tutto",
+  "customShort": "Personalizzato",
+  "weekOf": "Settimana {label}",
+  "@weekOf": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "entriesSection": "REGISTRAZIONI",
+  "days": "Giorni",
+  "weeks": "Settimane",
+  "months": "Mesi",
+  "entryRemoved": "Registrazione rimossa",
+  "achievementsTitle": "Obiettivi & Badge",
+  "unlockedSection": "SBLOCCATI",
+  "noBadgesYet": "Registra le prime attività per sbloccare i badge!",
+  "lockedSection": "DA SBLOCCARE",
+  "allBadgesUnlocked": "Hai sbloccato tutti i badge! 🎉",
+  "badgeProgress": "{unlocked} / {total} badge",
+  "@badgeProgress": {
+    "placeholders": {
+      "unlocked": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "setReductionPlan": "Imposta piano di riduzione",
+  "planStatusAhead": "AVANTI",
+  "planStatusOnTrack": "IN LINEA",
+  "planStatusBehind": "IN RITARDO",
+  "planStatusActive": "ATTIVO",
+  "reductionPlanSection": "PIANO DI RIDUZIONE",
+  "productLabel": "Prodotto: {name}",
+  "@productLabel": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "planStart": "Inizio",
+  "unitsPerDayShort": "unità/g",
+  "average7Days": "Media 7 giorni",
+  "targetToday": "Target oggi",
+  "finalGoal": "Obiettivo finale",
+  "planWeek": "Settimana {current} / {total}",
+  "@planWeek": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "planCompleted": "Completato!",
+  "daysRemaining": "{count, plural, =1{1 giorno rimanente} other{{count} giorni rimanenti}}",
+  "@daysRemaining": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "planAheadMessage": "Sei sotto il target settimanale previsto.",
+  "planOnTrackMessage": "Sei in linea con il piano attivo.",
+  "planBehindMessage": "Sei sopra il target settimanale previsto.",
+  "planActiveMessage": "Piano attivo su questo prodotto.",
+  "edit": "Modifica",
+  "deletePlanTitle": "Elimina piano",
+  "deletePlanBody": "Vuoi eliminare il piano di riduzione?",
+  "badgeLockedSemantics": "{title}, da sbloccare",
+  "@badgeLockedSemantics": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "badgeUnlockedSemantics": "{title}, sbloccato il {date}",
+  "@badgeUnlockedSemantics": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "unlockedOn": "Sbloccato il {date}",
+  "@unlockedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "notUnlockedYet": "Non ancora sbloccato",
+  "close": "Chiudi",
+  "average14Days": "Media degli ultimi 14 giorni: {value} unità/giorno",
+  "@average14Days": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "finalGoalValue": "Obiettivo finale: {value} unità/giorno",
+  "@finalGoalValue": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "planDuration": "Durata: {count} settimane",
+  "@planDuration": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "planReductionSummary": "Riduzione di {value} unità/g in {weeks} settimane.",
+  "@planReductionSummary": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      },
+      "weeks": {
+        "type": "int"
+      }
+    }
+  },
+  "updatePlan": "Aggiorna piano",
+  "setPlan": "Imposta piano",
+  "languageItalian": "Italiano",
+  "languageEnglish": "English"
+}

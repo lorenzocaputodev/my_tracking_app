@@ -7,6 +7,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
 
+import '../l10n/l10n.dart';
 import '../models/app_reminder_settings.dart';
 import '../theme/app_theme.dart';
 
@@ -21,9 +22,6 @@ void productNotificationCallbackDispatcher() {
 
 class ProductNotificationService {
   static const String reminderChannelId = 'tracking_reminders';
-  static const String reminderChannelName = 'Promemoria registrazione';
-  static const String reminderChannelDescription =
-      'Promemoria generali per ricordare di registrare i prodotti tracciati.';
 
   static const String _globalReminderTask = 'global_app_reminder';
   static const String _globalReminderWorkName = 'global_tracking_reminder';
@@ -95,19 +93,34 @@ class ProductNotificationService {
     } catch (_) {}
   }
 
+  static Future<AppLocalizations> _texts() async {
+    final prefs = await SharedPreferences.getInstance();
+    final preference =
+        parseLanguagePreference(prefs.getString(appLanguagePreferenceKey));
+    return lookupAppLocalizations(resolveAppLocale(preference));
+  }
+
   static Future<void> _createChannels() async {
     final android = _plugin.resolvePlatformSpecificImplementation<
         AndroidFlutterLocalNotificationsPlugin>();
     if (android == null) return;
 
+    final texts = await _texts();
     await android.createNotificationChannel(
-      const AndroidNotificationChannel(
+      AndroidNotificationChannel(
         reminderChannelId,
-        reminderChannelName,
-        description: reminderChannelDescription,
+        texts.reminderChannelName,
+        description: texts.reminderChannelDescription,
         importance: Importance.high,
       ),
     );
+  }
+
+  static Future<void> refreshChannel() async {
+    if (!isSupported || !_mainInitialized) return;
+    try {
+      await _createChannels();
+    } catch (_) {}
   }
 
   static Future<bool> ensurePermission() async {
@@ -196,15 +209,16 @@ class ProductNotificationService {
     final lastShownMs = prefs.getInt(_globalReminderLastShownKey) ?? 0;
     try {
       if (nowMs - lastShownMs > _duplicateGuardMs) {
+        final texts = await _texts();
         await _plugin.show(
           _globalReminderNotificationId,
-          '\u{1F4CD} Promemoria',
-          'Ricordati di registrare i prodotti tracciati.',
-          const NotificationDetails(
+          '\u{1F4CD} ${texts.reminderNotificationTitle}',
+          texts.reminderNotificationBody,
+          NotificationDetails(
             android: AndroidNotificationDetails(
               reminderChannelId,
-              reminderChannelName,
-              channelDescription: reminderChannelDescription,
+              texts.reminderChannelName,
+              channelDescription: texts.reminderChannelDescription,
               importance: Importance.high,
               priority: Priority.high,
               icon: _statusBarIcon,

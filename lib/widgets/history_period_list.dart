@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../models/smoke_entry.dart';
 import '../providers/my_tracking_provider.dart';
@@ -12,61 +13,39 @@ import '../utils/app_formatters.dart';
 import '../utils/history_grouping.dart';
 import 'pill_selector.dart';
 import 'tappable_card.dart';
+import '../l10n/l10n.dart';
 
 // --- Etichette di date e periodi ---
 
-const _months = [
-  'Gennaio',
-  'Febbraio',
-  'Marzo',
-  'Aprile',
-  'Maggio',
-  'Giugno',
-  'Luglio',
-  'Agosto',
-  'Settembre',
-  'Ottobre',
-  'Novembre',
-  'Dicembre',
-];
-const _monthsShort = [
-  'gen',
-  'feb',
-  'mar',
-  'apr',
-  'mag',
-  'giu',
-  'lug',
-  'ago',
-  'set',
-  'ott',
-  'nov',
-  'dic',
-];
-const _weekdays = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'];
+String _capitalized(String text) =>
+    text.isEmpty ? text : text[0].toUpperCase() + text.substring(1);
 
-String _weekLabel(HistoryPeriod p, DateTimeRange? range) {
+String _weekLabel(HistoryPeriod p, DateTimeRange? range, String locale) {
   var first = p.start;
   var last = DateTime(p.end.year, p.end.month, p.end.day - 1);
   if (range != null) {
     if (range.start.isAfter(first)) first = range.start;
     if (range.end.isBefore(last)) last = range.end;
   }
+  final dayMonth = DateFormat.MMMd(locale);
   if (first.year == last.year &&
       first.month == last.month &&
       first.day == last.day) {
-    return '${first.day} ${_monthsShort[first.month - 1]}';
+    return dayMonth.format(first);
   }
-  return first.month == last.month
-      ? '${first.day} – ${last.day} ${_monthsShort[last.month - 1]}'
-      : '${first.day} ${_monthsShort[first.month - 1]} – '
-          '${last.day} ${_monthsShort[last.month - 1]}';
+  if (first.month == last.month) {
+    return locale == 'it'
+        ? '${first.day} – ${dayMonth.format(last)}'
+        : '${dayMonth.format(first)} – ${last.day}';
+  }
+  return '${dayMonth.format(first)} – ${dayMonth.format(last)}';
 }
 
-String _dayLabel(DateTime d) =>
-    '${_weekdays[d.weekday - 1]} ${d.day} ${_monthsShort[d.month - 1]}';
+String _dayLabel(DateTime d, String locale) =>
+    _capitalized(DateFormat.MMMEd(locale).format(d));
 
-String _monthLabel(DateTime d) => '${_months[d.month - 1]} ${d.year}';
+String _monthLabel(DateTime d, String locale) =>
+    _capitalized(DateFormat.yMMMM(locale).format(d));
 
 String _hhmm(DateTime t) =>
     '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
@@ -133,9 +112,11 @@ class _HistoryPeriodListState extends State<HistoryPeriodList> {
             .toList();
     final periods = groupHistory(entries, _grouping);
     final range = widget.range;
-    final unit = widget.entries.map((e) => e.productId).toSet().length > 1
-        ? 'registrazioni'
-        : 'unità';
+    final l10n = context.l10n;
+    final locale = l10n.localeName;
+    final mixed = widget.entries.map((e) => e.productId).toSet().length > 1;
+    String units(int count) =>
+        mixed ? l10n.entriesCount(count) : l10n.unitsCount(count);
 
     final rows = <Widget>[];
     switch (_grouping) {
@@ -160,27 +141,27 @@ class _HistoryPeriodListState extends State<HistoryPeriodList> {
             if (prevAvg > 0) delta = (avg - prevAvg) / prevAvg * 100;
           }
           rows.add(_SummaryRow(
-            title: _monthLabel(p.start),
-            subtitle: '${p.count} $unit · ${formatEuro(p.cost)} · '
-                'media ${formatDecimal(avg, decimals: 1)}/giorno',
+            title: _monthLabel(p.start, locale),
+            subtitle: '${units(p.count)} · ${formatEuro(p.cost)} · '
+                '${l10n.averagePerDay(formatDecimal(avg, decimals: 1))}',
             trailing: delta == null ? null : _Delta(delta),
             onTap: () => _drillInto(
               p,
               HistoryGrouping.weeks,
-              _monthLabel(p.start),
+              _monthLabel(p.start, locale),
             ),
           ));
         }
       case HistoryGrouping.weeks:
         for (final p in periods) {
           rows.add(_SummaryRow(
-            title: _weekLabel(p, range),
-            subtitle: '${p.count} $unit · ${formatEuro(p.cost)}',
+            title: _weekLabel(p, range, locale),
+            subtitle: '${units(p.count)} · ${formatEuro(p.cost)}',
             trailing: _MiniWeek(perDay: p.perWeekday),
             onTap: () => _drillInto(
               p,
               HistoryGrouping.days,
-              'Settimana ${_weekLabel(p, range)}',
+              l10n.weekOf(_weekLabel(p, range, locale)),
             ),
           ));
         }
@@ -189,8 +170,8 @@ class _HistoryPeriodListState extends State<HistoryPeriodList> {
           final open = _openDays.contains(p.start);
           final minutes = p.minutes > 0 ? ' · ${p.minutes}m' : '';
           rows.add(_SummaryRow(
-            title: _dayLabel(p.start),
-            subtitle: '${p.count} $unit · ${formatEuro(p.cost)}$minutes',
+            title: _dayLabel(p.start, locale),
+            subtitle: '${units(p.count)} · ${formatEuro(p.cost)}$minutes',
             expanded: open,
             onTap: () => setState(
               () => open ? _openDays.remove(p.start) : _openDays.add(p.start),
@@ -216,16 +197,16 @@ class _HistoryPeriodListState extends State<HistoryPeriodList> {
             Padding(
               padding: const EdgeInsets.only(left: 4),
               child: Text(
-                'REGISTRAZIONI',
+                l10n.entriesSection,
                 style: AppTextStyles.sectionLabel(accent),
               ),
             ),
             const Spacer(),
             PillSelector<HistoryGrouping>(
-              options: const {
-                HistoryGrouping.days: 'Giorni',
-                HistoryGrouping.weeks: 'Settimane',
-                HistoryGrouping.months: 'Mesi',
+              options: {
+                HistoryGrouping.days: l10n.days,
+                HistoryGrouping.weeks: l10n.weeks,
+                HistoryGrouping.months: l10n.months,
               },
               value: _grouping,
               onChanged: _setGrouping,
@@ -410,17 +391,18 @@ class _EntryRow extends StatelessWidget {
       direction: DismissDirection.endToStart,
       confirmDismiss: (_) async {
         final messenger = ScaffoldMessenger.of(context);
+        final l10n = context.l10n;
         final deleted = await provider.deleteEntry(entry.id);
         if (deleted == null) return false;
         messenger
           ..hideCurrentSnackBar()
           ..showSnackBar(
             SnackBar(
-              content: const Text('Registrazione rimossa'),
+              content: Text(l10n.entryRemoved),
               duration: const Duration(seconds: 4),
               persist: false,
               action: SnackBarAction(
-                label: 'Annulla',
+                label: l10n.undo,
                 onPressed: () => provider.restoreEntry(deleted),
               ),
             ),

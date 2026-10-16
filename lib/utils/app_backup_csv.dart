@@ -1,3 +1,4 @@
+import '../l10n/l10n.dart';
 import '../models/achievement.dart';
 import '../models/app_reminder_settings.dart';
 import '../models/reduction_plan.dart';
@@ -9,6 +10,7 @@ class AppBackupData {
   final DateTime exportedAt;
   final String activeProductId;
   final String themePreferenceName;
+  final String? languagePreferenceName;
   final bool onboardingDone;
   final bool hasCompletedSetup;
   final AppReminderSettings globalReminderSettings;
@@ -22,6 +24,7 @@ class AppBackupData {
     required this.exportedAt,
     required this.activeProductId,
     required this.themePreferenceName,
+    this.languagePreferenceName,
     required this.onboardingDone,
     required this.hasCompletedSetup,
     required this.globalReminderSettings,
@@ -55,6 +58,8 @@ class AppBackupCsv {
       <String>['exportedAtIso', data.exportedAt.toIso8601String()],
       <String>['activeProductId', data.activeProductId],
       <String>['themePreference', data.themePreferenceName],
+      if (data.languagePreferenceName != null)
+        <String>['languagePreference', data.languagePreferenceName!],
       <String>['onboardingDone', '${data.onboardingDone}'],
       <String>['hasCompletedSetup', '${data.hasCompletedSetup}'],
     ];
@@ -172,17 +177,17 @@ class AppBackupCsv {
     final nonEmptyLines =
         lines.where((line) => line.trim().isNotEmpty).toList(growable: false);
     if (nonEmptyLines.isEmpty) {
-      throw const FormatException('Backup CSV vuoto.');
+      throw FormatException(L10n.current.backupErrorEmpty);
     }
 
     final markerRow = parseRow(nonEmptyLines.first);
     if (markerRow.length < 2 || markerRow.first != backupMarker) {
-      throw const FormatException('Formato backup CSV non riconosciuto.');
+      throw FormatException(L10n.current.backupErrorUnknownFormat);
     }
 
     final version = markerRow[1].trim();
     if (version.isEmpty) {
-      throw const FormatException('Versione backup mancante.');
+      throw FormatException(L10n.current.backupErrorMissingVersion);
     }
 
     final sections = <String, List<List<String>>>{};
@@ -191,13 +196,15 @@ class AppBackupCsv {
       final sectionRow = parseRow(nonEmptyLines[index]);
       if (sectionRow.length < 2 || sectionRow.first != sectionMarker) {
         throw FormatException(
-          'Sezione backup non valida alla riga ${index + 1}.',
+          L10n.current.backupErrorInvalidSection(index + 1),
         );
       }
       final sectionName = sectionRow[1].trim();
       index++;
       if (index >= nonEmptyLines.length) {
-        throw FormatException('Header mancante per la sezione "$sectionName".');
+        throw FormatException(
+          L10n.current.backupErrorMissingHeader(sectionName),
+        );
       }
 
       final rows = <List<String>>[parseRow(nonEmptyLines[index])];
@@ -228,7 +235,7 @@ class AppBackupCsv {
     for (final entry in entries) {
       if (!productIds.contains(entry.productId)) {
         throw FormatException(
-          'La cronologia fa riferimento a un prodotto mancante: ${entry.productId}.',
+          L10n.current.backupErrorMissingProduct(entry.productId),
         );
       }
     }
@@ -248,6 +255,7 @@ class AppBackupCsv {
           DateTime.now().toUtc(),
       activeProductId: meta['activeProductId'] ?? '',
       themePreferenceName: meta['themePreference'] ?? 'dark',
+      languagePreferenceName: meta['languagePreference'],
       onboardingDone: _parseBool(meta['onboardingDone']),
       hasCompletedSetup: _parseBool(meta['hasCompletedSetup']),
       globalReminderSettings: globalReminderSettings,
@@ -322,11 +330,11 @@ class AppBackupCsv {
   static Map<String, String> _decodeMeta(List<List<String>>? rows) {
     final sectionRows = rows ?? <List<String>>[];
     if (sectionRows.isEmpty) {
-      throw const FormatException('Sezione meta mancante nel backup.');
+      throw FormatException(L10n.current.backupErrorMissingMeta);
     }
     final header = sectionRows.first;
     if (header.length < 2 || header[0] != 'key' || header[1] != 'value') {
-      throw const FormatException('Header meta non valido.');
+      throw FormatException(L10n.current.backupErrorInvalidMetaHeader);
     }
 
     final meta = <String, String>{};
@@ -342,7 +350,7 @@ class AppBackupCsv {
   static List<TrackedProduct> _decodeProducts(List<List<String>>? rows) {
     final sectionRows = rows ?? <List<String>>[];
     if (sectionRows.isEmpty) {
-      throw const FormatException('Sezione prodotti mancante nel backup.');
+      throw FormatException(L10n.current.backupErrorMissingProducts);
     }
     final header = sectionRows.first;
     _expectHeader(
@@ -356,7 +364,7 @@ class AppBackupCsv {
         'dailyLimit',
         'packRemaining',
       ],
-      'prodotti',
+      L10n.current.backupSectionProducts,
     );
 
     final headerIndex = <String, int>{
@@ -371,7 +379,7 @@ class AppBackupCsv {
 
     return sectionRows.skip(1).where((row) => row.isNotEmpty).map((row) {
       if (row.length < 7) {
-        throw const FormatException('Riga prodotti incompleta.');
+        throw FormatException(L10n.current.backupErrorIncompleteProduct);
       }
 
       return TrackedProduct(
@@ -398,7 +406,7 @@ class AppBackupCsv {
   static List<SmokeEntry> _decodeEntries(List<List<String>>? rows) {
     final sectionRows = rows ?? <List<String>>[];
     if (sectionRows.isEmpty) {
-      throw const FormatException('Sezione cronologia mancante nel backup.');
+      throw FormatException(L10n.current.backupErrorMissingHistory);
     }
     _expectHeader(
         sectionRows.first,
@@ -409,11 +417,11 @@ class AppBackupCsv {
           'minutesLost',
           'productId',
         ],
-        'cronologia');
+        L10n.current.backupSectionHistory);
 
     return sectionRows.skip(1).where((row) => row.isNotEmpty).map((row) {
       if (row.length < 5) {
-        throw const FormatException('Riga cronologia incompleta.');
+        throw FormatException(L10n.current.backupErrorIncompleteEntry);
       }
       return SmokeEntry(
         id: row[0],
@@ -441,13 +449,13 @@ class AppBackupCsv {
           'isUnlocked',
           'unlockedAt',
         ],
-        'achievement');
+        L10n.current.backupSectionAchievements);
 
     final imported = <AchievementId, Achievement>{};
     for (final row in sectionRows.skip(1)) {
       if (row.isEmpty || row.first.trim().isEmpty) continue;
       if (row.length < 3) {
-        throw const FormatException('Riga achievement incompleta.');
+        throw FormatException(L10n.current.backupErrorIncompleteAchievement);
       }
       final id = AchievementId.values.asNameMap()[row[0].trim()];
       if (id == null) continue;
@@ -481,14 +489,14 @@ class AppBackupCsv {
               'startDate',
             ]
           : <String>['startAverage', 'targetPerDay', 'totalWeeks', 'startDate'],
-      'piano di riduzione',
+      L10n.current.backupSectionPlan,
     );
 
     final plans = <ReductionPlan>[];
     for (final row in sectionRows.skip(1)) {
       if (row.isEmpty || row.every((cell) => cell.trim().isEmpty)) continue;
       if (row.length < (hasProductId ? 5 : 4)) {
-        throw const FormatException('Riga piano di riduzione incompleta.');
+        throw FormatException(L10n.current.backupErrorIncompletePlan);
       }
       final totalWeeks = _parseInt(row[hasProductId ? 3 : 2]);
       if (totalWeeks < 2 || totalWeeks > 26) continue;
@@ -515,7 +523,7 @@ class AppBackupCsv {
       DateTime.tryParse(value.trim()) ?? (throw _invalidValue(value));
 
   static FormatException _invalidValue(String value) =>
-      FormatException('Valore non valido nel backup: "$value".');
+      FormatException(L10n.current.backupErrorInvalidValue(value));
 
   static void _expectHeader(
     List<String> actual,
@@ -523,11 +531,11 @@ class AppBackupCsv {
     String sectionName,
   ) {
     if (actual.length < expected.length) {
-      throw FormatException('Header $sectionName non valido.');
+      throw FormatException(L10n.current.backupErrorInvalidHeader(sectionName));
     }
     for (var i = 0; i < expected.length; i++) {
       if (actual[i] != expected[i]) {
-        throw FormatException('Header $sectionName non valido.');
+        throw FormatException(L10n.current.backupErrorInvalidHeader(sectionName));
       }
     }
   }
@@ -546,7 +554,7 @@ class AppBackupCsv {
       _expectHeader(
         sectionRows.first,
         <String>['enabled', 'intervalMinutes'],
-        'promemoria globale',
+        L10n.current.backupSectionReminder,
       );
       if (sectionRows.length >= 2 && sectionRows[1].isNotEmpty) {
         final row = sectionRows[1];
@@ -603,12 +611,6 @@ class AppBackupCsv {
 
 extension on Achievement {
   Achievement copyWithUnlockedAt(DateTime? unlockedAt) {
-    return Achievement(
-      id: id,
-      title: title,
-      description: description,
-      emoji: emoji,
-      unlockedAt: unlockedAt,
-    );
+    return Achievement(id: id, emoji: emoji, unlockedAt: unlockedAt);
   }
 }

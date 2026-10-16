@@ -6,6 +6,7 @@ import '../theme/theme_context.dart';
 import '../widgets/product_configuration_form.dart';
 import '../widgets/product_form_state.dart';
 import '../widgets/save_bar.dart';
+import '../l10n/l10n.dart';
 
 class AddProductScreen extends StatefulWidget {
   const AddProductScreen({super.key});
@@ -48,9 +49,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
     final isDark = context.isDark;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Nuovo prodotto')),
+      appBar: AppBar(title: Text(context.l10n.newProduct)),
       bottomNavigationBar: SaveBar(
-        saveLabel: 'Aggiungi prodotto',
+        saveLabel: context.l10n.addProduct,
         onSave: _isSaving ? null : _save,
       ),
       body: Form(

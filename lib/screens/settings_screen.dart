@@ -17,6 +17,7 @@ import 'add_product_screen.dart';
 import 'archived_products_screen.dart';
 import 'product_settings_screen.dart';
 import '../theme/app_icons.dart';
+import '../l10n/l10n.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -51,7 +52,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
     if (added != true || !mounted) return;
     final name = context.read<MyTrackingProvider>().activeProduct.name;
-    _showFeedback('$name aggiunto e in uso');
+    _showFeedback(context.l10n.productAddedInUse(name));
   }
 
   // --- Backup ---
@@ -70,7 +71,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _exportBackupCsvFile() async {
     if (!BackupFileService.isSupported) {
       _showFeedback(
-        'Import/export file disponibile solo su Android e Windows.',
+        context.l10n.backupFilesUnsupported,
         backgroundColor: context.stats.danger,
       );
       return;
@@ -86,15 +87,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
       if (!mounted || result.status == BackupFileSaveStatus.cancelled) return;
       if (result.status == BackupFileSaveStatus.unsupported) {
         _showFeedback(
-          'Salvataggio file non supportato su questa piattaforma.',
+          context.l10n.fileSaveUnsupported,
           backgroundColor: context.stats.danger,
         );
         return;
       }
-      _showFeedback('Backup CSV salvato');
+      _showFeedback(context.l10n.backupSaved);
     } catch (_) {
       _showFeedback(
-        'Esportazione CSV non riuscita.',
+        context.l10n.backupExportFailed,
         backgroundColor: context.stats.danger,
       );
     }
@@ -112,7 +113,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     } catch (_) {}
     if (!opened && mounted) {
       _showFeedback(
-        'Non riesco ad aprire il browser.',
+        context.l10n.browserOpenFailed,
         backgroundColor: context.stats.danger,
       );
     }
@@ -122,14 +123,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Cancella tutto?'),
-        content: const Text(
-          'Questa azione elimina permanentemente tutta la cronologia registrata finora.',
-        ),
+        title: Text(context.l10n.clearHistoryTitle),
+        content: Text(context.l10n.clearHistoryBody),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Annulla'),
+            child: Text(context.l10n.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
@@ -137,7 +136,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               backgroundColor: context.stats.danger,
               foregroundColor: Colors.white,
             ),
-            child: const Text('Elimina'),
+            child: Text(context.l10n.delete),
           ),
         ],
       ),
@@ -148,8 +147,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   String _productSubtitle(TrackedProduct product) => product.tracksInventory
-      ? '${product.packRemaining}/${product.pieces} in scorta'
-      : 'Senza scorta';
+      ? context.l10n.stockCount(product.packRemaining, product.pieces)
+      : context.l10n.noStock;
 
   @override
   Widget build(BuildContext context) {
@@ -160,11 +159,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final archivedCount = provider.archivedProducts.length;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Impostazioni')),
+      appBar: AppBar(title: Text(context.l10n.settingsTitle)),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
         children: [
-          const SettingsSectionLabel('PRODOTTI'),
+          SettingsSectionLabel(context.l10n.settingsSectionProducts),
           SettingsGroup(
             children: [
               for (final product in provider.activeProducts)
@@ -192,7 +191,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               SettingsRow(
                 icon: Icons.add_rounded,
-                title: 'Aggiungi prodotto',
+                title: context.l10n.addProduct,
                 trailing: const SizedBox.shrink(),
                 onTap: _addProduct,
               ),
@@ -204,30 +203,46 @@ class _SettingsScreenState extends State<SettingsScreen> {
               child: TextButton(
                 onPressed: () => _open(const ArchivedProductsScreen()),
                 style: TextButton.styleFrom(foregroundColor: colors.textMuted),
-                child: Text('Archiviati ($archivedCount)  ›'),
+                child: Text(context.l10n.archivedCount(archivedCount)),
               ),
             ),
-          const SettingsSectionLabel('APP'),
+          SettingsSectionLabel(context.l10n.settingsSectionApp),
           SettingsGroup(
             children: [
               SettingsRow(
                 icon: Icons.contrast_rounded,
-                title: 'Tema',
+                title: context.l10n.theme,
                 trailing: PillSelector<AppThemePreference>(
-                  options: const {
-                    AppThemePreference.dark: 'Scuro',
-                    AppThemePreference.light: 'Chiaro',
-                    AppThemePreference.system: 'Sistema',
+                  options: {
+                    AppThemePreference.dark: context.l10n.themeDark,
+                    AppThemePreference.light: context.l10n.themeLight,
+                    AppThemePreference.system: context.l10n.system,
                   },
                   value: provider.themePreference,
                   onChanged: provider.setThemePreference,
                 ),
               ),
               SettingsRow(
+                icon: Icons.translate_rounded,
+                title: context.l10n.language,
+                trailing: PillSelector<AppLanguagePreference>(
+                  options: {
+                    AppLanguagePreference.italian: context.l10n.languageItalian,
+                    AppLanguagePreference.english: context.l10n.languageEnglish,
+                    AppLanguagePreference.system: context.l10n.system,
+                  },
+                  value: provider.languagePreference,
+                  onChanged: provider.setLanguagePreference,
+                ),
+              ),
+              SettingsRow(
                 icon: Icons.widgets_outlined,
-                title: 'Tema del widget',
+                title: context.l10n.widgetTheme,
                 trailing: PillSelector<bool>(
-                  options: const {true: 'Scuro', false: 'Chiaro'},
+                  options: {
+                    true: context.l10n.themeDark,
+                    false: context.l10n.themeLight,
+                  },
                   value: provider.widgetDark,
                   onChanged: provider.setWidgetDark,
                 ),
@@ -235,34 +250,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ...reminderRows(context),
             ],
           ),
-          const SettingsSectionLabel('DATI'),
+          SettingsSectionLabel(context.l10n.settingsSectionData),
           SettingsGroup(
             children: [
               SettingsRow(
                 icon: Icons.upload_rounded,
-                title: 'Esporta backup',
-                subtitle: 'Salva un file CSV con tutti i dati',
+                title: context.l10n.exportBackup,
+                subtitle: context.l10n.exportBackupSubtitle,
                 onTap: _exportBackupCsvFile,
               ),
               SettingsRow(
                 icon: Icons.download_rounded,
-                title: 'Importa backup',
-                subtitle: 'Sostituisce i dati attuali',
+                title: context.l10n.importBackup,
+                subtitle: context.l10n.importBackupSubtitle,
                 onTap: () => importBackupFromFile(context),
               ),
             ],
           ),
-          const SettingsSectionLabel('INFORMAZIONI'),
+          SettingsSectionLabel(context.l10n.settingsSectionAbout),
           SettingsGroup(
             children: [
               FutureBuilder<String>(
                 future: _version,
                 builder: (context, snapshot) => SettingsRow(
                   icon: Icons.system_update_alt_rounded,
-                  title: 'Controlla aggiornamenti',
+                  title: context.l10n.checkForUpdates,
                   subtitle: snapshot.hasData
-                      ? 'Versione installata ${snapshot.data} · apre GitHub'
-                      : 'Apre la pagina delle versioni su GitHub',
+                      ? context.l10n.installedVersion(snapshot.data!)
+                      : context.l10n.opensReleasesPage,
                   onTap: _openReleasesPage,
                 ),
               ),
@@ -273,7 +288,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             children: [
               SettingsRow(
                 icon: Icons.delete_sweep_rounded,
-                title: 'Cancella cronologia',
+                title: context.l10n.clearHistory,
                 color: danger,
                 trailing: const SizedBox.shrink(),
                 onTap: _confirmReset,
@@ -287,8 +302,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'Tieni premuto sulla schermata Home del telefono per '
-                  'aggiungere il widget.',
+                  context.l10n.widgetHint,
                   style: TextStyle(
                     fontFamily: AppFonts.sans,
                     fontSize: 12,
@@ -317,7 +331,7 @@ class _InUseBadge extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppRadii.pill),
       ),
       child: Text(
-        'IN USO',
+        context.l10n.inUseBadge,
         style: TextStyle(
           fontFamily: AppFonts.sans,
           fontSize: 10,
