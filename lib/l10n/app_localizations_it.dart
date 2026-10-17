@@ -56,6 +56,10 @@ class AppLocalizationsIt extends AppLocalizations {
       'Sezione prodotti mancante nel backup.';
 
   @override
+  String get backupErrorNoActiveProduct =>
+      'Il backup non contiene prodotti attivi.';
+
+  @override
   String get backupErrorIncompleteProduct => 'Riga prodotti incompleta.';
 
   @override
@@ -271,7 +275,13 @@ class AppLocalizationsIt extends AppLocalizations {
   }
 
   @override
-  String get settingsSectionApp => 'APP';
+  String get settingsSectionAppearance => 'ASPETTO';
+
+  @override
+  String get settingsSectionLanguageCurrency => 'LINGUA E VALUTA';
+
+  @override
+  String get settingsSectionReminders => 'PROMEMORIA';
 
   @override
   String get theme => 'Tema';
@@ -292,13 +302,22 @@ class AppLocalizationsIt extends AppLocalizations {
   String get widgetTheme => 'Tema del widget';
 
   @override
+  String get currency => 'Valuta';
+
+  @override
   String get settingsSectionData => 'DATI';
 
   @override
   String get exportBackup => 'Esporta backup';
 
   @override
-  String get exportBackupSubtitle => 'Salva un file CSV con tutti i dati';
+  String lastBackupOn(String date) {
+    return 'Ultimo backup: $date';
+  }
+
+  @override
+  String get noBackupYet =>
+      'Nessun backup ancora: salva un file CSV con tutti i dati';
 
   @override
   String get importBackup => 'Importa backup';

@@ -40,43 +40,28 @@ class AppReminderSettings {
   static AppReminderSettings migrateFromLegacyProductMaps(
     List<dynamic> rawProducts,
   ) {
-    final enabledIntervals = <int>[];
-    var sawLegacyReminder = false;
-
+    final enabledMinutes = <num?>[];
     for (final item in rawProducts) {
       if (item is! Map) continue;
-      final product = item.cast<String, dynamic>();
-      final rawSettings = product['notificationSettings'];
+      final rawSettings = item['notificationSettings'];
       if (rawSettings is! Map) continue;
-      final settings = rawSettings.cast<String, dynamic>();
-      if (!settings.containsKey('periodicReminderEnabled') &&
-          !settings.containsKey('periodicReminderMinutes')) {
-        continue;
+      if (rawSettings['periodicReminderEnabled'] as bool? ?? false) {
+        enabledMinutes.add(rawSettings['periodicReminderMinutes'] as num?);
       }
-
-      sawLegacyReminder = true;
-      final enabled = settings['periodicReminderEnabled'] as bool? ?? false;
-      if (!enabled) continue;
-
-      enabledIntervals.add(
-        AppReminderSettings.fromJson(
-          <String, dynamic>{
-            'enabled': true,
-            'intervalMinutes': settings['periodicReminderMinutes'],
-          },
-        ).intervalMinutes,
-      );
     }
+    return fromLegacyIntervals(enabledMinutes);
+  }
 
-    if (!sawLegacyReminder || enabledIntervals.isEmpty) {
-      return defaults;
-    }
-
-    final distinctIntervals = enabledIntervals.toSet();
-    if (distinctIntervals.length != 1) {
-      return defaults;
-    }
-
+  static AppReminderSettings fromLegacyIntervals(
+      Iterable<num?> enabledMinutes) {
+    final distinctIntervals = enabledMinutes
+        .map(
+          (minutes) => AppReminderSettings.fromJson(
+            <String, dynamic>{'enabled': true, 'intervalMinutes': minutes},
+          ).intervalMinutes,
+        )
+        .toSet();
+    if (distinctIntervals.length != 1) return defaults;
     return AppReminderSettings(
       enabled: true,
       intervalMinutes: distinctIntervals.first,

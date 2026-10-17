@@ -193,7 +193,7 @@ void main() {
                 children: [
                   Expanded(
                     child: StatsCard(
-                      icon: Icons.euro_rounded,
+                      icon: Icons.payments_rounded,
                       label: 'Oggi',
                       value: '0,90 €',
                       accent: Color(0xFF00CED1),

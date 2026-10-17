@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -8,6 +9,7 @@ import '../providers/my_tracking_provider.dart';
 import '../theme/app_dimens.dart';
 import '../theme/app_fonts.dart';
 import '../theme/theme_context.dart';
+import '../utils/app_clock.dart';
 import '../utils/backup_file_service.dart';
 import '../widgets/backup_import.dart';
 import '../widgets/pill_selector.dart';
@@ -92,6 +94,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         );
         return;
       }
+      await context.read<MyTrackingProvider>().markBackupExported();
+      if (!mounted) return;
       _showFeedback(context.l10n.backupSaved);
     } catch (_) {
       _showFeedback(
@@ -134,7 +138,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             onPressed: () => Navigator.pop(ctx, true),
             style: FilledButton.styleFrom(
               backgroundColor: context.stats.danger,
-              foregroundColor: Colors.white,
+              foregroundColor: context.stats.onDanger,
             ),
             child: Text(context.l10n.delete),
           ),
@@ -144,6 +148,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (ok != true || !mounted) return;
     await context.read<MyTrackingProvider>().clearHistory();
     if (mounted) Navigator.pop(context);
+  }
+
+  String _backupDate(DateTime date) {
+    final format = date.year == appNow().year
+        ? DateFormat.MMMd(context.localeName)
+        : DateFormat.yMMMd(context.localeName);
+    return format.format(date);
   }
 
   String _productSubtitle(TrackedProduct product) => product.tracksInventory
@@ -157,6 +168,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final accent = context.accent;
     final danger = context.stats.danger;
     final archivedCount = provider.archivedProducts.length;
+    final lastBackupAt = provider.lastBackupAt;
 
     return Scaffold(
       appBar: AppBar(title: Text(context.l10n.settingsTitle)),
@@ -206,7 +218,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 child: Text(context.l10n.archivedCount(archivedCount)),
               ),
             ),
-          SettingsSectionLabel(context.l10n.settingsSectionApp),
+          SettingsSectionLabel(context.l10n.settingsSectionAppearance),
           SettingsGroup(
             children: [
               SettingsRow(
@@ -223,6 +235,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
               SettingsRow(
+                icon: Icons.widgets_outlined,
+                title: context.l10n.widgetTheme,
+                trailing: PillSelector<bool>(
+                  options: {
+                    true: context.l10n.themeDark,
+                    false: context.l10n.themeLight,
+                  },
+                  value: provider.widgetDark,
+                  onChanged: provider.setWidgetDark,
+                ),
+              ),
+            ],
+          ),
+          SettingsSectionLabel(context.l10n.settingsSectionLanguageCurrency),
+          SettingsGroup(
+            children: [
+              SettingsRow(
                 icon: Icons.translate_rounded,
                 title: context.l10n.language,
                 trailing: PillSelector<AppLanguagePreference>(
@@ -236,27 +265,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
               SettingsRow(
-                icon: Icons.widgets_outlined,
-                title: context.l10n.widgetTheme,
-                trailing: PillSelector<bool>(
+                icon: Icons.payments_outlined,
+                title: context.l10n.currency,
+                trailing: PillSelector<AppCurrency>(
                   options: {
-                    true: context.l10n.themeDark,
-                    false: context.l10n.themeLight,
+                    for (final currency in AppCurrency.values)
+                      currency: currency.symbol,
                   },
-                  value: provider.widgetDark,
-                  onChanged: provider.setWidgetDark,
+                  value: provider.currency,
+                  onChanged: provider.setCurrency,
                 ),
               ),
-              ...reminderRows(context),
             ],
           ),
+          SettingsSectionLabel(context.l10n.settingsSectionReminders),
+          SettingsGroup(children: reminderRows(context)),
           SettingsSectionLabel(context.l10n.settingsSectionData),
           SettingsGroup(
             children: [
               SettingsRow(
                 icon: Icons.upload_rounded,
                 title: context.l10n.exportBackup,
-                subtitle: context.l10n.exportBackupSubtitle,
+                subtitle: lastBackupAt == null
+                    ? context.l10n.noBackupYet
+                    : context.l10n.lastBackupOn(_backupDate(lastBackupAt)),
                 onTap: _exportBackupCsvFile,
               ),
               SettingsRow(

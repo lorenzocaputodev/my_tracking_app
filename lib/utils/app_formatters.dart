@@ -5,12 +5,13 @@ String formatDecimal(num value, {int decimals = 2}) {
   return L10n.isItalian ? text.replaceAll('.', ',') : text;
 }
 
-String formatEuro(
+String formatMoney(
   num amount, {
   int decimals = 2,
 }) {
   final number = formatDecimal(amount, decimals: decimals);
-  return L10n.isItalian ? '$number \u20AC' : '\u20AC$number';
+  final symbol = L10n.currency.symbol;
+  return L10n.isItalian ? '$number $symbol' : '$symbol$number';
 }
 
 String formatSignedPercent(double value) {

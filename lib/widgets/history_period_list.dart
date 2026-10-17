@@ -142,7 +142,7 @@ class _HistoryPeriodListState extends State<HistoryPeriodList> {
           }
           rows.add(_SummaryRow(
             title: _monthLabel(p.start, locale),
-            subtitle: '${units(p.count)} · ${formatEuro(p.cost)} · '
+            subtitle: '${units(p.count)} · ${formatMoney(p.cost)} · '
                 '${l10n.averagePerDay(formatDecimal(avg, decimals: 1))}',
             trailing: delta == null ? null : _Delta(delta),
             onTap: () => _drillInto(
@@ -156,7 +156,7 @@ class _HistoryPeriodListState extends State<HistoryPeriodList> {
         for (final p in periods) {
           rows.add(_SummaryRow(
             title: _weekLabel(p, range, locale),
-            subtitle: '${units(p.count)} · ${formatEuro(p.cost)}',
+            subtitle: '${units(p.count)} · ${formatMoney(p.cost)}',
             trailing: _MiniWeek(perDay: p.perWeekday),
             onTap: () => _drillInto(
               p,
@@ -171,7 +171,7 @@ class _HistoryPeriodListState extends State<HistoryPeriodList> {
           final minutes = p.minutes > 0 ? ' · ${p.minutes}m' : '';
           rows.add(_SummaryRow(
             title: _dayLabel(p.start, locale),
-            subtitle: '${units(p.count)} · ${formatEuro(p.cost)}$minutes',
+            subtitle: '${units(p.count)} · ${formatMoney(p.cost)}$minutes',
             expanded: open,
             onTap: () => setState(
               () => open ? _openDays.remove(p.start) : _openDays.add(p.start),
@@ -413,7 +413,10 @@ class _EntryRow extends StatelessWidget {
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 20),
         color: context.stats.danger.withValues(alpha: 0.8),
-        child: const Icon(Icons.delete_outline_rounded, color: Colors.white),
+        child: Icon(
+          Icons.delete_outline_rounded,
+          color: context.stats.onDanger,
+        ),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -444,7 +447,7 @@ class _EntryRow extends StatelessWidget {
               ),
             ),
             Text(
-              '${formatEuro(entry.costDeducted)}$minutes',
+              '${formatMoney(entry.costDeducted)}$minutes',
               style: TextStyle(
                 fontFamily: AppFonts.sans,
                 fontSize: 12,

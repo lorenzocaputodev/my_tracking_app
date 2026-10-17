@@ -104,6 +104,8 @@ class MyTrackingProvider extends ChangeNotifier {
   static const _keyTheme = 'app_theme_preference';
   static const _keyWidgetTheme = 'widget_theme';
   static const _keyLanguage = appLanguagePreferenceKey;
+  static const _keyCurrency = appCurrencyKey;
+  static const _keyLastBackup = 'last_backup_export';
   static const _keyOnboardingDone = 'onboarding_done';
   static const _keyHasCompletedSetup = 'hasCompletedSetup';
   static const _keyConfigLegacy = 'pack_config';
@@ -127,6 +129,8 @@ class MyTrackingProvider extends ChangeNotifier {
   AppThemePreference _themePreference = AppThemePreference.dark;
   bool _widgetDark = true;
   AppLanguagePreference _languagePreference;
+  AppCurrency _currency = AppCurrency.eur;
+  DateTime? _lastBackupAt;
   AppReminderSettings _globalReminderSettings = AppReminderSettings.defaults;
 
   Timer? _ticker;
@@ -219,6 +223,8 @@ class MyTrackingProvider extends ChangeNotifier {
   AppThemePreference get themePreference => _themePreference;
   bool get widgetDark => _widgetDark;
   AppLanguagePreference get languagePreference => _languagePreference;
+  AppCurrency get currency => _currency;
+  DateTime? get lastBackupAt => _lastBackupAt;
   AppReminderSettings get globalReminderSettings => _globalReminderSettings;
 
   double get dailyCost =>
@@ -406,7 +412,7 @@ class MyTrackingProvider extends ChangeNotifier {
 
     var achievementsChanged = false;
     try {
-      achievementsChanged = _evaluateAchievements(persist: false);
+      achievementsChanged = _evaluateAchievements();
     } catch (_) {}
 
     if (achievementsChanged) {
@@ -479,6 +485,31 @@ class MyTrackingProvider extends ChangeNotifier {
         await WidgetBridge.updateWidgets();
       });
 
+  // --- Valuta ---
+
+  void _applyCurrency(AppCurrency value) {
+    _currency = value;
+    L10n.currency = value;
+  }
+
+  Future<void> setCurrency(AppCurrency value) => _serialized(() async {
+        _applyCurrency(value);
+        notifyListeners();
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString(_keyCurrency, value.name);
+        await WidgetBridge.updateWidgets();
+      });
+
+  // --- Ultimo backup ---
+
+  Future<void> markBackupExported() => _serialized(() async {
+        final now = appNow();
+        _lastBackupAt = now;
+        notifyListeners();
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString(_keyLastBackup, now.toIso8601String());
+      });
+
   // --- Prodotti ---
 
   Future<void> setActiveProduct(String id) => _serialized(() async {
@@ -496,8 +527,8 @@ class MyTrackingProvider extends ChangeNotifier {
         await _persistProducts();
       });
 
-  Future<void> updateGlobalReminderSettings(
-      AppReminderSettings settings) => _serialized(() async {
+  Future<void> updateGlobalReminderSettings(AppReminderSettings settings) =>
+      _serialized(() async {
         _globalReminderSettings = settings;
         notifyListeners();
         final prefs = await SharedPreferences.getInstance();
@@ -538,7 +569,8 @@ class MyTrackingProvider extends ChangeNotifier {
   Future<void> correctPackRemaining(
     int packRemaining, {
     String? productId,
-  }) => _serialized(() async {
+  }) =>
+      _serialized(() async {
         final pid = productId ?? _activeProductId;
         final idx = _products.indexWhere((p) => p.id == pid);
         if (idx == -1) {
@@ -650,9 +682,10 @@ class MyTrackingProvider extends ChangeNotifier {
         if (p.tracksInventory) {
           _products[pIdx] = p.copyWith(packRemaining: p.packRemaining - 1);
         }
-        _evaluateAchievements();
+        final badgesChanged = _evaluateAchievements();
         notifyListeners();
         await _persist();
+        if (badgesChanged) await _persistAchievements();
         return entry;
       });
 
@@ -670,7 +703,8 @@ class MyTrackingProvider extends ChangeNotifier {
 
   Future<({SmokeEntry entry, bool stockReturned})?> deleteEntry(
     String id,
-  ) => _serialized(() async {
+  ) =>
+      _serialized(() async {
         final idx = _entries.indexWhere((e) => e.id == id);
         if (idx == -1) return null;
         final entry = _entries[idx];
@@ -687,9 +721,10 @@ class MyTrackingProvider extends ChangeNotifier {
           }
         }
         _entries.removeAt(idx);
-        _evaluateAchievements();
+        final badgesChanged = _evaluateAchievements();
         notifyListeners();
         await _persist();
+        if (badgesChanged) await _persistAchievements();
         return (entry: entry, stockReturned: stockReturned);
       });
 
@@ -709,7 +744,8 @@ class MyTrackingProvider extends ChangeNotifier {
 
   Future<void> restoreEntry(
     ({SmokeEntry entry, bool stockReturned}) deleted,
-  ) => _serialized(() async {
+  ) =>
+      _serialized(() async {
         final entry = deleted.entry;
         if (_entries.any((e) => e.id == entry.id)) return;
         final at =
@@ -723,9 +759,10 @@ class MyTrackingProvider extends ChangeNotifier {
               ..[pIdx] = pr.copyWith(packRemaining: pr.packRemaining - 1);
           }
         }
-        _evaluateAchievements();
+        final badgesChanged = _evaluateAchievements();
         notifyListeners();
         await _persist();
+        if (badgesChanged) await _persistAchievements();
       });
 
   Future<void> clearHistory() => _serialized(() async {
@@ -740,7 +777,8 @@ class MyTrackingProvider extends ChangeNotifier {
     String? productId,
     required double targetPerDay,
     required int totalWeeks,
-  }) => _serialized(() async {
+  }) =>
+      _serialized(() async {
         final boundProductId = productId ?? _activeProductId;
         if (boundProductId.isEmpty ||
             !_products.any((p) => p.id == boundProductId)) {
@@ -772,7 +810,7 @@ class MyTrackingProvider extends ChangeNotifier {
 
   // --- Achievement ---
 
-  bool _evaluateAchievements({bool persist = true}) {
+  bool _evaluateAchievements() {
     bool changed = false;
 
     Map<AchievementId, DateTime>? reached;
@@ -831,8 +869,7 @@ class MyTrackingProvider extends ChangeNotifier {
       )) {
         continue;
       }
-      final currentAverage =
-          recentDailyAverage(plan.productId, days: 7);
+      final currentAverage = recentDailyAverage(plan.productId, days: 7);
       final planReduction =
           (plan.startAverage - currentAverage) / plan.startAverage;
       if (planReduction > reduction) reduction = planReduction;
@@ -842,7 +879,6 @@ class MyTrackingProvider extends ChangeNotifier {
     if (reduction >= 0.25) tryUnlock(AchievementId.reduction25pct);
     if (reduction >= 0.50) tryUnlock(AchievementId.reduction50pct);
 
-    if (changed && persist) _persistAchievements();
     return changed;
   }
 
@@ -1086,17 +1122,15 @@ class MyTrackingProvider extends ChangeNotifier {
   }
 
   MapEntry<DateTime, int>? worstDayForEntries(List<SmokeEntry> entries) {
-    if (entries.isEmpty) return null;
-    return _countsPerDay(entries)
-        .entries
-        .reduce((a, b) => a.value >= b.value ? a : b);
+    final counts = _countsPerDay(entries);
+    if (counts.length < 2) return null;
+    return counts.entries.reduce((a, b) => a.value >= b.value ? a : b);
   }
 
   MapEntry<DateTime, int>? bestDayForEntries(List<SmokeEntry> entries) {
-    if (entries.isEmpty) return null;
-    return _countsPerDay(entries)
-        .entries
-        .reduce((a, b) => a.value <= b.value ? a : b);
+    final counts = _countsPerDay(entries);
+    if (counts.length < 2) return null;
+    return counts.entries.reduce((a, b) => a.value <= b.value ? a : b);
   }
 
   Map<DateTime, int> _countsPerDay(List<SmokeEntry> entries) {
@@ -1129,9 +1163,8 @@ class MyTrackingProvider extends ChangeNotifier {
           : plan.productId;
       if (boundId.isEmpty || !knownIds.contains(boundId)) continue;
       if (normalized.containsKey(boundId)) continue;
-      normalized[boundId] = plan.productId == boundId
-          ? plan
-          : plan.copyWith(productId: boundId);
+      normalized[boundId] =
+          plan.productId == boundId ? plan : plan.copyWith(productId: boundId);
     }
     return normalized;
   }
@@ -1172,6 +1205,7 @@ class MyTrackingProvider extends ChangeNotifier {
       activeProductId: _normalizeActiveProductId(_activeProductId),
       themePreferenceName: _themePreference.name,
       languagePreferenceName: _languagePreference.name,
+      currencyName: _currency.name,
       onboardingDone: prefs.getBool(_keyOnboardingDone) ?? false,
       hasCompletedSetup: prefs.getBool(_keyHasCompletedSetup) ?? false,
       globalReminderSettings: _globalReminderSettings,
@@ -1211,6 +1245,7 @@ class MyTrackingProvider extends ChangeNotifier {
     final previousPlans = Map.of(_reductionPlans);
     final previousTheme = _themePreference;
     final previousLanguage = _languagePreference;
+    final previousCurrency = _currency;
     final previousOnboardingDone = prefs.getBool(_keyOnboardingDone) ?? false;
     final previousSetupDone = prefs.getBool(_keyHasCompletedSetup) ?? false;
 
@@ -1227,10 +1262,14 @@ class MyTrackingProvider extends ChangeNotifier {
       ..addAll(_normalizeReductionPlans(data.reductionPlans));
     _themePreference = _parseTheme(data.themePreferenceName);
     if (data.languagePreferenceName != null) {
-      _languagePreference = parseLanguagePreference(data.languagePreferenceName);
+      _languagePreference =
+          parseLanguagePreference(data.languagePreferenceName);
+    }
+    if (data.currencyName != null) {
+      _applyCurrency(parseCurrency(data.currencyName));
     }
     _dateUndatedAchievements();
-    _evaluateAchievements(persist: false);
+    _evaluateAchievements();
 
     final onboardingDone =
         data.onboardingDone || _products.isNotEmpty || _entries.isNotEmpty;
@@ -1258,6 +1297,7 @@ class MyTrackingProvider extends ChangeNotifier {
         ..addAll(previousPlans);
       _themePreference = previousTheme;
       _languagePreference = previousLanguage;
+      _applyCurrency(previousCurrency);
       try {
         await _persistCompleteState(
           prefs,
@@ -1469,6 +1509,7 @@ class MyTrackingProvider extends ChangeNotifier {
     await _persistReductionPlansOnly(prefs);
     await prefs.setString(_keyTheme, _themePreference.name);
     await prefs.setString(_keyLanguage, _languagePreference.name);
+    await prefs.setString(_keyCurrency, _currency.name);
     await prefs.setBool(_keyOnboardingDone, onboardingDone);
     await prefs.setBool(_keyHasCompletedSetup, hasCompletedSetup);
 
@@ -1555,7 +1596,10 @@ class MyTrackingProvider extends ChangeNotifier {
     final themeStr = prefs.getString(_keyTheme);
     if (themeStr != null) _themePreference = _parseTheme(themeStr);
     _widgetDark = prefs.getString(_keyWidgetTheme) != 'light';
-    _languagePreference = parseLanguagePreference(prefs.getString(_keyLanguage));
+    _languagePreference =
+        parseLanguagePreference(prefs.getString(_keyLanguage));
+    _applyCurrency(parseCurrency(prefs.getString(_keyCurrency)));
+    _lastBackupAt = DateTime.tryParse(prefs.getString(_keyLastBackup) ?? '');
 
     _achievements.clear();
     final achJson = prefs.getString(_keyAchievements);

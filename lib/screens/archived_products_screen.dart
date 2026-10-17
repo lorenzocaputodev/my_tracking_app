@@ -47,7 +47,7 @@ class ArchivedProductsScreen extends StatelessWidget {
             onPressed: () => Navigator.pop(ctx, true),
             style: FilledButton.styleFrom(
               backgroundColor: context.stats.danger,
-              foregroundColor: Colors.white,
+              foregroundColor: context.stats.onDanger,
             ),
             child: Text(context.l10n.delete),
           ),

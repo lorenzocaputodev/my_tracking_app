@@ -15,6 +15,7 @@ class AppStatColors extends ThemeExtension<AppStatColors> {
   final Color negative;
   final Color warning;
   final Color danger;
+  final Color onDanger;
 
   const AppStatColors({
     required this.count,
@@ -30,6 +31,7 @@ class AppStatColors extends ThemeExtension<AppStatColors> {
     required this.negative,
     required this.warning,
     required this.danger,
+    required this.onDanger,
   });
 
   static const AppStatColors dark = AppStatColors(
@@ -46,6 +48,7 @@ class AppStatColors extends ThemeExtension<AppStatColors> {
     negative: Color(0xFFD99A4E),
     warning: Color(0xFFE0A64A),
     danger: Color(0xFFE5736B),
+    onDanger: Color(0xFFFFFFFF),
   );
 
   static const AppStatColors light = AppStatColors(
@@ -62,6 +65,7 @@ class AppStatColors extends ThemeExtension<AppStatColors> {
     negative: Color(0xFFB06A0E),
     warning: Color(0xFFC4761A),
     danger: Color(0xFFC0392B),
+    onDanger: Color(0xFFFFFFFF),
   );
 
   @override
@@ -79,6 +83,7 @@ class AppStatColors extends ThemeExtension<AppStatColors> {
     Color? negative,
     Color? warning,
     Color? danger,
+    Color? onDanger,
   }) {
     return AppStatColors(
       count: count ?? this.count,
@@ -94,6 +99,7 @@ class AppStatColors extends ThemeExtension<AppStatColors> {
       negative: negative ?? this.negative,
       warning: warning ?? this.warning,
       danger: danger ?? this.danger,
+      onDanger: onDanger ?? this.onDanger,
     );
   }
 

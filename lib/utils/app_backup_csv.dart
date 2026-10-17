@@ -11,6 +11,7 @@ class AppBackupData {
   final String activeProductId;
   final String themePreferenceName;
   final String? languagePreferenceName;
+  final String? currencyName;
   final bool onboardingDone;
   final bool hasCompletedSetup;
   final AppReminderSettings globalReminderSettings;
@@ -25,6 +26,7 @@ class AppBackupData {
     required this.activeProductId,
     required this.themePreferenceName,
     this.languagePreferenceName,
+    this.currencyName,
     required this.onboardingDone,
     required this.hasCompletedSetup,
     required this.globalReminderSettings,
@@ -60,6 +62,7 @@ class AppBackupCsv {
       <String>['themePreference', data.themePreferenceName],
       if (data.languagePreferenceName != null)
         <String>['languagePreference', data.languagePreferenceName!],
+      if (data.currencyName != null) <String>['currency', data.currencyName!],
       <String>['onboardingDone', '${data.onboardingDone}'],
       <String>['hasCompletedSetup', '${data.hasCompletedSetup}'],
     ];
@@ -226,6 +229,9 @@ class AppBackupCsv {
       sections[productsSection],
     );
     final products = _decodeProducts(sections[productsSection]);
+    if (products.isNotEmpty && products.every((p) => p.isArchived)) {
+      throw FormatException(L10n.current.backupErrorNoActiveProduct);
+    }
     final entries = _decodeEntries(sections[entriesSection]);
     final achievements = _decodeAchievements(sections[achievementsSection]);
     final reductionPlans =
@@ -256,6 +262,7 @@ class AppBackupCsv {
       activeProductId: meta['activeProductId'] ?? '',
       themePreferenceName: meta['themePreference'] ?? 'dark',
       languagePreferenceName: meta['languagePreference'],
+      currencyName: meta['currency'],
       onboardingDone: _parseBool(meta['onboardingDone']),
       hasCompletedSetup: _parseBool(meta['hasCompletedSetup']),
       globalReminderSettings: globalReminderSettings,
@@ -535,7 +542,8 @@ class AppBackupCsv {
     }
     for (var i = 0; i < expected.length; i++) {
       if (actual[i] != expected[i]) {
-        throw FormatException(L10n.current.backupErrorInvalidHeader(sectionName));
+        throw FormatException(
+            L10n.current.backupErrorInvalidHeader(sectionName));
       }
     }
   }
@@ -576,37 +584,18 @@ class AppBackupCsv {
       return AppReminderSettings.defaults;
     }
 
-    final enabledIntervals = <int>[];
+    final enabledMinutes = <num?>[];
     for (final row in legacyRows.skip(1)) {
       if (row.isEmpty) continue;
       final enabled =
           enabledIndex < row.length && _parseBool(row[enabledIndex]);
       if (!enabled) continue;
-      final minutes =
-          minutesIndex < row.length ? int.tryParse(row[minutesIndex]) : null;
-      enabledIntervals.add(
-        AppReminderSettings.fromJson(
-          <String, dynamic>{
-            'enabled': true,
-            'intervalMinutes': minutes,
-          },
-        ).intervalMinutes,
+      enabledMinutes.add(
+        minutesIndex < row.length ? int.tryParse(row[minutesIndex]) : null,
       );
     }
-
-    if (enabledIntervals.isEmpty) {
-      return AppReminderSettings.defaults;
-    }
-    final distinctIntervals = enabledIntervals.toSet();
-    if (distinctIntervals.length != 1) {
-      return AppReminderSettings.defaults;
-    }
-    return AppReminderSettings(
-      enabled: true,
-      intervalMinutes: distinctIntervals.first,
-    );
+    return AppReminderSettings.fromLegacyIntervals(enabledMinutes);
   }
-
 }
 
 extension on Achievement {

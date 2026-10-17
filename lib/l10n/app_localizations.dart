@@ -176,6 +176,12 @@ abstract class AppLocalizations {
   /// **'Sezione prodotti mancante nel backup.'**
   String get backupErrorMissingProducts;
 
+  /// No description provided for @backupErrorNoActiveProduct.
+  ///
+  /// In it, this message translates to:
+  /// **'Il backup non contiene prodotti attivi.'**
+  String get backupErrorNoActiveProduct;
+
   /// No description provided for @backupErrorIncompleteProduct.
   ///
   /// In it, this message translates to:
@@ -560,11 +566,23 @@ abstract class AppLocalizations {
   /// **'Archiviati ({count})  ›'**
   String archivedCount(int count);
 
-  /// No description provided for @settingsSectionApp.
+  /// No description provided for @settingsSectionAppearance.
   ///
   /// In it, this message translates to:
-  /// **'APP'**
-  String get settingsSectionApp;
+  /// **'ASPETTO'**
+  String get settingsSectionAppearance;
+
+  /// No description provided for @settingsSectionLanguageCurrency.
+  ///
+  /// In it, this message translates to:
+  /// **'LINGUA E VALUTA'**
+  String get settingsSectionLanguageCurrency;
+
+  /// No description provided for @settingsSectionReminders.
+  ///
+  /// In it, this message translates to:
+  /// **'PROMEMORIA'**
+  String get settingsSectionReminders;
 
   /// No description provided for @theme.
   ///
@@ -602,6 +620,12 @@ abstract class AppLocalizations {
   /// **'Tema del widget'**
   String get widgetTheme;
 
+  /// No description provided for @currency.
+  ///
+  /// In it, this message translates to:
+  /// **'Valuta'**
+  String get currency;
+
   /// No description provided for @settingsSectionData.
   ///
   /// In it, this message translates to:
@@ -614,11 +638,17 @@ abstract class AppLocalizations {
   /// **'Esporta backup'**
   String get exportBackup;
 
-  /// No description provided for @exportBackupSubtitle.
+  /// No description provided for @lastBackupOn.
   ///
   /// In it, this message translates to:
-  /// **'Salva un file CSV con tutti i dati'**
-  String get exportBackupSubtitle;
+  /// **'Ultimo backup: {date}'**
+  String lastBackupOn(String date);
+
+  /// No description provided for @noBackupYet.
+  ///
+  /// In it, this message translates to:
+  /// **'Nessun backup ancora: salva un file CSV con tutti i dati'**
+  String get noBackupYet;
 
   /// No description provided for @importBackup.
   ///

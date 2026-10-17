@@ -42,8 +42,10 @@ void main() {
 
   group('lingua di sistema', () {
     test('italiano resta italiano, le altre lingue passano all\'inglese', () {
-      expect(resolveSystemLocale(const [Locale('it', 'IT')]), const Locale('it'));
-      expect(resolveSystemLocale(const [Locale('en', 'GB')]), const Locale('en'));
+      expect(
+          resolveSystemLocale(const [Locale('it', 'IT')]), const Locale('it'));
+      expect(
+          resolveSystemLocale(const [Locale('en', 'GB')]), const Locale('en'));
       expect(resolveSystemLocale(const [Locale('fr')]), const Locale('en'));
       expect(
         resolveSystemLocale(const [Locale('fr'), Locale('it')]),
@@ -105,7 +107,8 @@ void main() {
     final provider = MyTrackingProvider();
     await provider.init();
     expect(provider.projectedMonthlyUnits(productId: 'p1'), 62);
-    expect(provider.projectedMonthlyCost(productId: 'p1'), closeTo(18.6, 0.001));
+    expect(
+        provider.projectedMonthlyCost(productId: 'p1'), closeTo(18.6, 0.001));
     provider.dispose();
   });
 
@@ -199,10 +202,27 @@ void main() {
     test('importi nel formato della lingua', () {
       addTearDown(() => L10n.current = it);
       L10n.current = it;
-      expect(formatEuro(1.5), '1,50 €');
+      expect(formatMoney(1.5), '1,50 €');
       L10n.current = en;
-      expect(formatEuro(1.5), '€1.50');
+      expect(formatMoney(1.5), '€1.50');
       expect(formatDecimal(2.5, decimals: 1), '2.5');
+    });
+
+    test('importi nella valuta scelta', () {
+      addTearDown(() {
+        L10n.current = it;
+        L10n.currency = AppCurrency.eur;
+      });
+      L10n.currency = AppCurrency.usd;
+      L10n.current = it;
+      expect(formatMoney(1.5), r'1,50 $');
+      L10n.current = en;
+      expect(formatMoney(1.5), r'$1.50');
+      L10n.currency = AppCurrency.gbp;
+      expect(formatMoney(12, decimals: 0), '£12');
+      expect(parseCurrency('gbp'), AppCurrency.gbp);
+      expect(parseCurrency(null), AppCurrency.eur);
+      expect(parseCurrency('jpy'), AppCurrency.eur);
     });
   });
 
@@ -211,6 +231,7 @@ void main() {
   testWidgets('le impostazioni in inglese mostrano la scelta della lingua', (
     tester,
   ) async {
+    addTearDown(() => L10n.currency = AppCurrency.eur);
     SharedPreferences.setMockInitialValues(_prefs());
     final provider = MyTrackingProvider();
     await tester.runAsync(() => provider.init());
@@ -238,7 +259,9 @@ void main() {
     expect(find.text('Language'), findsOneWidget);
     expect(find.text('Italiano'), findsOneWidget);
     expect(find.text('English'), findsOneWidget);
-    expect(find.text('Check for updates'), findsOneWidget);
+    expect(find.text('APPEARANCE'), findsOneWidget);
+    expect(find.text('LANGUAGE AND CURRENCY'), findsOneWidget);
+    expect(find.text('Currency'), findsOneWidget);
 
     await tester.tap(find.text('Italiano'));
     await tester.runAsync(
@@ -246,6 +269,18 @@ void main() {
     );
     await tester.pump();
     expect(provider.languagePreference, AppLanguagePreference.italian);
+
+    await tester.tap(find.text(r'$'));
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 50)),
+    );
+    await tester.pump();
+    expect(provider.currency, AppCurrency.usd);
+    expect(L10n.currency, AppCurrency.usd);
+
+    await tester.scrollUntilVisible(find.text('Check for updates'), 300);
+    expect(find.text('No backup yet: save a CSV file with all your data'),
+        findsOneWidget);
 
     await tester.pumpWidget(const SizedBox.shrink());
     provider.dispose();

@@ -34,6 +34,7 @@
   "backupErrorMissingMeta": "Sezione meta mancante nel backup.",
   "backupErrorInvalidMetaHeader": "Header meta non valido.",
   "backupErrorMissingProducts": "Sezione prodotti mancante nel backup.",
+  "backupErrorNoActiveProduct": "Il backup non contiene prodotti attivi.",
   "backupErrorIncompleteProduct": "Riga prodotti incompleta.",
   "backupErrorMissingHistory": "Sezione cronologia mancante nel backup.",
   "backupErrorIncompleteEntry": "Riga cronologia incompleta.",
@@ -156,16 +157,27 @@
       }
     }
   },
-  "settingsSectionApp": "APP",
+  "settingsSectionAppearance": "ASPETTO",
+  "settingsSectionLanguageCurrency": "LINGUA E VALUTA",
+  "settingsSectionReminders": "PROMEMORIA",
   "theme": "Tema",
   "themeDark": "Scuro",
   "themeLight": "Chiaro",
   "system": "Sistema",
   "language": "Lingua",
   "widgetTheme": "Tema del widget",
+  "currency": "Valuta",
   "settingsSectionData": "DATI",
   "exportBackup": "Esporta backup",
-  "exportBackupSubtitle": "Salva un file CSV con tutti i dati",
+  "lastBackupOn": "Ultimo backup: {date}",
+  "@lastBackupOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "noBackupYet": "Nessun backup ancora: salva un file CSV con tutti i dati",
   "importBackup": "Importa backup",
   "importBackupSubtitle": "Sostituisce i dati attuali",
   "settingsSectionAbout": "INFORMAZIONI",

@@ -44,10 +44,32 @@ Locale resolveAppLocale(AppLanguagePreference preference) =>
     localeForPreference(preference) ??
     resolveSystemLocale(PlatformDispatcher.instance.locales);
 
+// --- Valuta ---
+
+enum AppCurrency {
+  eur('€'),
+  usd(r'$'),
+  gbp('£');
+
+  const AppCurrency(this.symbol);
+
+  final String symbol;
+}
+
+const appCurrencyKey = 'app_currency';
+
+AppCurrency parseCurrency(String? name) {
+  for (final v in AppCurrency.values) {
+    if (v.name == name) return v;
+  }
+  return AppCurrency.eur;
+}
+
 // --- Accesso ai testi ---
 
 class L10n {
   static AppLocalizations current = lookupAppLocalizations(const Locale('it'));
+  static AppCurrency currency = AppCurrency.eur;
 
   static bool get isItalian => current.localeName == 'it';
 }

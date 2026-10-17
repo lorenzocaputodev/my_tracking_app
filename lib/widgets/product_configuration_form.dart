@@ -96,7 +96,7 @@ class ProductConfigurationForm extends StatelessWidget {
             ],
             decoration: _inputDecoration(
               hint: context.l10n.packCostHint,
-              icon: Icons.euro_rounded,
+              icon: Icons.payments_rounded,
               isDark: isDark,
               accentColor: accentColor,
             ),
@@ -157,7 +157,7 @@ class ProductConfigurationForm extends StatelessWidget {
             ],
             decoration: _inputDecoration(
               hint: context.l10n.costPerUseHint,
-              icon: Icons.euro_rounded,
+              icon: Icons.payments_rounded,
               isDark: isDark,
               accentColor: accentColor,
             ),

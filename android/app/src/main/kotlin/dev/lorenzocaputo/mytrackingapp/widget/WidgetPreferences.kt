@@ -36,6 +36,13 @@ internal object WidgetPreferences {
     fun readWidgetTheme(context: Context): String? =
         getString(context, "widget_theme")
 
+    fun readCurrencySymbol(context: Context): String =
+        when (getString(context, "app_currency")) {
+            "usd" -> "$"
+            "gbp" -> "£"
+            else -> "€"
+        }
+
     fun localizedContext(context: Context): Context {
         val tag = when (getString(context, "app_language")) {
             "italian" -> "it"

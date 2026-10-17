@@ -14,11 +14,9 @@ import dev.lorenzocaputo.mytrackingapp.MainActivity
 import dev.lorenzocaputo.mytrackingapp.R
 import org.json.JSONArray
 import org.json.JSONObject
-import java.text.NumberFormat
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.ZoneId
-import java.util.Currency
 import java.util.Locale
 import java.util.UUID
 
@@ -49,13 +47,6 @@ class TrackingWidgetProvider : AppWidgetProvider() {
         newOptions: Bundle
     ) {
         updateWidget(context, appWidgetManager, appWidgetId)
-    }
-
-    override fun onReceive(context: Context, intent: Intent) {
-        super.onReceive(context, intent)
-        when (intent.action) {
-            ACTION_INCREMENT, ACTION_MIDNIGHT_REFRESH -> updateAllWidgets(context)
-        }
     }
 
     internal fun handleIncrement(context: Context, productId: String) {
@@ -383,10 +374,12 @@ class TrackingWidgetProvider : AppWidgetProvider() {
 
     private fun formatCurrency(texts: Context, value: Double): String {
         val language = texts.resources.configuration.locales[0].language
-        val locale = if (language == "it") Locale.ITALY else Locale.US
-        return NumberFormat.getCurrencyInstance(locale).apply {
-            currency = Currency.getInstance("EUR")
-        }.format(value)
+        val symbol = WidgetPreferences.readCurrencySymbol(texts)
+        return if (language == "it") {
+            "${String.format(Locale.ITALY, "%.2f", value)} $symbol"
+        } else {
+            "$symbol${String.format(Locale.US, "%.2f", value)}"
+        }
     }
 
     private fun incrementIntent(context: Context, productId: String): PendingIntent {

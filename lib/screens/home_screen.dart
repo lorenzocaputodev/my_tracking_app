@@ -96,9 +96,9 @@ class HomeScreen extends StatelessWidget {
     final statsCards = <Widget>[
       if (hasUnitCost || provider.dailyCost > 0)
         StatsCard(
-          icon: Icons.euro_rounded,
+          icon: Icons.payments_rounded,
           label: context.l10n.today,
-          value: formatEuro(provider.dailyCost),
+          value: formatMoney(provider.dailyCost),
           accent: turquoise,
         ),
       if (showMinutes)
@@ -112,7 +112,7 @@ class HomeScreen extends StatelessWidget {
         StatsCard(
           icon: Icons.account_balance_wallet_rounded,
           label: context.l10n.totalSpent,
-          value: formatEuro(provider.totalCost),
+          value: formatMoney(provider.totalCost),
           accent: turquoise.withValues(alpha: 0.7),
         ),
     ];
@@ -677,7 +677,7 @@ class _SubLabel extends StatelessWidget {
         ? context.l10n.unitCost
         : context.l10n.costPerUse;
     return Text(
-      context.l10n.labelValue(label, formatEuro(provider.config.unitCost)),
+      context.l10n.labelValue(label, formatMoney(provider.config.unitCost)),
       style: TextStyle(fontFamily: AppFonts.sans,
         fontSize: 12,
         color: Colors.grey.withValues(alpha: 0.6),

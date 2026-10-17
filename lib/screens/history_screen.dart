@@ -599,8 +599,8 @@ class _StatsPanelState extends State<_StatsPanel> {
                     Expanded(
                       child: _StatItem(
                         label: context.l10n.periodCost,
-                        value: formatEuro(totalCost),
-                        icon: Icons.euro_rounded,
+                        value: formatMoney(totalCost),
+                        icon: Icons.payments_rounded,
                         color: stats.cost,
                       ),
                     ),
@@ -639,8 +639,8 @@ class _StatsPanelState extends State<_StatsPanel> {
                       child: _StatItem(
                         label: context.l10n.monthlyEstimate,
                         value: monthlyProjectionCost > 0
-                            ? formatEuro(monthlyProjectionCost, decimals: 0)
-                            : formatEuro(0, decimals: 0),
+                            ? formatMoney(monthlyProjectionCost, decimals: 0)
+                            : formatMoney(0, decimals: 0),
                         icon: Icons.account_balance_wallet_rounded,
                         color: stats.cost,
                       ),
@@ -651,8 +651,8 @@ class _StatsPanelState extends State<_StatsPanel> {
                 _StatItem(
                   label: context.l10n.estimatedAnnualCost,
                   value: annualCostEstimate > 0
-                      ? formatEuro(annualCostEstimate, decimals: 0)
-                      : formatEuro(0, decimals: 0),
+                      ? formatMoney(annualCostEstimate, decimals: 0)
+                      : formatMoney(0, decimals: 0),
                   icon: Icons.savings_rounded,
                   color: stats.cost,
                   fullWidth: true,
