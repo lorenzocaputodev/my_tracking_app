@@ -209,7 +209,7 @@ p1,12,7,8,2026-04-01T00:00:00.000Z
     expect(decoded.currencyName, isNull);
   });
 
-  test('rejects a backup whose products are all archived', () {
+  test('a backup with only archived products brings back the active one', () {
     String csv(bool archived) => '''
 __MY_TRACKING_APP_BACKUP__,6
 __SECTION__,meta
@@ -223,8 +223,8 @@ __SECTION__,entries
 id,timestamp,costDeducted,minutesLost,productId
 ''';
 
-    expect(AppBackupCsv.decode(csv(false)).products, hasLength(1));
-    expect(() => AppBackupCsv.decode(csv(true)), throwsFormatException);
+    expect(AppBackupCsv.decode(csv(false)).products.single.isArchived, isFalse);
+    expect(AppBackupCsv.decode(csv(true)).products.single.isArchived, isFalse);
   });
 
   test('migrates legacy periodic reminders to global reminder when unambiguous',

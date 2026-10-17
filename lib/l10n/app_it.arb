@@ -34,7 +34,6 @@
   "backupErrorMissingMeta": "Sezione meta mancante nel backup.",
   "backupErrorInvalidMetaHeader": "Header meta non valido.",
   "backupErrorMissingProducts": "Sezione prodotti mancante nel backup.",
-  "backupErrorNoActiveProduct": "Il backup non contiene prodotti attivi.",
   "backupErrorIncompleteProduct": "Riga prodotti incompleta.",
   "backupErrorMissingHistory": "Sezione cronologia mancante nel backup.",
   "backupErrorIncompleteEntry": "Riga cronologia incompleta.",

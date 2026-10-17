@@ -79,9 +79,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
       return;
     }
 
+    final provider = context.read<MyTrackingProvider>();
     try {
-      final csv =
-          await context.read<MyTrackingProvider>().exportFullBackupCsv();
+      final csv = await provider.exportFullBackupCsv();
       final result = await BackupFileService.saveCsvFile(
         fileName: _backupFileName(),
         content: csv,
@@ -94,15 +94,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
         );
         return;
       }
-      await context.read<MyTrackingProvider>().markBackupExported();
-      if (!mounted) return;
-      _showFeedback(context.l10n.backupSaved);
     } catch (_) {
+      if (!mounted) return;
       _showFeedback(
         context.l10n.backupExportFailed,
         backgroundColor: context.stats.danger,
       );
+      return;
     }
+    _showFeedback(context.l10n.backupSaved);
+    try {
+      await provider.markBackupExported();
+    } catch (_) {}
   }
 
   // --- Aggiornamenti ---

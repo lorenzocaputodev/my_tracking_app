@@ -56,10 +56,6 @@ class AppLocalizationsIt extends AppLocalizations {
       'Sezione prodotti mancante nel backup.';
 
   @override
-  String get backupErrorNoActiveProduct =>
-      'Il backup non contiene prodotti attivi.';
-
-  @override
   String get backupErrorIncompleteProduct => 'Riga prodotti incompleta.';
 
   @override

@@ -56,9 +56,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'The backup has no products section.';
 
   @override
-  String get backupErrorNoActiveProduct => 'The backup has no active products.';
-
-  @override
   String get backupErrorIncompleteProduct => 'Incomplete product row.';
 
   @override

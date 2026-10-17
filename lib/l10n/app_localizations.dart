@@ -176,12 +176,6 @@ abstract class AppLocalizations {
   /// **'Sezione prodotti mancante nel backup.'**
   String get backupErrorMissingProducts;
 
-  /// No description provided for @backupErrorNoActiveProduct.
-  ///
-  /// In it, this message translates to:
-  /// **'Il backup non contiene prodotti attivi.'**
-  String get backupErrorNoActiveProduct;
-
   /// No description provided for @backupErrorIncompleteProduct.
   ///
   /// In it, this message translates to:

@@ -684,8 +684,11 @@ class MyTrackingProvider extends ChangeNotifier {
         }
         final badgesChanged = _evaluateAchievements();
         notifyListeners();
-        await _persist();
-        if (badgesChanged) await _persistAchievements();
+        try {
+          await _persist();
+        } finally {
+          if (badgesChanged) await _persistAchievements();
+        }
         return entry;
       });
 
@@ -723,8 +726,11 @@ class MyTrackingProvider extends ChangeNotifier {
         _entries.removeAt(idx);
         final badgesChanged = _evaluateAchievements();
         notifyListeners();
-        await _persist();
-        if (badgesChanged) await _persistAchievements();
+        try {
+          await _persist();
+        } finally {
+          if (badgesChanged) await _persistAchievements();
+        }
         return (entry: entry, stockReturned: stockReturned);
       });
 
@@ -761,8 +767,11 @@ class MyTrackingProvider extends ChangeNotifier {
         }
         final badgesChanged = _evaluateAchievements();
         notifyListeners();
-        await _persist();
-        if (badgesChanged) await _persistAchievements();
+        try {
+          await _persist();
+        } finally {
+          if (badgesChanged) await _persistAchievements();
+        }
       });
 
   Future<void> clearHistory() => _serialized(() async {

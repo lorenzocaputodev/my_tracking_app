@@ -228,9 +228,14 @@ class AppBackupCsv {
       sections[globalReminderSection],
       sections[productsSection],
     );
-    final products = _decodeProducts(sections[productsSection]);
+    var products = _decodeProducts(sections[productsSection]);
     if (products.isNotEmpty && products.every((p) => p.isArchived)) {
-      throw FormatException(L10n.current.backupErrorNoActiveProduct);
+      final activeIndex = products.indexWhere(
+        (p) => p.id == meta['activeProductId'],
+      );
+      final index = activeIndex < 0 ? 0 : activeIndex;
+      products = List<TrackedProduct>.of(products)
+        ..[index] = products[index].copyWith(isArchived: false);
     }
     final entries = _decodeEntries(sections[entriesSection]);
     final achievements = _decodeAchievements(sections[achievementsSection]);
