@@ -51,6 +51,7 @@ Vuoi solo installarla? Scarica l’APK dall’**[ultima versione pubblicata](htt
 - 🔔 Promemoria periodici ogni 30 minuti, 1, 2, 4, 8 o 12 ore, proposti già alla prima configurazione
 - 🎨 Tema **scuro / chiaro / sistema**
 - 🌍 Lingua **italiano / inglese / sistema**: al primo avvio segue il telefono (italiano se è in italiano, altrimenti inglese)
+- 💶 Valuta **€ / $ / £** a scelta nelle impostazioni, anche nel widget
 - 🆕 «Controlla aggiornamenti» mostra la versione installata e apre la pagina delle nuove versioni su GitHub
 
 ### 🔐 Privacy e dati
@@ -143,6 +144,7 @@ Just want to install it? Download the APK from the **[latest release](https://gi
 - 🔔 Periodic reminders every 30 minutes or 1, 2, 4, 8 or 12 hours, offered right at first setup
 - 🎨 **Dark / light / system** theme
 - 🌍 **Italian / English / system** language: on first launch it follows your phone (Italian if the phone is in Italian, English otherwise)
+- 💶 Pick your currency (**€ / $ / £**) in Settings; the widget uses it too
 - 🆕 “Check for updates” shows the installed version and opens the releases page on GitHub
 
 ### 🔐 Privacy and data
