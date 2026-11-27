@@ -15,7 +15,7 @@
       }
     }
   },
-  "backupErrorMissingHeader": "Header mancante per la sezione \"{section}\".",
+  "backupErrorMissingHeader": "Intestazione mancante per la sezione \"{section}\".",
   "@backupErrorMissingHeader": {
     "placeholders": {
       "section": {
@@ -32,12 +32,12 @@
     }
   },
   "backupErrorMissingMeta": "Sezione meta mancante nel backup.",
-  "backupErrorInvalidMetaHeader": "Header meta non valido.",
+  "backupErrorInvalidMetaHeader": "Intestazione meta non valida.",
   "backupErrorMissingProducts": "Sezione prodotti mancante nel backup.",
   "backupErrorIncompleteProduct": "Riga prodotti incompleta.",
   "backupErrorMissingHistory": "Sezione cronologia mancante nel backup.",
   "backupErrorIncompleteEntry": "Riga cronologia incompleta.",
-  "backupErrorIncompleteAchievement": "Riga achievement incompleta.",
+  "backupErrorIncompleteAchievement": "Riga badge incompleta.",
   "backupErrorIncompletePlan": "Riga piano di riduzione incompleta.",
   "backupErrorInvalidValue": "Valore non valido nel backup: \"{value}\".",
   "@backupErrorInvalidValue": {
@@ -47,7 +47,7 @@
       }
     }
   },
-  "backupErrorInvalidHeader": "Header {section} non valido.",
+  "backupErrorInvalidHeader": "Intestazione della sezione {section} non valida.",
   "@backupErrorInvalidHeader": {
     "placeholders": {
       "section": {
@@ -57,7 +57,7 @@
   },
   "backupSectionProducts": "prodotti",
   "backupSectionHistory": "cronologia",
-  "backupSectionAchievements": "achievement",
+  "backupSectionAchievements": "badge",
   "backupSectionPlan": "piano di riduzione",
   "backupSectionReminder": "promemoria globale",
   "backupErrorEntriesNotSaved": "Salvate {stored} registrazioni su {total}. I dati non sono stati ripristinati: riprova.",
@@ -84,7 +84,7 @@
   },
   "errorProductNotFound": "Prodotto non trovato.",
   "errorStockCorrectionUnavailable": "La correzione della scorta non è disponibile.",
-  "achFirstEntryTitle": "Prima tracciata",
+  "achFirstEntryTitle": "Prima registrazione",
   "achFirstEntryDesc": "Hai registrato la prima unità.",
   "achTracked7Title": "7 giorni di dati",
   "achTracked7Desc": "Attività registrata per 7 giorni distinti.",
@@ -113,7 +113,7 @@
   "achReduction50Title": "-50% media",
   "achReduction50Desc": "Hai dimezzato la tua media. Eccezionale!",
   "reminderChannelName": "Promemoria registrazione",
-  "reminderChannelDescription": "Promemoria generali per ricordare di registrare i prodotti tracciati.",
+  "reminderChannelDescription": "Avvisi per ricordarti di registrare i prodotti tracciati.",
   "reminderNotificationTitle": "Promemoria",
   "reminderNotificationBody": "Ricordati di registrare i prodotti tracciati.",
   "productAddedInUse": "{name} aggiunto e in uso",
@@ -433,7 +433,7 @@
       }
     }
   },
-  "insightPlanAhead": "Piano: avanti",
+  "insightPlanAhead": "Piano: in anticipo",
   "insightPlanOnTrack": "Piano: in linea",
   "insightPlanBehind": "Piano: in ritardo",
   "insightLimitRemaining": "{count, plural, =1{Manca 1 unità al limite} other{Mancano {count} unità al limite}}",
@@ -624,7 +624,7 @@
   "estimatedAnnualCost": "Costo annuo stimato",
   "habitsAndTimes": "Abitudini e orari",
   "habitsAndTimesSubtitle": "Ritmo, giorni e fascia oraria più attiva",
-  "peakHour": "Ora picco",
+  "peakHour": "Ora di punta",
   "underLimitStreak": "{count, plural, =1{1 giorno consecutivo sotto il limite ({limit})} other{{count} giorni consecutivi sotto il limite ({limit})}}",
   "@underLimitStreak": {
     "placeholders": {
@@ -673,7 +673,7 @@
   "weeks": "Settimane",
   "months": "Mesi",
   "entryRemoved": "Registrazione rimossa",
-  "achievementsTitle": "Obiettivi & Badge",
+  "achievementsTitle": "Obiettivi e badge",
   "unlockedSection": "SBLOCCATI",
   "noBadgesYet": "Registra le prime attività per sbloccare i badge!",
   "lockedSection": "DA SBLOCCARE",
@@ -690,7 +690,7 @@
     }
   },
   "setReductionPlan": "Imposta piano di riduzione",
-  "planStatusAhead": "AVANTI",
+  "planStatusAhead": "IN ANTICIPO",
   "planStatusOnTrack": "IN LINEA",
   "planStatusBehind": "IN RITARDO",
   "planStatusActive": "ATTIVO",

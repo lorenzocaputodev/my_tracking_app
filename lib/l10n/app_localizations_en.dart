@@ -855,7 +855,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get withStockHelp =>
-      'The product uses a remaining stock and can be restocked when it runs out.';
+      'The product has a stock that you can refill when it runs out.';
 
   @override
   String get noStockHelp =>
@@ -1108,7 +1108,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get entryRemoved => 'Entry removed';
 
   @override
-  String get achievementsTitle => 'Achievements & Badges';
+  String get achievementsTitle => 'Achievements and badges';
 
   @override
   String get unlockedSection => 'UNLOCKED';

@@ -149,7 +149,7 @@ abstract class AppLocalizations {
   /// No description provided for @backupErrorMissingHeader.
   ///
   /// In it, this message translates to:
-  /// **'Header mancante per la sezione \"{section}\".'**
+  /// **'Intestazione mancante per la sezione \"{section}\".'**
   String backupErrorMissingHeader(String section);
 
   /// No description provided for @backupErrorMissingProduct.
@@ -167,7 +167,7 @@ abstract class AppLocalizations {
   /// No description provided for @backupErrorInvalidMetaHeader.
   ///
   /// In it, this message translates to:
-  /// **'Header meta non valido.'**
+  /// **'Intestazione meta non valida.'**
   String get backupErrorInvalidMetaHeader;
 
   /// No description provided for @backupErrorMissingProducts.
@@ -197,7 +197,7 @@ abstract class AppLocalizations {
   /// No description provided for @backupErrorIncompleteAchievement.
   ///
   /// In it, this message translates to:
-  /// **'Riga achievement incompleta.'**
+  /// **'Riga badge incompleta.'**
   String get backupErrorIncompleteAchievement;
 
   /// No description provided for @backupErrorIncompletePlan.
@@ -215,7 +215,7 @@ abstract class AppLocalizations {
   /// No description provided for @backupErrorInvalidHeader.
   ///
   /// In it, this message translates to:
-  /// **'Header {section} non valido.'**
+  /// **'Intestazione della sezione {section} non valida.'**
   String backupErrorInvalidHeader(String section);
 
   /// No description provided for @backupSectionProducts.
@@ -233,7 +233,7 @@ abstract class AppLocalizations {
   /// No description provided for @backupSectionAchievements.
   ///
   /// In it, this message translates to:
-  /// **'achievement'**
+  /// **'badge'**
   String get backupSectionAchievements;
 
   /// No description provided for @backupSectionPlan.
@@ -275,7 +275,7 @@ abstract class AppLocalizations {
   /// No description provided for @achFirstEntryTitle.
   ///
   /// In it, this message translates to:
-  /// **'Prima tracciata'**
+  /// **'Prima registrazione'**
   String get achFirstEntryTitle;
 
   /// No description provided for @achFirstEntryDesc.
@@ -449,7 +449,7 @@ abstract class AppLocalizations {
   /// No description provided for @reminderChannelDescription.
   ///
   /// In it, this message translates to:
-  /// **'Promemoria generali per ricordare di registrare i prodotti tracciati.'**
+  /// **'Avvisi per ricordarti di registrare i prodotti tracciati.'**
   String get reminderChannelDescription;
 
   /// No description provided for @reminderNotificationTitle.
@@ -1169,7 +1169,7 @@ abstract class AppLocalizations {
   /// No description provided for @insightPlanAhead.
   ///
   /// In it, this message translates to:
-  /// **'Piano: avanti'**
+  /// **'Piano: in anticipo'**
   String get insightPlanAhead;
 
   /// No description provided for @insightPlanOnTrack.
@@ -1817,7 +1817,7 @@ abstract class AppLocalizations {
   /// No description provided for @peakHour.
   ///
   /// In it, this message translates to:
-  /// **'Ora picco'**
+  /// **'Ora di punta'**
   String get peakHour;
 
   /// No description provided for @underLimitStreak.
@@ -1925,7 +1925,7 @@ abstract class AppLocalizations {
   /// No description provided for @achievementsTitle.
   ///
   /// In it, this message translates to:
-  /// **'Obiettivi & Badge'**
+  /// **'Obiettivi e badge'**
   String get achievementsTitle;
 
   /// No description provided for @unlockedSection.
@@ -1967,7 +1967,7 @@ abstract class AppLocalizations {
   /// No description provided for @planStatusAhead.
   ///
   /// In it, this message translates to:
-  /// **'AVANTI'**
+  /// **'IN ANTICIPO'**
   String get planStatusAhead;
 
   /// No description provided for @planStatusOnTrack.

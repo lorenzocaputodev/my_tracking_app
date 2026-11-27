@@ -37,7 +37,7 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String backupErrorMissingHeader(String section) {
-    return 'Header mancante per la sezione \"$section\".';
+    return 'Intestazione mancante per la sezione \"$section\".';
   }
 
   @override
@@ -49,7 +49,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get backupErrorMissingMeta => 'Sezione meta mancante nel backup.';
 
   @override
-  String get backupErrorInvalidMetaHeader => 'Header meta non valido.';
+  String get backupErrorInvalidMetaHeader => 'Intestazione meta non valida.';
 
   @override
   String get backupErrorMissingProducts =>
@@ -66,7 +66,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get backupErrorIncompleteEntry => 'Riga cronologia incompleta.';
 
   @override
-  String get backupErrorIncompleteAchievement => 'Riga achievement incompleta.';
+  String get backupErrorIncompleteAchievement => 'Riga badge incompleta.';
 
   @override
   String get backupErrorIncompletePlan => 'Riga piano di riduzione incompleta.';
@@ -78,7 +78,7 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String backupErrorInvalidHeader(String section) {
-    return 'Header $section non valido.';
+    return 'Intestazione della sezione $section non valida.';
   }
 
   @override
@@ -88,7 +88,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get backupSectionHistory => 'cronologia';
 
   @override
-  String get backupSectionAchievements => 'achievement';
+  String get backupSectionAchievements => 'badge';
 
   @override
   String get backupSectionPlan => 'piano di riduzione';
@@ -114,7 +114,7 @@ class AppLocalizationsIt extends AppLocalizations {
       'La correzione della scorta non è disponibile.';
 
   @override
-  String get achFirstEntryTitle => 'Prima tracciata';
+  String get achFirstEntryTitle => 'Prima registrazione';
 
   @override
   String get achFirstEntryDesc => 'Hai registrato la prima unità.';
@@ -204,7 +204,7 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get reminderChannelDescription =>
-      'Promemoria generali per ricordare di registrare i prodotti tracciati.';
+      'Avvisi per ricordarti di registrare i prodotti tracciati.';
 
   @override
   String get reminderNotificationTitle => 'Promemoria';
@@ -657,7 +657,7 @@ class AppLocalizationsIt extends AppLocalizations {
   }
 
   @override
-  String get insightPlanAhead => 'Piano: avanti';
+  String get insightPlanAhead => 'Piano: in anticipo';
 
   @override
   String get insightPlanOnTrack => 'Piano: in linea';
@@ -1020,7 +1020,7 @@ class AppLocalizationsIt extends AppLocalizations {
       'Ritmo, giorni e fascia oraria più attiva';
 
   @override
-  String get peakHour => 'Ora picco';
+  String get peakHour => 'Ora di punta';
 
   @override
   String underLimitStreak(int count, int limit) {
@@ -1102,7 +1102,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get entryRemoved => 'Registrazione rimossa';
 
   @override
-  String get achievementsTitle => 'Obiettivi & Badge';
+  String get achievementsTitle => 'Obiettivi e badge';
 
   @override
   String get unlockedSection => 'SBLOCCATI';
@@ -1125,7 +1125,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get setReductionPlan => 'Imposta piano di riduzione';
 
   @override
-  String get planStatusAhead => 'AVANTI';
+  String get planStatusAhead => 'IN ANTICIPO';
 
   @override
   String get planStatusOnTrack => 'IN LINEA';

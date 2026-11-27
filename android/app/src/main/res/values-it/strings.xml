@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="widget_description">Registra con un tocco e vedi quante oggi</string>
+    <string name="widget_description">Registra con un tocco e vedi il conteggio di oggi</string>
     <string name="widget_default_product">Prodotto</string>
     <string name="widget_product_name_placeholder">Nome prodotto</string>
     <string name="widget_no_product">Nessun prodotto</string>
